@@ -38,6 +38,13 @@
 			v2f vert (appdata v)
 			{
 				v2f o;
+
+				//Testing waves
+				//float phase = _Time * 20.0;
+				//float offset = (v.vertex.x + (v.vertex.z * 0.2)) * 0.5;
+				//v.vertex.y = (sin(cos(phase + offset)))*5;
+				//
+
 				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 				UNITY_TRANSFER_FOG(o,o.vertex);
