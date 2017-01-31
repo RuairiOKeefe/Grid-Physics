@@ -30,7 +30,7 @@
 	{
 		fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * _Color;
 		o.Albedo = c.rgb;
-		c.a *= 0.9; //Hard coded magic number for now, because I dont know this shader format well
+		//c.a *= 0.9; //Hard coded magic number for now, because I dont know this shader format well
 		o.Metallic = _Metallic;
 		o.Smoothness = _Glossiness;
 		o.Alpha = c.a;
