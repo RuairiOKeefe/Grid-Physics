@@ -50,18 +50,22 @@ public class LaserPointer : MonoBehaviour
         {
             hitpoint = hit.point;
             Vector2 uvCoord = hit.textureCoord;
-            Vector3 spawnLocation = new Vector3((hit.textureCoord.x * 10) - 5f, (hit.textureCoord.y * 10) - 5f, gridPlane.transform.position.z);
-            Instantiate(pointObject, spawnLocation, this.transform.rotation);
             MoveLaser(hit);
         }
-
+        if (Control.GetPress(SteamVR_Controller.ButtonMask.Trigger))
+        {
+            if (Physics.Raycast(tracked.transform.position, transform.forward, out hit, 1000))
+            {
+                Vector3 spawnLocation = new Vector3((hit.textureCoord.x * 10) - 5f, (hit.textureCoord.y * 10) - 5f, gridPlane.transform.position.z);
+                Instantiate(pointObject, spawnLocation, this.transform.rotation);
+            }
+        }
         if (Control.GetPress(SteamVR_Controller.ButtonMask.Trigger) && !troo && (prevlocation != hitpoint)) 
         { 
             if (Physics.Raycast(tracked.transform.position , transform.forward , out hit , 1000))
             { 
                 troo = true;
-                ShowLaser();
-
+                ShowLaser(); 
                 // MoveLaser(hit);
             }
 
