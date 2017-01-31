@@ -4,8 +4,11 @@ using System.IO;
 
 public class LaserPointer : MonoBehaviour
 {
-    private SteamVR_TrackedObject tracked;
     public GameObject laserPrefab;
+    public GameObject pointObject;
+    public GameObject gridPlane;
+
+    private SteamVR_TrackedObject tracked;
     private GameObject laser;
     private Transform laserTransform;
     private Vector3 hitpoint;
@@ -46,6 +49,9 @@ public class LaserPointer : MonoBehaviour
         if (Physics.Raycast(tracked.transform.position, transform.forward, out hit, 1000))
         {
             hitpoint = hit.point;
+            Vector2 uvCoord = hit.textureCoord;
+            Vector3 spawnLocation = new Vector3((hit.textureCoord.x * 10) - 5f, (hit.textureCoord.y * 10) - 5f, gridPlane.transform.position.z);
+            Instantiate(pointObject, spawnLocation, this.transform.rotation);
             MoveLaser(hit);
         }
 
@@ -55,7 +61,8 @@ public class LaserPointer : MonoBehaviour
             { 
                 troo = true;
                 ShowLaser();
-               // MoveLaser(hit);
+
+                // MoveLaser(hit);
             }
 
         }
