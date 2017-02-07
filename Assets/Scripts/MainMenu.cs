@@ -5,7 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour {
 
-    public float timer = 3.0f;
+    public float timer = 2.0f;
+    public AudioSource leverPull;
 
 	// Use this for initialization
 	void Start () {
@@ -22,11 +23,12 @@ public class MainMenu : MonoBehaviour {
             if(timer <= 0.0f)
             {
                 SceneManager.LoadScene(1);
+                timer = 2.0f;
             }
         }
         else
         {
-            timer = 3.0f;
+            timer = 2.0f;
         }
     }
 }
