@@ -6,13 +6,16 @@ public class GameGrid : MonoBehaviour
 {
 	public int width;
 	public int height;
-	Texture2D gridTexture;
+
+	public Color emptyCol;
+	public Color sandCol;
+	public Color stoneCol;
 
 	GameCell[,] cells;
 
 	Simulator simulator = new Simulator();
 
-
+	Texture2D gridTexture;
 
 	// Use this for initialization
 	void Start ()
@@ -34,10 +37,26 @@ public class GameGrid : MonoBehaviour
 			}
 		}
 		gridTexture = new Texture2D(width, height, TextureFormat.ARGB32, true);
+		gridTexture.filterMode = FilterMode.Point;
+
+
+
+		for (int i = 0; i < width; i++)
+		{
+			for (int j = 0; j < height; j++)
+			{
+				if (i == j)
+				{
+					cells[i, j].CreateParticle(cellType.sand);
+				}
+			}
+		}
 	}
 
-	void CreateParticle(float x, float y)//Create; Polymorphise. Whats the difference? **Should pass type too**
+	public void CreateParticle(float x, float y)//Create; Polymorphise. Whats the difference? **Should pass type too**
 	{
+
+		// x and y must be in range 0-1
 		//may add random effect to "spray" particles 
 		int gridX = Mathf.RoundToInt(x * width);
 		int gridY = Mathf.RoundToInt(y * width);
@@ -50,26 +69,17 @@ public class GameGrid : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate ()
 	{
-		simulator.Simulate(ref cells);
-		//print(cells[1,6].x.ToString()  + ", " + cells[1, 6].y.ToString() + " type: " + cells[1,6].type.ToString());
-
-		for (int i = 0; i < 128; i += 2)
-		{
-			for (int j = 0; j < 128; j += 2)
-			{
-				cells[i, j].CreateParticle(cellType.sand);
-			}
-		}
+		cells = simulator.Simulate(ref cells);
 
 		foreach(GameCell c in cells)
 		{
 			if (c.type == cellType.empty)
 			{
-				gridTexture.SetPixel(c.x, c.y, Color.black);
+				gridTexture.SetPixel(c.x, c.y, emptyCol);
 			}
 			if (c.type == cellType.sand)
 			{
-				gridTexture.SetPixel(c.x, c.y, Color.yellow);
+				gridTexture.SetPixel(c.x, c.y, sandCol);
 			}
 		}
 		gridTexture.Apply();

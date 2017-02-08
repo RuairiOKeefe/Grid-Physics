@@ -19,6 +19,8 @@ public class GameCell
 
 	public Vector2 velocity;
 
+	public float moveTime;
+
 	public void Set(int x, int y)
 	{
 		this.x = x;
@@ -28,6 +30,6 @@ public class GameCell
 	public void CreateParticle(cellType spawnType)
 	{
 		this.type = spawnType;
-		velocity = new Vector2(0.0f, -9.8f);
+		velocity = new Vector2(0.0f, -1.0f);
 	}
 }
