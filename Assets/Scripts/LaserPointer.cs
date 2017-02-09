@@ -6,7 +6,7 @@ public class LaserPointer : MonoBehaviour
 {
     public GameObject laserPrefab;
     public GameObject pointObject;
-    public GameObject gridPlane;
+    public GameObject invCylinder;
 
     private SteamVR_TrackedObject tracked;
     private GameObject laser;
@@ -56,8 +56,9 @@ public class LaserPointer : MonoBehaviour
         {
             if (Physics.Raycast(tracked.transform.position, transform.forward, out hit, 1000))
             {
-                Vector3 spawnLocation = new Vector3((hit.textureCoord.x * 10) - 5f, (hit.textureCoord.y * 10) - 5f, gridPlane.transform.position.z);
-                Instantiate(pointObject, spawnLocation, this.transform.rotation);
+                //Vector3 spawnLocation = new Vector3((hit.textureCoord.x * 10) - 5f, (hit.textureCoord.y * 10) - 5f, invCylinder.transform.position.z);
+                //Instantiate(pointObject, spawnLocation, this.transform.rotation);
+                invCylinder.GetComponent<GameGrid>().CreateParticle(hit.textureCoord.x, hit.textureCoord.y);
             }
         }
         if (Control.GetPress(SteamVR_Controller.ButtonMask.Trigger) && !troo && (prevlocation != hitpoint)) 
