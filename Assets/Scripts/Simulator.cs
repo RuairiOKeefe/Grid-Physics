@@ -4,22 +4,27 @@ using UnityEngine;
 
 public class Simulator{
 
-	public GameCell[,] Simulate(ref GameCell[,] cells)
+
+	private GameCell newCell = null;
+
+	public GameCell Simulate(ref GameCell cell, int width, int height)
 	{
-        //Currently completely broken (is a prototype anyhow) need to rethink
-		GameCell[,] newGrid = cells;
-		foreach (GameCell c in cells)
+		//Currently completely broken (is a prototype anyhow) need to rethink
+		newCell = new GameCell();
+
+
+		if (cell.moveTime < Time.time)
 		{
-			if (c.moveTime < Time.time)
+			int newY = cell.y - 1;
+			if (newY < 0)
 			{
-				int newY = c.y - 1;
-				if (newY < 0)
-					newY = 256;
-				newGrid[c.x, newY].Equals(c);
-				newGrid[c.x, newY].moveTime = Time.time + cells[c.x, newY].moveTime;
+				newY = 255;
 			}
+
+			newCell.Set(cell.x, cell.y, cell.settled, cell.type, cell.velocity, 1);
+			newCell.SetMoveTime(Time.time - cell.velocity.y);//hacky because y vel is currently always -1
 		}
 
-		return newGrid;
+		return newCell;
 	}
 }

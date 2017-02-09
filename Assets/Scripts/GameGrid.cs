@@ -7,9 +7,9 @@ public class GameGrid : MonoBehaviour
 	public int width;
 	public int height;
 
-	public Color emptyCol;
-	public Color sandCol;
-	public Color stoneCol;
+	public Color emptyColour;
+	public Color sandColour;
+	public Color stoneColour;
 
 	GameCell[,] cells;
 
@@ -32,7 +32,7 @@ public class GameGrid : MonoBehaviour
 			for (int y = 0; y < height; y++)
 			{
 				GameCell cell = new GameCell();
-				cell.Set(x, y);
+				cell.Set(x, y, false, cellType.empty, new Vector2(0.0f, -1.0f), 1.0f);
 				cells[x, y] = cell;
 			}
 		}
@@ -45,7 +45,7 @@ public class GameGrid : MonoBehaviour
 		{
 			for (int j = 0; j < height; j++)
 			{
-				if (i == j)
+				if (j < 64 || (i == 64 && j == 128) || ((i % 2 == 0) && j == 64))
 				{
 					cells[i, j].CreateParticle(cellType.sand);
 				}
@@ -69,17 +69,21 @@ public class GameGrid : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate ()
 	{
-		cells = simulator.Simulate(ref cells);
+		/*foreach (GameCell c in cells)
+		{
+			GameCell newCell = cells[c.x, c.y];
+			cells[c.x, c.y] = simulator.Simulate(ref newCell, width, height);
+		}*/
 
 		foreach(GameCell c in cells)
 		{
 			if (c.type == cellType.empty)
 			{
-				gridTexture.SetPixel(c.x, c.y, emptyCol);
+				gridTexture.SetPixel(c.x, c.y, emptyColour);
 			}
 			if (c.type == cellType.sand)
 			{
-				gridTexture.SetPixel(c.x, c.y, sandCol);
+				gridTexture.SetPixel(c.x, c.y, sandColour);
 			}
 		}
 		gridTexture.Apply();
