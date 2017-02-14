@@ -31,4 +31,27 @@ public class MainMenu : MonoBehaviour {
             timer = 2.0f;
         }
     }
+
+    public void exitButton()
+    {
+        if(SceneManager.GetActiveScene().name == "Main Menu")
+        {
+            print("You quit the application");
+            //This is just for the editor
+            UnityEditor.EditorApplication.isPlaying = false;
+            //This will work in the actual build
+            Application.Quit();
+        }
+        //Added this just so we can reuse ui in game too
+        else if(SceneManager.GetActiveScene().name == "Test_Level")
+        {
+            print("You quit to main menu");
+            SceneManager.LoadScene(0);
+        }
+        //Little debugging thing
+        else
+        {
+            print("Yo, its broken");
+        }
+    }
 }
