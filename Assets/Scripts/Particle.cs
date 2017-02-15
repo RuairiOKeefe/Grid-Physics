@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Particle
 {
-	public int x { get; private set; }
-	public int y { get; private set; }
+	public int x;
+	public int y;
 	public bool active = true;
-	public Vector2 velocity { get; private set; }
+	public Vector2 velocity;
 	public cellType particleType { get; private set; }
 
 	public int prevX { get; private set; }
@@ -60,13 +60,73 @@ public class Particle
 		prevY = y;
 	}
 
-	public void NextMove()
-	{
-		moveTimeX = 10 / Mathf.Abs(velocity.x);
-		moveTimeY = 10 / Mathf.Abs(velocity.y);
-	}
+	public void AttemptX(Vector2[] adjVel, cellType[] adjParticle)
+    {
+		int adjX;
 
-	public void Update() //Will need to add collisions
+		prevX = x;
+        if (velocity.x < 0)
+        {
+            x--;
+            if (x < 0)
+                x = width;
+			if (adjParticle[2] != cellType.empty)
+			{
+				this.velocity.x -= (adjVel[2].x - this.velocity.x);
+				moveTimeX = 10 / Mathf.Abs(velocity.x);
+				return;
+			}
+
+
+		}
+        else
+        {
+			x++;
+			if (x > width)
+                x = 0;
+			if (adjParticle[3] != cellType.empty)
+			{
+				this.velocity.x -= (adjVel[3].x - this.velocity.x);
+				moveTimeX = 10 / Mathf.Abs(velocity.x);
+				return;
+			}
+		}
+
+        
+    }
+
+    public void AttemptY(Vector2[] adjVel, cellType[] adjParticle)
+    {
+		int adjY;
+
+        prevY = y;
+		if (velocity.y < 0)
+        {
+            y--;
+            if (y < 0)
+                y = height;
+			if (adjParticle[1] != cellType.empty)
+			{
+				this.velocity.y -= (adjVel[1].y - this.velocity.y);
+				moveTimeY = 10 / Mathf.Abs(velocity.y);
+				return;
+			}
+        }
+        else
+        {
+            y++;
+            if (y > height)
+                y = 0;
+			if (adjParticle[0] != cellType.empty)
+			{
+				this.velocity.y -= (adjVel[0].y - this.velocity.y);
+				moveTimeY = 10 / Mathf.Abs(velocity.y);
+				return;
+			}
+		}
+    }
+
+	public void Update(Vector2[] adjVel, cellType[] adjParticle) //Will need to add collisions
 	{
 		if (active)
 		{
@@ -94,19 +154,7 @@ public class Particle
 			{
 				if (velocity.x != 0)
 				{
-					prevX = x;
-					if (velocity.x < 0)
-					{
-						x--;
-						if (x < 0)
-							x = width;
-					}
-					else
-					{
-						x++;
-						if (x > width)
-							x = 0;
-					}
+                    AttemptX(adjVel, adjParticle);
 				}
 			}
 
@@ -114,22 +162,9 @@ public class Particle
 			{
 				if (velocity.y != 0)
 				{
-					prevY = y;
-					if (velocity.y < 0)
-					{
-						y--;
-						if (y < 0)
-							y = height;
-					}
-					else
-					{
-						y++;
-						if (y > height)
-							y = 0;
-					}
+                    AttemptY(adjVel, adjParticle);
 				}
 			}
-			NextMove();
 		}
 	}
 }

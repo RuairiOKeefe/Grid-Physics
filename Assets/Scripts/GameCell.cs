@@ -11,15 +11,23 @@ public class GameCell
 
 	public cellType particleType { get; private set; }
 
+	public Vector2 velocity = new Vector2(0,0);
+
 	public void Set(int x, int y)
 	{
 		this.x = x;
 		this.y = y;
 	}
 
-	public void SetParticle(cellType spawnType)
+	public void SetParticle(cellType particleType, Vector2 velocity)
 	{
-		this.particleType = spawnType;
+		this.particleType = particleType;
+		this.velocity = velocity;
+	}
+
+	public Vector2 GetVelocity()
+	{
+		return velocity;
 	}
 
 	public void Settle()
