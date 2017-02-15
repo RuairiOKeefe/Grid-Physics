@@ -62,34 +62,38 @@ public class Particle
 
 	public void AttemptX(Vector2[] adjVel, cellType[] adjParticle)
     {
-		int adjX;
-
 		prevX = x;
         if (velocity.x < 0)
         {
-            x--;
-            if (x < 0)
-                x = width;
+
 			if (adjParticle[2] != cellType.empty)
 			{
 				this.velocity.x -= (adjVel[2].x - this.velocity.x);
-				moveTimeX = 10 / Mathf.Abs(velocity.x);
-				return;
+			}
+			else
+			{
+				x--;
+				if (x < 0)
+					x = width-1;
 			}
 
-
+			moveTimeX = 10 / Mathf.Abs(velocity.x);
+			return;
 		}
         else
         {
-			x++;
-			if (x > width)
-                x = 0;
 			if (adjParticle[3] != cellType.empty)
 			{
 				this.velocity.x -= (adjVel[3].x - this.velocity.x);
-				moveTimeX = 10 / Mathf.Abs(velocity.x);
-				return;
 			}
+			else
+			{
+				x++;
+				if (x > width-1)
+					x = 0;
+			}
+			moveTimeX = 10 / Mathf.Abs(velocity.x);
+			return;
 		}
 
         
@@ -97,36 +101,41 @@ public class Particle
 
     public void AttemptY(Vector2[] adjVel, cellType[] adjParticle)
     {
-		int adjY;
-
         prevY = y;
 		if (velocity.y < 0)
         {
-            y--;
-            if (y < 0)
-                y = height;
 			if (adjParticle[1] != cellType.empty)
 			{
 				this.velocity.y -= (adjVel[1].y - this.velocity.y);
-				moveTimeY = 10 / Mathf.Abs(velocity.y);
-				return;
+
 			}
-        }
+			else
+			{
+				y--;
+				if (y < 0)
+					y = height-1;
+			}
+			moveTimeY = 10 / Mathf.Abs(velocity.y);
+			return;
+		}
         else
         {
-            y++;
-            if (y > height)
-                y = 0;
 			if (adjParticle[0] != cellType.empty)
 			{
 				this.velocity.y -= (adjVel[0].y - this.velocity.y);
-				moveTimeY = 10 / Mathf.Abs(velocity.y);
-				return;
 			}
+			else
+			{
+				y++;
+				if (y > height-1)
+					y = 0;
+			}
+			moveTimeY = 10 / Mathf.Abs(velocity.y);
+			return;
 		}
     }
 
-	public void Update(Vector2[] adjVel, cellType[] adjParticle) //Will need to add collisions
+	public void Update(Vector2[] adjVel, cellType[] adjParticle) //Will need to fix collisions
 	{
 		if (active)
 		{

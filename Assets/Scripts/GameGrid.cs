@@ -37,8 +37,8 @@ public class GameGrid : MonoBehaviour
 	int CheckRange(int coord, int range)
 	{
 		if (coord < 0)
-			coord = range;
-		if (coord > range)
+			coord = range-1;
+		if (coord > range-1)
 			coord = 0;
 
 		return coord;
