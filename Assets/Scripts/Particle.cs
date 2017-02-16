@@ -77,7 +77,8 @@ public class Particle
 					x = width-1;
 			}
 
-			moveTimeX = 10 / Mathf.Abs(velocity.x);
+			if (velocity.x != 0)
+				moveTimeX = 10 / Mathf.Abs(velocity.x);
 			return;
 		}
         else
@@ -92,7 +93,8 @@ public class Particle
 				if (x > width-1)
 					x = 0;
 			}
-			moveTimeX = 10 / Mathf.Abs(velocity.x);
+			if (velocity.x != 0)
+				moveTimeX = 10 / Mathf.Abs(velocity.x);
 			return;
 		}
 
@@ -107,7 +109,6 @@ public class Particle
 			if (adjParticle[1] != cellType.empty)
 			{
 				this.velocity.y -= (adjVel[1].y - this.velocity.y);
-
 			}
 			else
 			{
@@ -115,7 +116,8 @@ public class Particle
 				if (y < 0)
 					y = height-1;
 			}
-			moveTimeY = 10 / Mathf.Abs(velocity.y);
+			if (velocity.y != 0)
+				moveTimeY = 10 / Mathf.Abs(velocity.y);
 			return;
 		}
         else
@@ -130,7 +132,8 @@ public class Particle
 				if (y > height-1)
 					y = 0;
 			}
-			moveTimeY = 10 / Mathf.Abs(velocity.y);
+			if(velocity.y != 0)
+				moveTimeY = 10 / Mathf.Abs(velocity.y);
 			return;
 		}
     }

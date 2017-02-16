@@ -36,12 +36,13 @@ public class GameGrid : MonoBehaviour
 
 	int CheckRange(int coord, int range)
 	{
+		int newCoord = coord;
 		if (coord < 0)
-			coord = range-1;
+			newCoord = range-1;
 		if (coord > range-1)
-			coord = 0;
+			newCoord = 0;
 
-		return coord;
+		return newCoord;
 	}
 
     void CreateGrid()
@@ -82,7 +83,7 @@ public class GameGrid : MonoBehaviour
 		int gridY = Mathf.RoundToInt(y * height);
 
 		//cells[gridX, gridY].SetParticle(particleType);
-		particles.Add(new Particle(gridX, gridY, particleType, new Vector2(0, -9.8f), width, height));//This seems to cause some lag, about 2 seconds worth maybe create in advance?
+		particles.Add(new Particle(gridX, gridY, particleType, new Vector2(1.0f, -9.8f), width, height));
 
 	}
 
@@ -90,10 +91,10 @@ public class GameGrid : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate ()
 	{
-		if(Input.GetKeyDown("e") && delay < Time.time)
+		if(delay < Time.time)
 		{
 			CreateParticle(0.25f, 0.8f);
-			delay = Time.time + 2.0f;
+			delay = Time.time + 1.0f;
 		}
 
 		foreach (Particle p in particles)
@@ -102,12 +103,11 @@ public class GameGrid : MonoBehaviour
 			Vector2[] adjVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
 			cellType[] adjParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
 			int[] adjCoord = new int[4];
-			adjCoord[0] = CheckRange(p.y++, height);
-			adjCoord[1] = CheckRange(p.y--, height);
-			adjCoord[2] = CheckRange(p.x--, width);
-			adjCoord[3] = CheckRange(p.x++, width);
-
-			print(adjCoord[2] + ", " + p.y);
+			adjCoord[0] = CheckRange((p.y+1), height);
+			adjCoord[1] = CheckRange((p.y-1), height);
+			adjCoord[2] = CheckRange((p.x-1), width);
+			adjCoord[3] = CheckRange((p.x+1), width);
+			
 			adjVel[0] = cells[p.x, adjCoord[0]].velocity;
 			adjVel[1] = cells[p.x, adjCoord[1]].velocity;
 			adjVel[2] = cells[adjCoord[2], p.y].velocity;
@@ -120,10 +120,6 @@ public class GameGrid : MonoBehaviour
 
 			p.Update(adjVel, adjParticle);
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
-		}
-
-		foreach (Particle p in particles)
-		{
 			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
 		}
 		
