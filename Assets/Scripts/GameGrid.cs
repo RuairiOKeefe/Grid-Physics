@@ -2,18 +2,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum cellType
+{
+	empty,
+	sand,
+	stone
+}
+
 public class GameGrid : MonoBehaviour
 {
 	public int width;
 	public int height;
 
-	public Color emptyColour;
-	public Color sandColour;
-	public Color stoneColour;
+	public cellType particleType;
+
+	public Color[] Colour = new Color[6];
 
 	GameCell[,] cells;
 
-	Simulator simulator = new Simulator();
+	List<Particle> particles = new List<Particle>();
+
+	Simulator simulator = new Simulator();//May be unecessary
+
+	float delay;//temp
 
 	Texture2D gridTexture;
 
@@ -21,6 +32,17 @@ public class GameGrid : MonoBehaviour
 	void Start ()
 	{
 		CreateGrid();
+	}
+
+	int CheckRange(int coord, int range)
+	{
+		int newCoord = coord;
+		if (coord < 0)
+			newCoord = range-1;
+		if (coord > range-1)
+			newCoord = 0;
+
+		return newCoord;
 	}
 
     void CreateGrid()
@@ -32,7 +54,7 @@ public class GameGrid : MonoBehaviour
 			for (int y = 0; y < height; y++)
 			{
 				GameCell cell = new GameCell();
-				cell.Set(x, y, false, cellType.empty, new Vector2(0.0f, -1.0f), 1.0f);
+				cell.Set(x, y);
 				cells[x, y] = cell;
 			}
 		}
@@ -47,21 +69,21 @@ public class GameGrid : MonoBehaviour
 			{
 				if (j < 64 || (i == 64 && j == 128) || ((i % 2 == 0) && j == 64))
 				{
-					cells[i, j].CreateParticle(cellType.sand);
+					cells[i, j].SetParticle(particleType, new Vector2(0,0)); //May want to set as sand
 				}
 			}
 		}
 	}
 
-	public void CreateParticle(float x, float y)//Create; Polymorphise. Whats the difference? **Should pass type too**
+	public void CreateParticle(float x, float y)//Create; Polymorphise. Whats the difference?
 	{
-
 		// x and y must be in range 0-1
 		//may add random effect to "spray" particles 
 		int gridX = Mathf.RoundToInt(x * width);
-		int gridY = Mathf.RoundToInt(y * width);
+		int gridY = Mathf.RoundToInt(y * height);
 
-		cells[gridX, gridY].CreateParticle(cellType.sand);
+		//cells[gridX, gridY].SetParticle(particleType);
+		particles.Add(new Particle(gridX, gridY, particleType, new Vector2(1.0f, -9.8f), width, height));
 
 	}
 
@@ -69,21 +91,53 @@ public class GameGrid : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate ()
 	{
-		/*foreach (GameCell c in cells)
+		if(delay < Time.time)
 		{
-			GameCell newCell = cells[c.x, c.y];
-			cells[c.x, c.y] = simulator.Simulate(ref newCell, width, height);
-		}*/
+			CreateParticle(0.25f, 0.8f);
+			delay = Time.time + 1.0f;
+		}
 
-		foreach(GameCell c in cells)
+		foreach (Particle p in particles)
 		{
-			if (c.type == cellType.empty)
+			//This bit is duuuuuuumb, refine?
+			Vector2[] adjVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
+			cellType[] adjParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
+			int[] adjCoord = new int[4];
+			adjCoord[0] = CheckRange((p.y+1), height);
+			adjCoord[1] = CheckRange((p.y-1), height);
+			
+			adjVel[0] = cells[p.x, adjCoord[0]].velocity;
+			adjVel[1] = cells[p.x, adjCoord[1]].velocity;
+
+			adjParticle[0] = cells[p.x, adjCoord[0]].particleType;
+			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
+
+			p.UpdateY(adjVel, adjParticle);
+
+			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
+			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
+
+			adjCoord[2] = CheckRange((p.x-1), width);
+			adjCoord[3] = CheckRange((p.x+1), width);
+
+			adjVel[2] = cells[adjCoord[2], p.y].velocity;
+			adjVel[3] = cells[adjCoord[3], p.y].velocity;
+
+			adjParticle[2] = cells[adjCoord[2], p.y].particleType;
+			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
+
+			p.UpdateX(adjVel, adjParticle);
+			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
+			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
+		}
+		
+
+		foreach (GameCell c in cells)
+		{
+			if (!c.settled)
 			{
-				gridTexture.SetPixel(c.x, c.y, emptyColour);
-			}
-			if (c.type == cellType.sand)
-			{
-				gridTexture.SetPixel(c.x, c.y, sandColour);
+				gridTexture.SetPixel(c.x, c.y, Colour[(int)c.particleType]);
+				//c.Settle();
 			}
 		}
 		gridTexture.Apply();

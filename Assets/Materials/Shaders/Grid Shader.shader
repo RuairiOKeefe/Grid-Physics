@@ -1,12 +1,15 @@
 ﻿Shader "Unlit/Grid Shader"
 {
-	Properties
-	{
-		_MainTex ("Texture", 2D) = "white" {}
+	Properties{
+		_Color("Main Color (A=Opacity)", Color) = (1,1,1,1)
+		_MainTex("Base (A=Opacity)", 2D) = ""
 	}
+
 	SubShader
 	{
-		Tags { "RenderType"="Opaque" }
+		Tags{ "Queue" = "Transparent" "IgnoreProjector" = "True" }
+		ZWrite Off
+		Blend SrcAlpha OneMinusSrcAlpha
 		LOD 100
 
 		Pass

@@ -2,13 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum cellType
-{
-	empty,//May want to rename to air?
-	sand, //Course, rough, gets everywhere
-	stone
-}
-
 public class GameCell
 {
     public int x { get; private set; }
@@ -16,31 +9,29 @@ public class GameCell
 
 	public bool settled { get; private set; }
 
-	public cellType type { get; private set; }
+	public cellType particleType { get; private set; }
 
-	public Vector2 velocity { get; private set; }
+	public Vector2 velocity = new Vector2(0,0);
 
-	public float moveTime { get; private set; }
-
-	public void Set(int x, int y , bool settled, cellType type , Vector2 vel , float move)
+	public void Set(int x, int y)
 	{
 		this.x = x;
 		this.y = y;
-		this.settled = settled;
-		this.type = type;
-		this.velocity = vel;
-		this.moveTime = move;
 	}
 
-	public void CreateParticle(cellType spawnType)
+	public void SetParticle(cellType particleType, Vector2 velocity)
 	{
-		moveTime = 0.5f;
-		this.type = spawnType;
-		velocity = new Vector2(0.0f, -1.0f);
+		this.particleType = particleType;
+		this.velocity = velocity;
 	}
 
-	public void SetMoveTime(float newTime)
+	public Vector2 GetVelocity()
 	{
-		this.moveTime = newTime;//maybe refactor
+		return velocity;
+	}
+
+	public void Settle()
+	{
+		this.settled = true;
 	}
 }
