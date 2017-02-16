@@ -34,4 +34,9 @@ public class GameCell
 	{
 		this.settled = true;
 	}
+
+	public void UnSettle()
+	{
+		this.settled = false;
+	}
 }

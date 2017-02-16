@@ -62,34 +62,39 @@ public class Particle
 
 	public void AttemptX(Vector2[] adjVel, cellType[] adjParticle)
     {
-		int adjX;
-
 		prevX = x;
         if (velocity.x < 0)
         {
-            x--;
-            if (x < 0)
-                x = width;
 			if (adjParticle[2] != cellType.empty)
 			{
-				this.velocity.x -= (adjVel[2].x - this.velocity.x);
-				moveTimeX = 10 / Mathf.Abs(velocity.x);
-				return;
+				this.velocity.x += (adjVel[2].x - this.velocity.x);
+			}
+			else
+			{
+				x--;
+				if (x < 0)
+					x = width-1;
 			}
 
-
+			if (velocity.x != 0)
+				moveTimeX = 10 / Mathf.Abs(velocity.x);
+			return;
 		}
         else
         {
-			x++;
-			if (x > width)
-                x = 0;
 			if (adjParticle[3] != cellType.empty)
 			{
 				this.velocity.x -= (adjVel[3].x - this.velocity.x);
-				moveTimeX = 10 / Mathf.Abs(velocity.x);
-				return;
 			}
+			else
+			{
+				x++;
+				if (x > width-1)
+					x = 0;
+			}
+			if (velocity.x != 0)
+				moveTimeX = 10 / Mathf.Abs(velocity.x);
+			return;
 		}
 
         
@@ -97,36 +102,42 @@ public class Particle
 
     public void AttemptY(Vector2[] adjVel, cellType[] adjParticle)
     {
-		int adjY;
-
         prevY = y;
 		if (velocity.y < 0)
         {
-            y--;
-            if (y < 0)
-                y = height;
 			if (adjParticle[1] != cellType.empty)
 			{
-				this.velocity.y -= (adjVel[1].y - this.velocity.y);
-				moveTimeY = 10 / Mathf.Abs(velocity.y);
-				return;
+				this.velocity.y += (adjVel[1].y - this.velocity.y);
 			}
-        }
+			else
+			{
+				y--;
+				if (y < 0)
+					y = height-1;
+			}
+			if (velocity.y != 0)
+				moveTimeY = 10 / Mathf.Abs(velocity.y);
+			return;
+		}
         else
         {
-            y++;
-            if (y > height)
-                y = 0;
 			if (adjParticle[0] != cellType.empty)
 			{
 				this.velocity.y -= (adjVel[0].y - this.velocity.y);
-				moveTimeY = 10 / Mathf.Abs(velocity.y);
-				return;
 			}
+			else
+			{
+				y++;
+				if (y > height-1)
+					y = 0;
+			}
+			if(velocity.y != 0)
+				moveTimeY = 10 / Mathf.Abs(velocity.y);
+			return;
 		}
     }
 
-	public void Update(Vector2[] adjVel, cellType[] adjParticle) //Will need to add collisions
+	public void Update(Vector2[] adjVel, cellType[] adjParticle) 
 	{
 		if (active)
 		{
@@ -150,21 +161,60 @@ public class Particle
 					timingOut = false;
 			}
 
-			if (moveTimeX <= Time.time)
+			if (moveTimeX <= Time.time && (velocity.x != 0))//Need to fix this logic so they cannnot occur on the same frame as each other, as we do not check for diagonal movement, currently objects will stop falling when the x is not updating the move time.
 			{
-				if (velocity.x != 0)
-				{
-                    AttemptX(adjVel, adjParticle);
-				}
+				AttemptX(adjVel, adjParticle);
 			}
-
-			if (moveTimeY <= Time.time)
+			else
 			{
-				if (velocity.y != 0)
+				if (moveTimeY <= Time.time && (velocity.y != 0))
 				{
-                    AttemptY(adjVel, adjParticle);
+					AttemptY(adjVel, adjParticle);
 				}
 			}
 		}
 	}
+
+	public void UpdateX(Vector2[] adjVel, cellType[] adjParticle) 
+	{
+		if (active)
+		{
+			if (moveTimeX <= Time.time && (velocity.x != 0))
+			{
+				AttemptX(adjVel, adjParticle);
+			}
+		}
+	}
+
+	public void UpdateY(Vector2[] adjVel, cellType[] adjParticle)
+	{
+		if (active)
+		{
+			if (velocity.x == 0 && velocity.y == 0) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
+			{
+				if (!timingOut)
+				{
+					inactiveTime = Time.time + 1.0f;
+					timingOut = true;
+				}
+
+				if (timingOut && inactiveTime <= Time.time)
+				{
+					active = false;
+				}
+				return;
+			}
+			else //If it is moving make sure it is not timing out
+			{
+				if (timingOut)
+					timingOut = false;
+			}
+
+			if (moveTimeY <= Time.time && (velocity.y != 0))
+			{
+				AttemptY(adjVel, adjParticle);
+			}
+		}
+	}
+
 }

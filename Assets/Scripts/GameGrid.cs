@@ -6,7 +6,10 @@ public enum cellType
 {
 	empty,
 	sand,
-	stone
+	stone,
+	lava,
+	water,
+	plant
 }
 
 public class GameGrid : MonoBehaviour
@@ -36,12 +39,13 @@ public class GameGrid : MonoBehaviour
 
 	int CheckRange(int coord, int range)
 	{
+		int newCoord = coord;
 		if (coord < 0)
-			coord = range;
-		if (coord > range)
-			coord = 0;
+			newCoord = range-1;
+		if (coord > range-1)
+			newCoord = 0;
 
-		return coord;
+		return newCoord;
 	}
 
     void CreateGrid()
@@ -66,7 +70,7 @@ public class GameGrid : MonoBehaviour
 		{
 			for (int j = 0; j < height; j++)
 			{
-				if (j < 64 || (i == 64 && j == 128) || ((i % 2 == 0) && j == 64))
+				if (j < 64 )
 				{
 					cells[i, j].SetParticle(particleType, new Vector2(0,0)); //May want to set as sand
 				}
@@ -82,7 +86,8 @@ public class GameGrid : MonoBehaviour
 		int gridY = Mathf.RoundToInt(y * height);
 
 		//cells[gridX, gridY].SetParticle(particleType);
-		particles.Add(new Particle(gridX, gridY, particleType, new Vector2(0, -9.8f), width, height));//This seems to cause some lag, about 2 seconds worth maybe create in advance?
+		if(cells[gridX, gridY].particleType == cellType.empty)
+			particles.Add(new Particle(gridX, gridY, particleType, new Vector2(0.0f, -9.8f), width, height));
 
 	}
 
@@ -90,41 +95,43 @@ public class GameGrid : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate ()
 	{
-		if(Input.GetKeyDown("e") && delay < Time.time)
-		{
-			CreateParticle(0.25f, 0.8f);
-			delay = Time.time + 2.0f;
-		}
-
 		foreach (Particle p in particles)
 		{
 			//This bit is duuuuuuumb, refine?
 			Vector2[] adjVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
 			cellType[] adjParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
 			int[] adjCoord = new int[4];
-			adjCoord[0] = CheckRange(p.y++, height);
-			adjCoord[1] = CheckRange(p.y--, height);
-			adjCoord[2] = CheckRange(p.x--, width);
-			adjCoord[3] = CheckRange(p.x++, width);
-
-			print(adjCoord[2] + ", " + p.y);
+			adjCoord[0] = CheckRange((p.y+1), height);
+			adjCoord[1] = CheckRange((p.y-1), height);
+			
 			adjVel[0] = cells[p.x, adjCoord[0]].velocity;
 			adjVel[1] = cells[p.x, adjCoord[1]].velocity;
-			adjVel[2] = cells[adjCoord[2], p.y].velocity;
-			adjVel[3] = cells[adjCoord[3], p.y].velocity;
 
 			adjParticle[0] = cells[p.x, adjCoord[0]].particleType;
 			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
+
+			p.UpdateY(adjVel, adjParticle);
+
+			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
+			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
+
+			adjCoord[2] = CheckRange((p.x-1), width);
+			adjCoord[3] = CheckRange((p.x+1), width);
+
+			adjVel[2] = cells[adjCoord[2], p.y].velocity;
+			adjVel[3] = cells[adjCoord[3], p.y].velocity;
+
 			adjParticle[2] = cells[adjCoord[2], p.y].particleType;
 			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
 
-			p.Update(adjVel, adjParticle);
+			p.UpdateX(adjVel, adjParticle);
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
-		}
-
-		foreach (Particle p in particles)
-		{
 			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
+
+			if (p.active)
+			{
+				cells[p.x, p.y].UnSettle();
+			}
 		}
 		
 
@@ -133,7 +140,10 @@ public class GameGrid : MonoBehaviour
 			if (!c.settled)
 			{
 				gridTexture.SetPixel(c.x, c.y, Colour[(int)c.particleType]);
-				//c.Settle();
+				if (c.velocity.x == 0 && c.velocity.y == 0)
+				{
+					c.Settle();
+				}
 			}
 		}
 		gridTexture.Apply();
