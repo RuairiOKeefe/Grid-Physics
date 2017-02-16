@@ -65,10 +65,9 @@ public class Particle
 		prevX = x;
         if (velocity.x < 0)
         {
-
 			if (adjParticle[2] != cellType.empty)
 			{
-				this.velocity.x -= (adjVel[2].x - this.velocity.x);
+				this.velocity.x += (adjVel[2].x - this.velocity.x);
 			}
 			else
 			{
@@ -108,7 +107,7 @@ public class Particle
         {
 			if (adjParticle[1] != cellType.empty)
 			{
-				this.velocity.y -= (adjVel[1].y - this.velocity.y);
+				this.velocity.y += (adjVel[1].y - this.velocity.y);
 			}
 			else
 			{
@@ -138,7 +137,7 @@ public class Particle
 		}
     }
 
-	public void Update(Vector2[] adjVel, cellType[] adjParticle) //Will need to fix collisions
+	public void Update(Vector2[] adjVel, cellType[] adjParticle) 
 	{
 		if (active)
 		{
@@ -162,21 +161,60 @@ public class Particle
 					timingOut = false;
 			}
 
-			if (moveTimeX <= Time.time)
+			if (moveTimeX <= Time.time && (velocity.x != 0))//Need to fix this logic so they cannnot occur on the same frame as each other, as we do not check for diagonal movement, currently objects will stop falling when the x is not updating the move time.
 			{
-				if (velocity.x != 0)
-				{
-                    AttemptX(adjVel, adjParticle);
-				}
+				AttemptX(adjVel, adjParticle);
 			}
-
-			if (moveTimeY <= Time.time)
+			else
 			{
-				if (velocity.y != 0)
+				if (moveTimeY <= Time.time && (velocity.y != 0))
 				{
-                    AttemptY(adjVel, adjParticle);
+					AttemptY(adjVel, adjParticle);
 				}
 			}
 		}
 	}
+
+	public void UpdateX(Vector2[] adjVel, cellType[] adjParticle) 
+	{
+		if (active)
+		{
+			if (moveTimeX <= Time.time && (velocity.x != 0))
+			{
+				AttemptX(adjVel, adjParticle);
+			}
+		}
+	}
+
+	public void UpdateY(Vector2[] adjVel, cellType[] adjParticle)
+	{
+		if (active)
+		{
+			if (velocity.x == 0 && velocity.y == 0) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
+			{
+				if (!timingOut)
+				{
+					inactiveTime = Time.time + 1.0f;
+					timingOut = true;
+				}
+
+				if (timingOut && inactiveTime <= Time.time)
+				{
+					active = false;
+				}
+				return;
+			}
+			else //If it is moving make sure it is not timing out
+			{
+				if (timingOut)
+					timingOut = false;
+			}
+
+			if (moveTimeY <= Time.time && (velocity.y != 0))
+			{
+				AttemptY(adjVel, adjParticle);
+			}
+		}
+	}
+
 }
