@@ -7,6 +7,8 @@ public class MainMenu : MonoBehaviour {
 
     public float timer = 2.0f;
     public AudioSource leverPull;
+    public GameObject materials;
+    public GameObject options;
 
 	// Use this for initialization
 	void Start () {
@@ -52,6 +54,43 @@ public class MainMenu : MonoBehaviour {
         else
         {
             print("Yo, its broken");
+        }
+    }
+
+    //Function for materials button in UI
+    public void materialsButton()
+    {
+        //Close options menu if its active 
+        if (options.activeSelf)
+        {
+            options.SetActive(false);
+        }
+
+        if (!materials.activeSelf)
+        {
+            materials.SetActive(true);
+        }
+        else
+        {
+            materials.SetActive(false);
+        }
+    }
+
+    public void optionsButton()
+    {
+        //Close materials menu if its active 
+        if (materials.activeSelf)
+        {
+            materials.SetActive(false);
+        }
+
+        if (!options.activeSelf)
+        {
+            options.SetActive(true);
+        }
+        else
+        {
+            options.SetActive(false);
         }
     }
 }
