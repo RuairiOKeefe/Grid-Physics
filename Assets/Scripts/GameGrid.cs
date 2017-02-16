@@ -6,7 +6,10 @@ public enum cellType
 {
 	empty,
 	sand,
-	stone
+	stone,
+	lava,
+	water,
+	plant
 }
 
 public class GameGrid : MonoBehaviour
@@ -67,7 +70,7 @@ public class GameGrid : MonoBehaviour
 		{
 			for (int j = 0; j < height; j++)
 			{
-				if (j < 64 || (i == 64 && j == 128) || ((i % 2 == 0) && j == 64))
+				if (j < 64 )
 				{
 					cells[i, j].SetParticle(particleType, new Vector2(0,0)); //May want to set as sand
 				}
@@ -83,7 +86,8 @@ public class GameGrid : MonoBehaviour
 		int gridY = Mathf.RoundToInt(y * height);
 
 		//cells[gridX, gridY].SetParticle(particleType);
-		particles.Add(new Particle(gridX, gridY, particleType, new Vector2(1.0f, -9.8f), width, height));
+		if(cells[gridX, gridY].particleType == cellType.empty)
+			particles.Add(new Particle(gridX, gridY, particleType, new Vector2(0.0f, -9.8f), width, height));
 
 	}
 
@@ -91,12 +95,6 @@ public class GameGrid : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate ()
 	{
-		if(delay < Time.time)
-		{
-			CreateParticle(0.25f, 0.8f);
-			delay = Time.time + 1.0f;
-		}
-
 		foreach (Particle p in particles)
 		{
 			//This bit is duuuuuuumb, refine?
@@ -129,6 +127,11 @@ public class GameGrid : MonoBehaviour
 			p.UpdateX(adjVel, adjParticle);
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
+
+			if (p.active)
+			{
+				cells[p.x, p.y].UnSettle();
+			}
 		}
 		
 
@@ -137,7 +140,10 @@ public class GameGrid : MonoBehaviour
 			if (!c.settled)
 			{
 				gridTexture.SetPixel(c.x, c.y, Colour[(int)c.particleType]);
-				//c.Settle();
+				if (c.velocity.x == 0 && c.velocity.y == 0)
+				{
+					c.Settle();
+				}
 			}
 		}
 		gridTexture.Apply();
