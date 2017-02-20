@@ -42,6 +42,7 @@ public class Menu : MonoBehaviour
     {
         final_menu = Instantiate(Prefabmenu);
         menuTrasform = final_menu.transform;
+        final_menu.SetActive(false);
     }
 
     //	// Update is called once per frame
