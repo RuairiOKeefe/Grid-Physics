@@ -14,9 +14,9 @@ public class MainMenu : MonoBehaviour {
 	void Start () {
 		
 	}
-	
-	// Update is called once per frame
-	void Update () {
+ 
+    // Update is called once per frame
+    void Update () {
 
         if (transform.localPosition.z < -0.700 )
         {
