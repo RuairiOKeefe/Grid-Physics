@@ -6,14 +6,16 @@ public class LaserPointer : MonoBehaviour
 {
     public GameObject laserPrefab;
     public GameObject pointObject;
-    public GameObject gridPlane;
+    public GameObject invCylinder;
 
     private SteamVR_TrackedObject tracked;
     private GameObject laser;
     private Transform laserTransform;
     private Vector3 hitpoint;
     private bool troo;
-    private Vector3 prevlocation;
+    private int mode = 0;
+    private int timer;
+
     private SteamVR_Controller.Device Control
     {
         get
@@ -40,41 +42,45 @@ public class LaserPointer : MonoBehaviour
     {
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
-	}
-	
-	// Update is called once per frame
-	void Update ()
+        laser.SetActive(false);
+    }
+
+    // Update is called once per frame
+    void Update()
     {
         RaycastHit hit;
+        timer += 1;
         if (Physics.Raycast(tracked.transform.position, transform.forward, out hit, 1000))
         {
             hitpoint = hit.point;
             Vector2 uvCoord = hit.textureCoord;
             MoveLaser(hit);
         }
-        if (Control.GetPress(SteamVR_Controller.ButtonMask.Trigger))
+        if (Control.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && mode == 0)
         {
-            if (Physics.Raycast(tracked.transform.position, transform.forward, out hit, 1000))
-            {
-                Vector3 spawnLocation = new Vector3((hit.textureCoord.x * 10) - 5f, (hit.textureCoord.y * 10) - 5f, gridPlane.transform.position.z);
-                Instantiate(pointObject, spawnLocation, this.transform.rotation);
-            }
+            mode = 1;
         }
-        if (Control.GetPress(SteamVR_Controller.ButtonMask.Trigger) && !troo && (prevlocation != hitpoint)) 
-        { 
-            if (Physics.Raycast(tracked.transform.position , transform.forward , out hit , 1000))
-            { 
-                troo = true;
-                ShowLaser(); 
-                // MoveLaser(hit);
-            }
-
+        else if (Control.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && mode == 1)
+        {
+            mode = 0;
         }
-        else if (!Control.GetPress(SteamVR_Controller.ButtonMask.Trigger))
+        if (Control.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && troo == false && timer > 5)
+        {
+            ShowLaser();
+            troo = true;
+        }
+        else if (Control.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && troo == true && timer > 5)
         {
             laser.SetActive(false);
             troo = false;
         }
-        prevlocation = hitpoint; 
+        if (mode == 1)
+        {
+            Control.TriggerHapticPulse(500);
+            if (Physics.Raycast(tracked.transform.position, transform.forward, out hit, 1000))
+            {
+                invCylinder.GetComponent<GameGrid>().CreateParticle(hit.textureCoord.x, hit.textureCoord.y);
+            }
+        }
     }
 }
