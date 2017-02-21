@@ -10,9 +10,12 @@ public class MainMenu : MonoBehaviour {
     public GameObject materials;
     public GameObject options;
 
+    public GameObject grid;
+
+
 	// Use this for initialization
 	void Start () {
-		
+
 	}
 	
 	// Update is called once per frame
@@ -84,6 +87,15 @@ public class MainMenu : MonoBehaviour {
         else
         {
             options.SetActive(false);
+        }
+    }
+
+    public void changeMaterial(int particle){
+        switch (particle)
+        {
+            case 0:
+                break;
+
         }
     }
 }
