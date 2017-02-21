@@ -21,13 +21,13 @@ public class GameGrid : MonoBehaviour
 
 	public Color[] Colour = new Color[6];
 
-	GameCell[,] cells;
+	Cell[,] cells;
 
-	List<Particle> particles = new List<Particle>();
+	List<Particle> activeParticles = new List<Particle>();
+	List<Particle> inactiveParticles = new List<Particle>();
 
-	Simulator simulator = new Simulator();//May be unecessary
-
-	float delay;//temp
+	float delay;//debug temp
+	float offset;//debug temp
 
 	Texture2D gridTexture;
 
@@ -50,13 +50,13 @@ public class GameGrid : MonoBehaviour
 
     void CreateGrid()
     {
-		cells = new GameCell[width, height]; //Create an multidimensional array of cells to fit the grid
+		cells = new Cell[width, height]; //Create an multidimensional array of cells to fit the grid
 
 		for (int x = 0; x < width; x++)
 		{
 			for (int y = 0; y < height; y++)
 			{
-				GameCell cell = new GameCell();
+				Cell cell = new Cell();
 				cell.Set(x, y);
 				cells[x, y] = cell;
 			}
@@ -78,16 +78,22 @@ public class GameGrid : MonoBehaviour
 		}
 	}
 
-	public void CreateParticle(float x, float y)//Create; Polymorphise. Whats the difference?
+	public bool CreateParticle(float x, float y)//Create; Polymorphise. Whats the difference?
 	{
 		// x and y must be in range 0-1
 		//may add random effect to "spray" particles 
 		int gridX = Mathf.RoundToInt(x * width);
 		int gridY = Mathf.RoundToInt(y * height);
 
-		//cells[gridX, gridY].SetParticle(particleType);
-		if(cells[gridX, gridY].particleType == cellType.empty)
-			particles.Add(new Particle(gridX, gridY, particleType, new Vector2(0.0f, -9.8f), width, height));
+		if (cells[gridX, gridY].particleType == cellType.empty)
+		{
+			activeParticles.Add(new Particle(gridX, gridY, particleType, new Vector2(0.0f, -9.8f), width, height));
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 
 	}
 
@@ -95,9 +101,18 @@ public class GameGrid : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate ()
 	{
-		foreach (Particle p in particles)
+		if(delay <= Time.time)
 		{
-			//This bit is duuuuuuumb, refine?
+			if (CreateParticle(offset, 0.8f))
+				delay = Time.time + 0.1f;
+			else
+			{
+				offset += 1.0f / width;
+			}
+		}
+		
+		foreach (Particle p in activeParticles)
+		{
 			Vector2[] adjVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
 			cellType[] adjParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
 			int[] adjCoord = new int[4];
@@ -132,10 +147,15 @@ public class GameGrid : MonoBehaviour
 			{
 				cells[p.x, p.y].UnSettle();
 			}
+			if (p.active == false)
+			{
+				inactiveParticles.Add(p);
+				activeParticles.Remove(p);
+			}
 		}
 		
 
-		foreach (GameCell c in cells)
+		foreach (Cell c in cells)
 		{
 			if (!c.settled)
 			{
