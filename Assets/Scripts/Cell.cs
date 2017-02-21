@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameCell
+public class Cell
 {
     public int x { get; private set; }
     public int y { get; private set; }
