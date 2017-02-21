@@ -67,7 +67,8 @@ public class Particle
         {
 			if (adjParticle[2] != cellType.empty)
 			{
-				this.velocity.x += (adjVel[2].x - this.velocity.x);
+				//this.velocity.x += (adjVel[2].x - this.velocity.x);
+				defaultCollision(false, false, adjVel[2]);
 			}
 			else
 			{
@@ -84,7 +85,8 @@ public class Particle
         {
 			if (adjParticle[3] != cellType.empty)
 			{
-				this.velocity.x -= (adjVel[3].x - this.velocity.x);
+				//this.velocity.x -= (adjVel[3].x - this.velocity.x);
+				defaultCollision(false, true, adjVel[3]);
 			}
 			else
 			{
@@ -107,7 +109,8 @@ public class Particle
         {
 			if (adjParticle[1] != cellType.empty)
 			{
-				this.velocity.y += (adjVel[1].y - this.velocity.y);
+				//this.velocity.y += (adjVel[1].y - this.velocity.y);
+				defaultCollision(true, false, adjVel[1]);
 			}
 			else
 			{
@@ -123,7 +126,7 @@ public class Particle
         {
 			if (adjParticle[0] != cellType.empty)
 			{
-				this.velocity.y -= (adjVel[0].y - this.velocity.y);
+				defaultCollision(true, true, adjVel[0]);
 			}
 			else
 			{
@@ -136,44 +139,6 @@ public class Particle
 			return;
 		}
     }
-
-	public void Update(Vector2[] adjVel, cellType[] adjParticle) 
-	{
-		if (active)
-		{
-			if (velocity.x == 0 && velocity.y == 0) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
-			{
-				if (!timingOut)
-				{
-					inactiveTime = Time.time + 1.0f;
-					timingOut = true;
-				}
-
-				if (timingOut && inactiveTime <= Time.time)
-				{
-					active = false;
-				}
-				return;
-			}
-			else //If it is moving make sure it is not timing out
-			{
-				if (timingOut)
-					timingOut = false;
-			}
-
-			if (moveTimeX <= Time.time && (velocity.x != 0))//Need to fix this logic so they cannnot occur on the same frame as each other, as we do not check for diagonal movement, currently objects will stop falling when the x is not updating the move time.
-			{
-				AttemptX(adjVel, adjParticle);
-			}
-			else
-			{
-				if (moveTimeY <= Time.time && (velocity.y != 0))
-				{
-					AttemptY(adjVel, adjParticle);
-				}
-			}
-		}
-	}
 
 	public void UpdateX(Vector2[] adjVel, cellType[] adjParticle) 
 	{
@@ -217,4 +182,59 @@ public class Particle
 		}
 	}
 
+	public void defaultCollision(bool yAxis, bool positive, Vector2 adjVel)
+	{
+		if (yAxis)
+		{
+			if (positive)
+			{
+				this.velocity.y -= (adjVel.y - this.velocity.y);
+			}
+			else
+			{
+				this.velocity.y += (adjVel.y - this.velocity.y);
+			}
+		}
+		else
+		{
+			{
+				if (positive)
+				{
+					this.velocity.x -= (adjVel.x - this.velocity.x);
+				}
+				else
+				{
+					this.velocity.x += (adjVel.x - this.velocity.x);
+				}
+			}
+		}
+	}
+
+	public void sandSandCollision(bool yAxis, bool positive, Vector2 adjVel)
+	{
+		if (yAxis)
+		{
+			if (positive)
+			{
+				this.velocity.y -= (adjVel.y - this.velocity.y);
+			}
+			else
+			{
+				this.velocity.y += (adjVel.y - this.velocity.y);
+			}
+		}
+		else
+		{
+			{
+				if (positive)
+				{
+					this.velocity.x -= (adjVel.x - this.velocity.x);
+				}
+				else
+				{
+					this.velocity.x += (adjVel.x - this.velocity.x);
+				}
+			}
+		}
+	}
 }
