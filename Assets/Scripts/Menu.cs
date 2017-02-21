@@ -14,6 +14,8 @@ public class Menu : MonoBehaviour
     private bool mode;
     private int modes;
     private Vector3 hitpoint;
+    public cellType cells;
+
     private SteamVR_Controller.Device Control
     {
         get

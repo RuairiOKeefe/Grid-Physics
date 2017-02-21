@@ -42,7 +42,8 @@ public class LaserPointer : MonoBehaviour
     {
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
-	}
+        laser.SetActive(false);
+    }
 
     // Update is called once per frame
     void Update()
@@ -68,7 +69,7 @@ public class LaserPointer : MonoBehaviour
             ShowLaser();
             troo = true;
         }
-        else if (Control.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && troo == true && timer > 5)
+        else if (Control.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && troo == true && timer > 5)
         {
             laser.SetActive(false);
             troo = false;
