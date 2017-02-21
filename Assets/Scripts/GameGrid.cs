@@ -23,11 +23,13 @@ public class GameGrid : MonoBehaviour
 
 	Cell[,] cells;
 
-	LinkedList<Particle> activeParticles = new LinkedList<Particle>();
-	LinkedList<Particle> inactiveParticles = new LinkedList<Particle>();
+	HashSet<Particle> activeParticles = new HashSet<Particle>();
+	HashSet<Particle> inactiveParticles = new HashSet<Particle>();
 
 	float delay;//debug temp
 	float offset;//debug temp
+
+	float spawnDelay;
 
 	Texture2D gridTexture;
 
@@ -85,9 +87,10 @@ public class GameGrid : MonoBehaviour
 		int gridX = Mathf.RoundToInt(x * width);
 		int gridY = Mathf.RoundToInt(y * height);
 
-		if (cells[gridX, gridY].particleType == cellType.empty)
+		if (cells[gridX, gridY].particleType == cellType.empty && spawnDelay <= Time.time)
 		{
-			activeParticles.AddLast(new Particle(gridX, gridY, particleType, new Vector2(0.0f, -9.8f), width, height));
+			activeParticles.Add(new Particle(gridX, gridY, particleType, new Vector2(0.0f, -9.8f), width, height));
+			spawnDelay = Time.time + 0.02f;
 			return true;
 		}
 		else
@@ -101,7 +104,7 @@ public class GameGrid : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate ()
 	{
-		if(delay <= Time.time)
+		/*if(delay <= Time.time)
 		{
 			if (CreateParticle(offset, 0.8f))
 				delay = Time.time + 0.1f;
@@ -109,7 +112,7 @@ public class GameGrid : MonoBehaviour
 			{
 				offset += 1.0f / width;
 			}
-		}
+		}*/
 		
 		foreach (Particle p in activeParticles)
 		{
@@ -149,7 +152,7 @@ public class GameGrid : MonoBehaviour
 			}
 			if (p.active == false)
 			{
-				inactiveParticles.AddLast(p);
+				inactiveParticles.Add(p);
 				activeParticles.Remove(p);
 			}
 		}
