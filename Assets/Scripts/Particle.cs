@@ -67,7 +67,6 @@ public class Particle
         {
 			if (adjParticle[2] != cellType.empty)
 			{
-				//this.velocity.x += (adjVel[2].x - this.velocity.x);
 				defaultCollision(false, false, adjVel[2]);
 			}
 			else
@@ -85,7 +84,6 @@ public class Particle
         {
 			if (adjParticle[3] != cellType.empty)
 			{
-				//this.velocity.x -= (adjVel[3].x - this.velocity.x);
 				defaultCollision(false, true, adjVel[3]);
 			}
 			else
@@ -109,7 +107,6 @@ public class Particle
         {
 			if (adjParticle[1] != cellType.empty)
 			{
-				//this.velocity.y += (adjVel[1].y - this.velocity.y);
 				defaultCollision(true, false, adjVel[1]);
 			}
 			else

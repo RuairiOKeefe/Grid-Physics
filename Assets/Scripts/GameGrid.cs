@@ -23,8 +23,8 @@ public class GameGrid : MonoBehaviour
 
 	Cell[,] cells;
 
-	List<Particle> activeParticles = new List<Particle>();
-	List<Particle> inactiveParticles = new List<Particle>();
+	LinkedList<Particle> activeParticles = new LinkedList<Particle>();
+	LinkedList<Particle> inactiveParticles = new LinkedList<Particle>();
 
 	float delay;//debug temp
 	float offset;//debug temp
@@ -87,7 +87,7 @@ public class GameGrid : MonoBehaviour
 
 		if (cells[gridX, gridY].particleType == cellType.empty)
 		{
-			activeParticles.Add(new Particle(gridX, gridY, particleType, new Vector2(0.0f, -9.8f), width, height));
+			activeParticles.AddLast(new Particle(gridX, gridY, particleType, new Vector2(0.0f, -9.8f), width, height));
 			return true;
 		}
 		else
@@ -149,7 +149,7 @@ public class GameGrid : MonoBehaviour
 			}
 			if (p.active == false)
 			{
-				inactiveParticles.Add(p);
+				inactiveParticles.AddLast(p);
 				activeParticles.Remove(p);
 			}
 		}
