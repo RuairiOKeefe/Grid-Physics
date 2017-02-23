@@ -60,15 +60,19 @@ public class Particle
 		prevY = y;
 	}
 
-	public void AttemptX(Vector2[] adjVel, cellType[] adjParticle)
+	public collision AttemptX(Vector2[] adjVel, cellType[] adjParticle)
     {
 		prevX = x;
+		collision coll = new collision();
+		coll.other = cellType.empty;
         if (velocity.x < 0)
         {
 			if (adjParticle[2] != cellType.empty)
 			{
-				//this.velocity.x += (adjVel[2].x - this.velocity.x);
 				defaultCollision(false, false, adjVel[2]);
+				coll = new collision();
+				coll.other = adjParticle[2];
+				coll.location = 2;
 			}
 			else
 			{
@@ -79,14 +83,16 @@ public class Particle
 
 			if (velocity.x != 0)
 				moveTimeX = 10 / Mathf.Abs(velocity.x);
-			return;
+			return coll;
 		}
         else
         {
 			if (adjParticle[3] != cellType.empty)
 			{
-				//this.velocity.x -= (adjVel[3].x - this.velocity.x);
 				defaultCollision(false, true, adjVel[3]);
+				coll = new collision();
+				coll.other = adjParticle[3];
+				coll.location = 3;
 			}
 			else
 			{
@@ -96,21 +102,25 @@ public class Particle
 			}
 			if (velocity.x != 0)
 				moveTimeX = 10 / Mathf.Abs(velocity.x);
-			return;
+			return coll;
 		}
 
         
     }
 
-    public void AttemptY(Vector2[] adjVel, cellType[] adjParticle)
+    public collision AttemptY(Vector2[] adjVel, cellType[] adjParticle)
     {
         prevY = y;
+		collision coll = new collision();
+		coll.other = cellType.empty;
 		if (velocity.y < 0)
         {
 			if (adjParticle[1] != cellType.empty)
 			{
-				//this.velocity.y += (adjVel[1].y - this.velocity.y);
 				defaultCollision(true, false, adjVel[1]);
+				coll = new collision();
+				coll.other = adjParticle[1];
+				coll.location = 1;
 			}
 			else
 			{
@@ -120,13 +130,16 @@ public class Particle
 			}
 			if (velocity.y != 0)
 				moveTimeY = 10 / Mathf.Abs(velocity.y);
-			return;
+			return coll;
 		}
         else
         {
 			if (adjParticle[0] != cellType.empty)
 			{
 				defaultCollision(true, true, adjVel[0]);
+				coll = new collision();
+				coll.other = adjParticle[0];
+				coll.location = 0;
 			}
 			else
 			{
@@ -136,23 +149,28 @@ public class Particle
 			}
 			if(velocity.y != 0)
 				moveTimeY = 10 / Mathf.Abs(velocity.y);
-			return;
+			return coll;
 		}
     }
 
-	public void UpdateX(Vector2[] adjVel, cellType[] adjParticle) 
+	public collision UpdateX(Vector2[] adjVel, cellType[] adjParticle) 
 	{
+		collision coll = new collision();
+		coll.other = cellType.empty;
 		if (active)
 		{
 			if (moveTimeX <= Time.time && (velocity.x != 0))
 			{
-				AttemptX(adjVel, adjParticle);
+				return AttemptX(adjVel, adjParticle);
 			}
 		}
+		return coll;
 	}
 
-	public void UpdateY(Vector2[] adjVel, cellType[] adjParticle)
+	public collision UpdateY(Vector2[] adjVel, cellType[] adjParticle)
 	{
+		collision coll = new collision();
+		coll.other = cellType.empty;
 		if (active)
 		{
 			if (velocity.x == 0 && velocity.y == 0) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
@@ -167,7 +185,7 @@ public class Particle
 				{
 					active = false;
 				}
-				return;
+				return coll;
 			}
 			else //If it is moving make sure it is not timing out
 			{
@@ -177,9 +195,10 @@ public class Particle
 
 			if (moveTimeY <= Time.time && (velocity.y != 0))
 			{
-				AttemptY(adjVel, adjParticle);
+				return AttemptY(adjVel, adjParticle);
 			}
 		}
+		return coll;
 	}
 
 	public void defaultCollision(bool yAxis, bool positive, Vector2 adjVel)

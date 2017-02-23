@@ -12,6 +12,12 @@ public enum cellType
 	plant
 }
 
+public struct collision
+{
+	public cellType other;
+	public int location;
+}
+
 public class GameGrid : MonoBehaviour
 {
 	public int width;
@@ -23,11 +29,13 @@ public class GameGrid : MonoBehaviour
 
 	Cell[,] cells;
 
-	List<Particle> activeParticles = new List<Particle>();
-	List<Particle> inactiveParticles = new List<Particle>();
+	HashSet<Particle> activeParticles = new HashSet<Particle>();
+	HashSet<Particle> inactiveParticles = new HashSet<Particle>();
 
 	float delay;//debug temp
 	float offset;//debug temp
+
+	float spawnDelay;
 
 	Texture2D gridTexture;
 
@@ -78,6 +86,11 @@ public class GameGrid : MonoBehaviour
 		}
 	}
 
+	public void ChangeType(cellType type)
+	{
+		particleType = type;
+	}
+
 	public bool CreateParticle(float x, float y)//Create; Polymorphise. Whats the difference?
 	{
 		// x and y must be in range 0-1
@@ -85,9 +98,10 @@ public class GameGrid : MonoBehaviour
 		int gridX = Mathf.RoundToInt(x * width);
 		int gridY = Mathf.RoundToInt(y * height);
 
-		if (cells[gridX, gridY].particleType == cellType.empty)
+		if (cells[gridX, gridY].particleType == cellType.empty && spawnDelay <= Time.time)
 		{
 			activeParticles.Add(new Particle(gridX, gridY, particleType, new Vector2(0.0f, -9.8f), width, height));
+			spawnDelay = Time.time + 0.02f;
 			return true;
 		}
 		else
@@ -116,6 +130,9 @@ public class GameGrid : MonoBehaviour
 			Vector2[] adjVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
 			cellType[] adjParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
 			int[] adjCoord = new int[4];
+
+			collision xColl;
+			collision yColl;
 			adjCoord[0] = CheckRange((p.y+1), height);
 			adjCoord[1] = CheckRange((p.y-1), height);
 			
@@ -125,7 +142,7 @@ public class GameGrid : MonoBehaviour
 			adjParticle[0] = cells[p.x, adjCoord[0]].particleType;
 			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
 
-			p.UpdateY(adjVel, adjParticle);
+			yColl = p.UpdateY(adjVel, adjParticle);
 
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
@@ -139,7 +156,8 @@ public class GameGrid : MonoBehaviour
 			adjParticle[2] = cells[adjCoord[2], p.y].particleType;
 			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
 
-			p.UpdateX(adjVel, adjParticle);
+			xColl = p.UpdateX(adjVel, adjParticle);
+
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
 
