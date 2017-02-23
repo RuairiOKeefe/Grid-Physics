@@ -9,7 +9,8 @@ public enum cellType
 	stone,
 	lava,
 	water,
-	plant
+	plant,
+    fire
 }
 
 public struct collision
@@ -71,8 +72,6 @@ public class GameGrid : MonoBehaviour
 		}
 		gridTexture = new Texture2D(width, height, TextureFormat.ARGB32, true);
 		gridTexture.filterMode = FilterMode.Point;
-
-
 
 		for (int i = 0; i < width; i++)
 		{
@@ -154,7 +153,7 @@ public class GameGrid : MonoBehaviour
 
 			adjParticle[2] = cells[adjCoord[2], p.y].particleType;
 			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
-
+           // Collisions col = new Collisions();
 			xColl = p.UpdateX(adjVel, adjParticle);
 
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
