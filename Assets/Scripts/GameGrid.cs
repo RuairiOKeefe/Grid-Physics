@@ -78,7 +78,7 @@ public class GameGrid : MonoBehaviour
 		{
 			for (int j = 0; j < height; j++)
 			{
-				if (j < 64 )
+				if (j < 2 )
 				{
 					cells[i, j].SetParticle(particleType, new Vector2(0,0)); //May want to set as sand
 				}
@@ -108,7 +108,6 @@ public class GameGrid : MonoBehaviour
 		{
 			return false;
 		}
-
 	}
 
 	
