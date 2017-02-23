@@ -12,6 +12,12 @@ public enum cellType
 	plant
 }
 
+public struct collision
+{
+	public cellType other;
+	public int location;
+}
+
 public class GameGrid : MonoBehaviour
 {
 	public int width;
@@ -80,6 +86,11 @@ public class GameGrid : MonoBehaviour
 		}
 	}
 
+	public void ChangeType(cellType type)
+	{
+		particleType = type;
+	}
+
 	public bool CreateParticle(float x, float y)//Create; Polymorphise. Whats the difference?
 	{
 		// x and y must be in range 0-1
@@ -104,7 +115,7 @@ public class GameGrid : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate ()
 	{
-		/*if(delay <= Time.time)
+		if(delay <= Time.time)
 		{
 			if (CreateParticle(offset, 0.8f))
 				delay = Time.time + 0.1f;
@@ -112,13 +123,16 @@ public class GameGrid : MonoBehaviour
 			{
 				offset += 1.0f / width;
 			}
-		}*/
+		}
 		
 		foreach (Particle p in activeParticles)
 		{
 			Vector2[] adjVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
 			cellType[] adjParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
 			int[] adjCoord = new int[4];
+
+			collision xColl;
+			collision yColl;
 			adjCoord[0] = CheckRange((p.y+1), height);
 			adjCoord[1] = CheckRange((p.y-1), height);
 			
@@ -128,7 +142,7 @@ public class GameGrid : MonoBehaviour
 			adjParticle[0] = cells[p.x, adjCoord[0]].particleType;
 			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
 
-			p.UpdateY(adjVel, adjParticle);
+			yColl = p.UpdateY(adjVel, adjParticle);
 
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
@@ -142,7 +156,8 @@ public class GameGrid : MonoBehaviour
 			adjParticle[2] = cells[adjCoord[2], p.y].particleType;
 			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
 
-			p.UpdateX(adjVel, adjParticle);
+			xColl = p.UpdateX(adjVel, adjParticle);
+
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
 
