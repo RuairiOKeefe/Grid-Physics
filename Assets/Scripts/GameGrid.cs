@@ -129,15 +129,21 @@ public class GameGrid : MonoBehaviour
 	{
 		txt = cam.GetComponent<Text>();
 		txt.text = "Active Particles: " + activeParticles.Count;
-		if(delay <= Time.time)
+		/*if(delay <= Time.time)
 		{
+
 			if (CreateParticle(offset, 0.8f))
-				delay = Time.time + 0.1f;
+			{
+				delay = Time.time;
+			}
 			else
 			{
 				offset += 1.0f / width;
 			}
-		}
+
+			if (offset >= 1.0f)
+				offset = 0.0f;
+		}*/
 
 		for (int i = activeParticles.Count - 1; i > -1; i--)
 		{
