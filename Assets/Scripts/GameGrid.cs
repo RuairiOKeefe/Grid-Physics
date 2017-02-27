@@ -88,6 +88,15 @@ public class GameGrid : MonoBehaviour
 				}
 			}
 		}
+
+		foreach (Cell c in cells)
+		{
+			gridTexture.SetPixel(c.x, c.y, Colour[(int)c.particleType]);
+			if (c.velocity.x == 0 && c.velocity.y == 0)
+			{
+				c.Settle();
+			}
+		}
 	}
 
 	public void ChangeType(cellType type)
@@ -120,7 +129,7 @@ public class GameGrid : MonoBehaviour
 	{
 		txt = cam.GetComponent<Text>();
 		txt.text = "Active Particles: " + activeParticles.Count;
-		/*if(delay <= Time.time)
+		if(delay <= Time.time)
 		{
 			if (CreateParticle(offset, 0.8f))
 				delay = Time.time + 0.1f;
@@ -128,7 +137,7 @@ public class GameGrid : MonoBehaviour
 			{
 				offset += 1.0f / width;
 			}
-		}*/
+		}
 
 		for (int i = activeParticles.Count - 1; i > -1; i--)
 		{
@@ -165,9 +174,12 @@ public class GameGrid : MonoBehaviour
 			xColl = p.UpdateX(adjVel, adjParticle);
 
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
-			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
+            cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
 
-			if (p.active)
+            gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
+            gridTexture.SetPixel(p.x, p.y, Colour[(int)p.particleType]);
+
+            if (p.active)
 			{
 				cells[p.x, p.y].UnSettle();
 			}
@@ -175,19 +187,6 @@ public class GameGrid : MonoBehaviour
 			{
 				inactiveParticles.Add(p);
 				activeParticles.Remove(p);
-			}
-		}
-		
-
-		foreach (Cell c in cells)
-		{
-			if (!c.settled)
-			{
-				gridTexture.SetPixel(c.x, c.y, Colour[(int)c.particleType]);
-				if (c.velocity.x == 0 && c.velocity.y == 0)
-				{
-					c.Settle();
-				}
 			}
 		}
 		gridTexture.Apply();
