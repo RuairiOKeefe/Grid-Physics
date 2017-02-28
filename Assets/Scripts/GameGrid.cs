@@ -175,7 +175,7 @@ public class GameGrid : MonoBehaviour
 
 			adjParticle[2] = cells[adjCoord[2], p.y].particleType;
 			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
-           // Collisions col = new Collisions();
+            Collisions col = new Collisions();
 			xColl = p.UpdateX(adjVel, adjParticle);
 
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
