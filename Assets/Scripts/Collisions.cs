@@ -4,30 +4,43 @@ using UnityEngine;
 
 public class Collisions
 {
-    public void FireBehaviour()
-    {
+   if(collided != null)
+   {
+       switch (this.particleType)
+       {
+          case cellType.water:
+                    WaterCollisions(this, collided);
+                    break;
+          case cellType.lava:
+                    LavaCollisions(this, collided);
+                    break;
+       }
 
     }
+}
+public void FireBehaviour()
+{
+
+}
 
 
-    public void WaterCollisions(Particle water, Particle other)
+public void WaterCollisions(Particle water, Particle other)
+{
+    switch (other.particleType)
     {
-        switch (other.particleType)
-        {
-            case cellType.lava:
-                other.particleType = cellType.stone;
-                water.particleType = cellType.stone;
-                break;
-        }
+        case cellType.lava:
+            other.particleType = cellType.stone;
+            water.particleType = cellType.stone;
+            break;
     }
-    public void LavaCollisions(Particle lava, Particle other)
+}
+public void LavaCollisions(Particle lava, Particle other)
+{
+    switch (other.particleType)
     {
-        switch (other.particleType)
-        {
-            case cellType.water:
-                other.particleType = cellType.stone;
-                lava.particleType = cellType.stone;
-                break;
-        }
+        case cellType.water:
+            other.particleType = cellType.stone;
+            lava.particleType = cellType.stone;
+            break;
     }
 }

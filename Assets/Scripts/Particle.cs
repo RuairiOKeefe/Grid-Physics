@@ -8,7 +8,7 @@ public class Particle
 	public int y;
 	public bool active = true;
 	public Vector2 velocity;
-	public cellType particleType;
+	public cellType particleType { get; private set; }
 
 	public int prevX { get; private set; }
 	public int prevY { get; private set; }
