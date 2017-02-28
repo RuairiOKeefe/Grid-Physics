@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum cellType
 {
@@ -27,10 +28,13 @@ public class GameGrid : MonoBehaviour
 
 	public Color[] Colour = new Color[6];
 
+	public GameObject cam;//Active particle debug stuff
+	Text txt;//Active particle debug stuff
+
 	Cell[,] cells;
 
-	HashSet<Particle> activeParticles = new HashSet<Particle>();
-	HashSet<Particle> inactiveParticles = new HashSet<Particle>();
+	List<Particle> activeParticles = new List<Particle>();
+	List<Particle> inactiveParticles = new List<Particle>();
 
 	float delay;//debug temp
 	float offset;//debug temp
@@ -84,6 +88,15 @@ public class GameGrid : MonoBehaviour
 				}
 			}
 		}
+
+		foreach (Cell c in cells)
+		{
+			gridTexture.SetPixel(c.x, c.y, Colour[(int)c.particleType]);
+			if (c.velocity.x == 0 && c.velocity.y == 0)
+			{
+				c.Settle();
+			}
+		}
 	}
 
 	public void ChangeType(cellType type)
@@ -98,7 +111,7 @@ public class GameGrid : MonoBehaviour
 		int gridX = Mathf.RoundToInt(x * width);
 		int gridY = Mathf.RoundToInt(y * height);
 
-		if (cells[gridX, gridY].particleType == cellType.empty && spawnDelay <= Time.time)
+		if (cells[gridX, gridY].particleType == cellType.empty)
 		{
 			activeParticles.Add(new Particle(gridX, gridY, particleType, new Vector2(0.0f, -9.8f), width, height));
 			spawnDelay = Time.time + 0.02f;
@@ -114,18 +127,27 @@ public class GameGrid : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate ()
 	{
-		if(delay <= Time.time)
+		txt = cam.GetComponent<Text>();
+		txt.text = "Active Particles: " + activeParticles.Count;
+		/*if(delay <= Time.time)
 		{
+
 			if (CreateParticle(offset, 0.8f))
-				delay = Time.time + 0.1f;
+			{
+				delay = Time.time;
+			}
 			else
 			{
 				offset += 1.0f / width;
 			}
-		}
-		
-		foreach (Particle p in activeParticles)
+
+			if (offset >= 1.0f)
+				offset = 0.0f;
+		}*/
+
+		for (int i = activeParticles.Count - 1; i > -1; i--)
 		{
+			Particle p = activeParticles[i];
 			Vector2[] adjVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
 			cellType[] adjParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
 			int[] adjCoord = new int[4];
@@ -158,9 +180,12 @@ public class GameGrid : MonoBehaviour
 			xColl = p.UpdateX(adjVel, adjParticle);
 
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
-			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
+            cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
 
-			if (p.active)
+            gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
+            gridTexture.SetPixel(p.x, p.y, Colour[(int)p.particleType]);
+
+            if (p.active)
 			{
 				cells[p.x, p.y].UnSettle();
 			}
@@ -168,19 +193,6 @@ public class GameGrid : MonoBehaviour
 			{
 				inactiveParticles.Add(p);
 				activeParticles.Remove(p);
-			}
-		}
-		
-
-		foreach (Cell c in cells)
-		{
-			if (!c.settled)
-			{
-				gridTexture.SetPixel(c.x, c.y, Colour[(int)c.particleType]);
-				if (c.velocity.x == 0 && c.velocity.y == 0)
-				{
-					c.Settle();
-				}
 			}
 		}
 		gridTexture.Apply();
