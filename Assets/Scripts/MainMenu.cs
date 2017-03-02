@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,17 +10,16 @@ public class MainMenu : MonoBehaviour {
     public AudioSource leverPull;
     public GameObject materials;
     public GameObject options;
-
     public GameObject grid;
 
 
 	// Use this for initialization
-	void Start () {
+	public void Start () {
 
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public void Update () {
 
         if (transform.localPosition.z < -0.700 )
         {
@@ -90,12 +90,9 @@ public class MainMenu : MonoBehaviour {
         }
     }
 
-    public void changeMaterial(int particle){
-        switch (particle)
-        {
-            case 0:
-                break;
-
-        }
+    public void switchParticle(string type)
+    {
+        cellType cType = (cellType)System.Enum.Parse(typeof(cellType), type);
+        (grid.GetComponent<GameGrid>() as GameGrid).ChangeType(cType);
     }
 }
