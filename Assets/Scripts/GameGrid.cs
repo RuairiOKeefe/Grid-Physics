@@ -21,6 +21,8 @@ public struct collision
 
 public class GameGrid : MonoBehaviour
 {
+	public bool createParticles;//Used for debugging without vive
+
 	public int width;
 	public int height;
 
@@ -38,8 +40,6 @@ public class GameGrid : MonoBehaviour
 
 	float delay;//debug temp
 	float offset;//debug temp
-
-	float spawnDelay;
 
 	Texture2D gridTexture;
 
@@ -82,9 +82,9 @@ public class GameGrid : MonoBehaviour
 		{
 			for (int j = 0; j < height; j++)
 			{
-				if (j < 2 )
+				if (j < 2)
 				{
-					cells[i, j].SetParticle(particleType, new Vector2(0,0)); //May want to set as sand
+					cells[i, j].SetParticle(cellType.stone, new Vector2(0,0)); //May want to set as sand
 				}
 			}
 		}
@@ -114,7 +114,6 @@ public class GameGrid : MonoBehaviour
 		if (cells[gridX, gridY].particleType == cellType.empty)
 		{
 			activeParticles.Add(new Particle(gridX, gridY, particleType, new Vector2(0.0f, -9.8f), width, height));
-			spawnDelay = Time.time + 0.02f;
 			return true;
 		}
 		else
@@ -129,12 +128,12 @@ public class GameGrid : MonoBehaviour
 	{
 		txt = cam.GetComponent<Text>();
 		txt.text = "Active Particles: " + activeParticles.Count;
-		/*if(delay <= Time.time)
+		if(delay <= Time.time && createParticles)
 		{
 
 			if (CreateParticle(offset, 0.8f))
 			{
-				delay = Time.time;
+				delay = Time.time + 0.0f;//Modify to change frequency of particles
 			}
 			else
 			{
@@ -143,7 +142,7 @@ public class GameGrid : MonoBehaviour
 
 			if (offset >= 1.0f)
 				offset = 0.0f;
-		}*/
+		}
 
 		for (int i = activeParticles.Count - 1; i > -1; i--)
 		{
