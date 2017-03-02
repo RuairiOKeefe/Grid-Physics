@@ -21,6 +21,8 @@ public struct collision
 
 public class GameGrid : MonoBehaviour
 {
+	public bool createParticles;
+
 	public int width;
 	public int height;
 
@@ -82,7 +84,7 @@ public class GameGrid : MonoBehaviour
 		{
 			for (int j = 0; j < height; j++)
 			{
-				if (j < 2 )
+				if (j < 2 || ( i == width -1 && j < height/2) || (i == width/2 && j < height / 2))
 				{
 					cells[i, j].SetParticle(particleType, new Vector2(0,0)); //May want to set as sand
 				}
@@ -129,12 +131,12 @@ public class GameGrid : MonoBehaviour
 	{
 		txt = cam.GetComponent<Text>();
 		txt.text = "Active Particles: " + activeParticles.Count;
-		/*if(delay <= Time.time)
+		if(delay <= Time.time && createParticles)
 		{
 
 			if (CreateParticle(offset, 0.8f))
 			{
-				delay = Time.time;
+				delay = Time.time + 0f;
 			}
 			else
 			{
@@ -143,7 +145,7 @@ public class GameGrid : MonoBehaviour
 
 			if (offset >= 1.0f)
 				offset = 0.0f;
-		}*/
+		}
 
 		for (int i = activeParticles.Count - 1; i > -1; i--)
 		{
