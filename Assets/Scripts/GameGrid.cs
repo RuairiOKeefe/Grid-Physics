@@ -133,7 +133,7 @@ public class GameGrid : MonoBehaviour
 
 			if (CreateParticle(offset, 0.8f))
 			{
-				delay = Time.time + 0.0f;//Modify to change frequency of particles
+				delay = Time.time + 1.0f;//Modify to change frequency of particles
 			}
 			else
 			{
@@ -198,7 +198,7 @@ public class GameGrid : MonoBehaviour
                     }
                     if (p.x == (width - 1))
                     {
-                        other2 = Search_Collided(p, -1 * (width - 1), 0);
+                        other2 = Search_Collided(p, -(width - 1), 0);
                     }
                     else
                     {
@@ -218,7 +218,7 @@ public class GameGrid : MonoBehaviour
                     }
                     if (p.x == (width - 1))
                     {
-                        other2 = Search_Collided(p, -1 * (width - 1), 0);
+                        other2 = Search_Collided(p, -(width - 1), 0);
                     }
                     else
                     {
