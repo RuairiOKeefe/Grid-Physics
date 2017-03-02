@@ -8,10 +8,15 @@ public class MainMenu : MonoBehaviour {
 
     public float timer = 2.0f;
     public AudioSource leverPull;
+
+    public GameObject main;
     public GameObject materials;
     public GameObject options;
-    public GameObject grid;
+    public GameObject controllerMenu;
+    public GameObject audioMenu;
+    public GameObject videoMenu;
 
+    public GameObject grid;
 
 	// Use this for initialization
 	public void Start () {
@@ -37,9 +42,63 @@ public class MainMenu : MonoBehaviour {
         }
     }
 
+
+    public void sandboxButton()
+    {
+        SceneManager.LoadScene(1);
+    }
+
+    //Used in main menu only
+    public void optionsButton()
+    {
+
+        //Close main menu
+        if (main.activeSelf)
+        {
+            main.SetActive(false);
+        }
+
+        options.SetActive(true);
+    }
+
+    //Controller settings menu
+    public void controllerButton()
+    {
+
+        //Close options menu
+        if (options.activeSelf)
+        {
+            options.SetActive(false);
+        }
+
+        controllerMenu.SetActive(true);
+    }
+
+    public void audioButton()
+    {
+        //Close options menu
+        if (options.activeSelf)
+        {
+            options.SetActive(false);
+        }
+
+        audioMenu.SetActive(true);
+    }
+
+    public void videoButton()
+    {
+        //Close options menu
+        if (options.activeSelf)
+        {
+            options.SetActive(false);
+        }
+
+        videoMenu.SetActive(true);
+    }
+
     public void exitButton()
     {
-        if(SceneManager.GetActiveScene().name == "Main Menu")
+        if(SceneManager.GetActiveScene().name == "ActualMainMenu")
         {
             //This is just for the editor
             UnityEditor.EditorApplication.isPlaying = false;
@@ -62,6 +121,11 @@ public class MainMenu : MonoBehaviour {
             options.SetActive(false);
         }
 
+        if (main.activeSelf)
+        {
+            main.SetActive(false);
+        }
+
         if (!materials.activeSelf)
         {
             materials.SetActive(true);
@@ -72,7 +136,9 @@ public class MainMenu : MonoBehaviour {
         }
     }
 
-    public void optionsButton()
+
+    //Used in UI options
+    public void optionsButtonUI()
     {
         //Close materials menu if its active 
         if (materials.activeSelf)
