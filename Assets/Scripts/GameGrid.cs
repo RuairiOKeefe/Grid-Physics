@@ -133,7 +133,7 @@ public class GameGrid : MonoBehaviour
 
 			if (CreateParticle(offset, 0.8f))
 			{
-				delay = Time.time + 1.0f;//Modify to change frequency of particles
+				delay = Time.time + 0.0f;//Modify to change frequency of particles
 			}
 			else
 			{
@@ -188,83 +188,27 @@ public class GameGrid : MonoBehaviour
                 if (yColl.location == 0)
                 {
                     collidedType = Search_Collided(p, 0, 1);
-                    if (p.x == 0)
-                    {
-                        other1 = Search_Collided(p, width - 1, 0);
-                    }
-                    else
-                    {
-                        other1 = Search_Collided(p, -1, 0);
-                    }
-                    if (p.x == (width - 1))
-                    {
-                        other2 = Search_Collided(p, -(width - 1), 0);
-                    }
-                    else
-                    {
-                        other2 = Search_Collided(p, 1, 0);
-                    }
+                    other1 = Search_Collided(p, -1, 0);
+                    other2 = Search_Collided(p, 1, 0);
                 }
                 if(yColl.location == 1)
                 {
                     collidedType = Search_Collided(p, 0, -1);
-                    if (p.x == 0)
-                    {
-                        other1 = Search_Collided(p, width - 1, 0);
-                    }
-                    else
-                    {
-                        other1 = Search_Collided(p, -1, 0);
-                    }
-                    if (p.x == (width - 1))
-                    {
-                        other2 = Search_Collided(p, -(width - 1), 0);
-                    }
-                    else
-                    {
-                        other2 = Search_Collided(p, 1, 0);
-                    }
+                    other1 = Search_Collided(p, -1, 0);
+                    other2 = Search_Collided(p, 1, 0);
                     
                 }
                 if (xColl.location == 2)
                 {
                     collidedType = Search_Collided(p, -1, 0);
-                    if (p.y == 0)
-                    {
-                        other1 = Search_Collided(p, 0 , height - 1);
-                    }
-                    else
-                    {
-                        other1 = Search_Collided(p, -1, 0);
-                    }
-                    if (p.y == (width - 1))
-                    {
-                        other2 = Search_Collided(p, 0, -1 * (height - 1));
-                    }
-                    else
-                    {
-                        other2 = Search_Collided(p, 1, 0);
-                    }
+                    other1 = Search_Collided(p, -1, 0);
+                    other2 = Search_Collided(p, 1, 0);
                 }
                 else if (xColl.location == 3)
                 {
                     collidedType = Search_Collided(p, 1, 0);
-                    if (p.y == 0)
-                    {
-                        other1 = Search_Collided(p, 0, height - 1);
-                    }
-                    else
-                    {
-                        other1 = Search_Collided(p, -1, 0);
-                    }
-                    if (p.y == (width - 1))
-                    {
-                        other2 = Search_Collided(p, 0, -1 * (height - 1));
-                    }
-                    else
-                    {
-                        other2 = Search_Collided(p, 1, 0);
-                    }
+                    other1 = Search_Collided(p, -1, 0);
+                    other2 = Search_Collided(p, 1, 0);
                 }
                 col.check(p, collidedType);
                 col.check(p, other1);
@@ -289,7 +233,27 @@ public class GameGrid : MonoBehaviour
 	}
     public cellType Search_Collided(Particle current , int x , int y)
     {
-        cellType newP = cells[current.x + x, current.y + y].particleType;
+        cellType newP;
+        if ((current.x + x) < 0)
+        {
+            newP = cells[width - 1, current.y + y].particleType;
+        }
+        else if (current.x + x >= width)
+        {
+             newP = cells[0, current.y + y].particleType;
+        }
+        else if ((current.y + y) >= height)
+        {
+             newP = cells[current.x + x, 0].particleType;
+        }
+        else if ((current.y + y) < 0)
+        {
+             newP = cells[current.x + x, (height - 1)].particleType;
+        }
+        else
+        {
+            newP = cells[current.x + x, current.y + y].particleType;
+        }
         return newP;
     }
 }

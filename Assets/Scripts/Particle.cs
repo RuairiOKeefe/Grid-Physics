@@ -160,8 +160,8 @@ public class Particle
 		collision coll = new collision();
 		coll.other = cellType.empty;
 
-		if (this.particleType == cellType.water || this.particleType == cellType.lava)//May want to create liquid bool for particles
-			LiquidShift(adjParticle);
+		//if (this.particleType == cellType.water || this.particleType == cellType.lava)//May want to create liquid bool for particles
+		//	LiquidShift(adjParticle);
 
 		if (active)
 		{
