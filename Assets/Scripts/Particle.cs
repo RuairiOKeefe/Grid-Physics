@@ -26,7 +26,13 @@ public class Particle
 	{
 		
 	}
-
+    public Particle(int x , int y , cellType particleType)
+    {
+        this.x = x;
+        this.y = y;
+        this.particleType = particleType;
+        this.velocity = new Vector2(0.0f, 0.0f);
+    }
 	public Particle(int x, int y, cellType particleType, Vector2 velocity, int width, int height)
 	{
 		this.x = x;

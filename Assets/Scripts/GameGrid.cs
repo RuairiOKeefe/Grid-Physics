@@ -12,7 +12,8 @@ public enum cellType
 	water,
 	plant,
     fire,
-    obsidian
+    wood,
+    bush
 }
 
 public struct collision
@@ -214,6 +215,10 @@ public class GameGrid : MonoBehaviour
                 col.check(p, other1);
                 col.check(p, other2);
             }
+            if (p.particleType == cellType.wood)
+            {
+                Growing(p);    
+            }
             gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
             gridTexture.SetPixel(p.x, p.y, Colour[(int)p.particleType]);
 
@@ -255,5 +260,13 @@ public class GameGrid : MonoBehaviour
             newP = cells[current.x + x, current.y + y].particleType;
         }
         return newP;
+    }
+    public void Growing(Particle plant)
+    {
+        cellType aboveSearch = Search_Collided(plant, 1, 0);
+        if (aboveSearch == cellType.empty)
+        {
+           // activeParticles.Add(new Particle(plant.x, plant.y + 1, cellType.wood));
+        }
     }
 }
