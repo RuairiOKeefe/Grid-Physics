@@ -9,7 +9,11 @@ public class Cell
 
 	public bool settled { get; private set; }
 
+	public bool barrier;
+
 	public cellType particleType { get; private set; }
+
+	public int index;
 
 	public Vector2 velocity = new Vector2(0,0);
 
@@ -17,6 +21,11 @@ public class Cell
 	{
 		this.x = x;
 		this.y = y;
+	}
+
+	public void SetBarrier()
+	{
+		this.barrier = true;
 	}
 
 	public void SetParticle(cellType particleType, Vector2 velocity)

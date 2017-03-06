@@ -84,7 +84,7 @@ public class Particle
 			}
 
 			if (velocity.x != 0)
-				moveTimeX = 10 / Mathf.Abs(velocity.x);
+				moveTimeX = Time.time + (1 / Mathf.Abs(velocity.x));
 			return coll;
 		}
         else
@@ -103,7 +103,7 @@ public class Particle
 					x = 0;
 			}
 			if (velocity.x != 0)
-				moveTimeX = 10 / Mathf.Abs(velocity.x);
+				moveTimeX = Time.time + (1 / Mathf.Abs(velocity.x));
 			return coll;
 		}
 
@@ -131,7 +131,7 @@ public class Particle
 					y = height-1;
 			}
 			if (velocity.y != 0)
-				moveTimeY = 10 / Mathf.Abs(velocity.y);
+				moveTimeY = Time.time + (1 / Mathf.Abs(velocity.y));
 			return coll;
 		}
         else
@@ -150,7 +150,7 @@ public class Particle
 					y = 0;
 			}
 			if(velocity.y != 0)
-				moveTimeY = 10 / Mathf.Abs(velocity.y);
+				moveTimeY = Time.time + (1 / Mathf.Abs(velocity.y));
 			return coll;
 		}
     }
@@ -160,8 +160,8 @@ public class Particle
 		collision coll = new collision();
 		coll.other = cellType.empty;
 
-		//if (this.particleType == cellType.water || this.particleType == cellType.lava)//May want to create liquid bool for particles
-		//	LiquidShift(adjParticle);
+		if (this.particleType == cellType.water || this.particleType == cellType.lava)//May want to create liquid bool for particles
+			LiquidShift(adjParticle);
 
 		if (active)
 		{
@@ -181,12 +181,12 @@ public class Particle
 		{
 			ApplyGravity();
 
-			if (moveTimeY <= Time.time && (velocity.y != 0))
+			if (moveTimeY <= Time.time)
 			{
 				return AttemptY(adjVel, adjParticle);
 			}
 
-			if (velocity.x == 0 && velocity.y == 0) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
+			if (velocity.x == 0 && velocity.y == 0 && particleType != cellType.water) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
 			{
 				if (!timingOut)
 				{
@@ -212,7 +212,7 @@ public class Particle
 
 	public void ApplyGravity()
 	{
-		if (velocity.y != -9.8f)
+		if (velocity.y > -50.0f)
 		{
 			velocity.y += (-9.8f * Time.deltaTime);
 		}
@@ -258,10 +258,15 @@ public class Particle
 							velocity.x = 0.0f;
 						}
 				}
-				shiftDelay = Time.time + 0.2f;
+				shiftDelay = Time.time + (10 / speed);
 			}
 			velocity.y = -9.8f;
 		}
+	}
+
+	public void ResetX()//Resets all timers related to x movement
+	{
+		shiftDelay = 0;
 	}
 
 	public void defaultCollision(bool yAxis, bool positive, Vector2 adjVel)
@@ -288,6 +293,7 @@ public class Particle
 				{
 					this.velocity.x += (adjVel.x - this.velocity.x);
 				}
+				ResetX();
 			}
 		}
 	}
