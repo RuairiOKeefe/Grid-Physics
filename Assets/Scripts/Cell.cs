@@ -13,8 +13,6 @@ public class Cell
 
 	public cellType particleType { get; private set; }
 
-	public int index;
-
 	public Vector2 velocity = new Vector2(0,0);
 
 	public void Set(int x, int y)
