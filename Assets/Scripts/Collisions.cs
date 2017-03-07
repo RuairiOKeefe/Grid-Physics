@@ -52,9 +52,12 @@ public class Collisions
         switch (other)
         {
             case cellType.water:
-                plant.particleType = cellType.wood;
+                plant.particleType = cellType.wood_base;
                 break;
             case cellType.wood:
+                plant.particleType = cellType.wood;
+                break;
+            case cellType.wood_base:
                 plant.particleType = cellType.wood;
                 break;
 

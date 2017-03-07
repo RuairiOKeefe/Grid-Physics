@@ -13,6 +13,7 @@ public enum cellType
 	plant,
     fire,
     wood,
+    wood_base,
     bush
 }
 
@@ -20,6 +21,14 @@ public struct collision
 {
 	public cellType other;
 	public int location;
+}
+
+public struct tree
+{
+    public int amount_of_growth;
+    public Particle wood;
+    public int speed_of_growth;
+    public int turns;
 }
 
 public class GameGrid : MonoBehaviour
@@ -40,6 +49,8 @@ public class GameGrid : MonoBehaviour
 
 	List<Particle> activeParticles = new List<Particle>();
 	List<Particle> inactiveParticles = new List<Particle>();
+
+    List<tree> trees = new List<tree>();
 
 	float delay;//debug temp
 	float offset;//debug temp
@@ -154,8 +165,10 @@ public class GameGrid : MonoBehaviour
 			int[] adjCoord = new int[4];
 
             Collisions col = new Collisions();
+
             collision xColl;
 			collision yColl;
+
 			adjCoord[0] = CheckRange((p.y+1), height);
 			adjCoord[1] = CheckRange((p.y-1), height);
 			
@@ -215,9 +228,25 @@ public class GameGrid : MonoBehaviour
                 col.check(p, other1);
                 col.check(p, other2);
             }
-            if (p.particleType == cellType.wood)
+            if (p.particleType == cellType.wood_base)
             {
-                Growing(p);    
+                bool exists = false;
+                foreach(tree c in trees)
+                {
+                    if(c.wood.x == p.x && c.wood.y == p.y && c.wood.velocity !=  new Vector2(0.0f,0.0f))
+                    {
+                        exists = true;
+                    }
+                }
+                if (exists == false)
+                {
+                    tree new_tree = new tree();
+                    new_tree.amount_of_growth = 20;
+                    new_tree.speed_of_growth = 5;
+                    new_tree.turns = 1;
+                    new_tree.wood = p;
+                    trees.Add(new_tree);
+                }
             }
             gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
             gridTexture.SetPixel(p.x, p.y, Colour[(int)p.particleType]);
@@ -226,7 +255,7 @@ public class GameGrid : MonoBehaviour
 			{
 				cells[p.x, p.y].UnSettle();
 			}
-			if (p.active == false)
+			if (p.active == false /*|| p.particleType == cellType.wood_base*/)
 			{
 				inactiveParticles.Add(p);
 				activeParticles.Remove(p);
@@ -235,6 +264,10 @@ public class GameGrid : MonoBehaviour
 		gridTexture.Apply();
 
 		GetComponent<Renderer>().material.mainTexture = gridTexture;
+        foreach(tree c in trees)
+        {
+            Growing(c);
+        }
 	}
     public cellType Search_Collided(Particle current , int x , int y)
     {
@@ -261,12 +294,20 @@ public class GameGrid : MonoBehaviour
         }
         return newP;
     }
-    public void Growing(Particle plant)
+    public void Growing(tree plant)
     {
-        cellType aboveSearch = Search_Collided(plant, 1, 0);
-        if (aboveSearch == cellType.empty)
+        if (plant.turns == plant.speed_of_growth)
         {
-           // activeParticles.Add(new Particle(plant.x, plant.y + 1, cellType.wood));
+            cellType aboveSearch = Search_Collided(plant.wood, 1, 0);
+            if (aboveSearch == cellType.empty)
+            {
+                activeParticles.Add(new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood));
+            }
+            plant.turns = 1;
+        }
+        else
+        {
+            plant.turns++;
         }
     }
 }
