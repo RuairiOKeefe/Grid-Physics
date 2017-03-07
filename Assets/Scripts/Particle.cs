@@ -40,6 +40,32 @@ public class Particle
 		this.height = height;
 	}
 
+	public Particle(int x, int y, bool active, Vector2 velocity, cellType particleType, int prevX, int prevY, float moveTimeX, float moveTimeY, bool timingOut, float inactiveTime, int width, int height, float shiftDelay)
+	{
+		this.x = x;
+		this.y = y;
+		this.active = active;
+		this.velocity = velocity;
+		this.particleType = particleType;
+		this.prevX = prevX;
+		this.prevY = prevY;
+		this.moveTimeX = moveTimeX;
+		this.moveTimeY = moveTimeY;
+		this.timingOut = timingOut;
+		this.inactiveTime = inactiveTime;
+		this.width = width;
+		this.height = height;
+		this.shiftDelay = shiftDelay;
+	}
+
+	public Particle Clone()
+	{
+		//This is awful there must be a better way
+		Particle clone = new Particle(x, y, active, velocity, particleType, prevX, prevY, moveTimeX, moveTimeY, timingOut, inactiveTime, width, height, shiftDelay);
+
+		return clone;
+	}
+
 	public void SetParticle(int x, int y, cellType particleType, Vector2 velocity, int width, int height)
 	{
 		this.x = x;
