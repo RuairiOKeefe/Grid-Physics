@@ -112,6 +112,51 @@ public class MainMenu : MonoBehaviour {
         }
     }
 
+    public void homeButton(string menu)
+    {
+        switch (menu)
+        {
+            case "options":
+                options.SetActive(false);
+                break;
+            case "controllers":
+                controllerMenu.SetActive(false);
+                break;
+            case "audio":
+                audioMenu.SetActive(false);
+                break;
+            case "video":
+                videoMenu.SetActive(false);
+                break;
+        }
+
+        main.SetActive(true);
+    }
+
+    public void backButton(string menu)
+    {
+        switch (menu)
+        {
+            case "options":
+                options.SetActive(false);
+                main.SetActive(true);
+                break;
+            case "controllers":
+                controllerMenu.SetActive(false);
+                options.SetActive(true);
+                break;
+            case "audio":
+                audioMenu.SetActive(false);
+                options.SetActive(true);
+                break;
+            case "video":
+                videoMenu.SetActive(false);
+                options.SetActive(true);
+                break;
+        }
+
+    }
+
     //Function for materials button in UI
     public void materialsButton()
     {
