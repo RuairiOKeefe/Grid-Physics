@@ -186,7 +186,7 @@ public class Particle
 				return AttemptY(adjVel, adjParticle);
 			}
 
-			if (velocity.x == 0 && velocity.y == 0 && particleType != cellType.water) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
+			if ((velocity.x == 0 && velocity.y == 0) && (particleType != cellType.water)) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
 			{
 				if (!timingOut)
 				{

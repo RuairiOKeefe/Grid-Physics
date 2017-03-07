@@ -203,7 +203,8 @@ public class GameGrid : MonoBehaviour
 			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
 
 			yColl = p.UpdateY(adjVel, adjParticle);
-      
+			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
+			cells[p.prevX, p.prevY].Settle();
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
 
@@ -218,8 +219,13 @@ public class GameGrid : MonoBehaviour
 			xColl = p.UpdateX(adjVel, adjParticle);
           
             cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
+			cells[p.prevX, p.prevY].Settle();
 			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
 
+			adjCoord[0] = CheckRange((p.y + 1), height);
+			adjCoord[1] = CheckRange((p.y - 1), height);
+			adjCoord[2] = CheckRange((p.x - 1), width);
+			adjCoord[3] = CheckRange((p.x + 1), width);
 
 			if (xColl.other != cellType.empty || yColl.other != cellType.empty)
             {
@@ -261,12 +267,12 @@ public class GameGrid : MonoBehaviour
 			{
 				cells[p.x, p.y].UnSettle();
 			}
-			if (p.active == false)
-			{
-				cells[p.x, p.y].Settle();
-				inactiveParticles.Add(p);
-				activeParticles.Remove(p);
-			}
+			else
+				{
+					cells[p.x, p.y].Settle();
+					inactiveParticles.Add(p);
+					activeParticles.Remove(p);
+				}
 		}
 		gridTexture.Apply();
 
