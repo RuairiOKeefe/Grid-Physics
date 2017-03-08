@@ -9,6 +9,7 @@ public class Particle
 	public bool active = true;
 	public Vector2 velocity;
 	public cellType particleType;
+	public float terminalVelocity = -100f;//may want to calculate as a function of mass
 
 	public int prevX { get; private set; }
 	public int prevY { get; private set; }
@@ -141,7 +142,7 @@ public class Particle
         prevY = y;
 		collision coll = new collision();
 		coll.other = cellType.empty;
-		//ApplyGravity();
+		ApplyGravity();
 		if (velocity.y < 0)
         {
 			if (adjParticle[1] != cellType.empty)
@@ -237,7 +238,7 @@ public class Particle
 
 	public void ApplyGravity()
 	{
-		if (velocity.y > -50.0f)
+		if (velocity.y > terminalVelocity)
 		{
 			velocity.y += (-9.8f * Time.deltaTime);
 		}
