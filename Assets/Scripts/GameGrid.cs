@@ -163,6 +163,100 @@ public class GameGrid : MonoBehaviour
 		}
 	}
 
+	public void UpdateActiveParticles()
+	{
+		for (int i = activeParticles.Count - 1; i > 0; i--)
+		{
+			Particle p = activeParticles[i];
+
+			Vector2[] adjVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
+			cellType[] adjParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
+			int[] adjCoord = new int[4];
+
+			Collisions col = new Collisions();
+			collision xColl;
+			collision yColl;
+			adjCoord[0] = CheckRange((p.y + 1), height);
+			adjCoord[1] = CheckRange((p.y - 1), height);
+
+			adjVel[0] = cells[p.x, adjCoord[0]].velocity;
+			adjVel[1] = cells[p.x, adjCoord[1]].velocity;
+
+			adjParticle[0] = cells[p.x, adjCoord[0]].particleType;
+			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
+
+			yColl = p.UpdateY(adjVel, adjParticle);
+			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
+			cells[p.prevX, p.prevY].Settle();
+
+			adjCoord[2] = CheckRange((p.x - 1), width);
+			adjCoord[3] = CheckRange((p.x + 1), width);
+
+			adjVel[2] = cells[adjCoord[2], p.y].velocity;
+			adjVel[3] = cells[adjCoord[3], p.y].velocity;
+
+			adjParticle[2] = cells[adjCoord[2], p.y].particleType;
+			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
+			xColl = p.UpdateX(adjVel, adjParticle);
+			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
+			cells[p.prevX, p.prevY].Settle();
+
+			adjCoord[0] = CheckRange((p.y + 1), height);
+			adjCoord[1] = CheckRange((p.y - 1), height);
+			adjCoord[2] = CheckRange((p.x - 1), width);
+			adjCoord[3] = CheckRange((p.x + 1), width);
+
+			/*if (xColl.other != cellType.empty || yColl.other != cellType.empty)
+			{
+				wakeAdj(cells[p.x, p.y], adjCoord);
+				cellType collidedType = cellType.empty, other1 = cellType.empty, other2 = cellType.empty;
+				if (yColl.location == 0)
+				{
+					collidedType = Search_Collided(p, 0, 1);
+					other1 = Search_Collided(p, -1, 0);
+					other2 = Search_Collided(p, 1, 0);
+				}
+				if (yColl.location == 1)
+				{
+					collidedType = Search_Collided(p, 0, -1);
+					other1 = Search_Collided(p, -1, 0);
+					other2 = Search_Collided(p, 1, 0);
+
+				}
+				if (xColl.location == 2)
+				{
+					collidedType = Search_Collided(p, -1, 0);
+					other1 = Search_Collided(p, -1, 0);
+					other2 = Search_Collided(p, 1, 0);
+				}
+				else if (xColl.location == 3)
+				{
+					collidedType = Search_Collided(p, 1, 0);
+					other1 = Search_Collided(p, -1, 0);
+					other2 = Search_Collided(p, 1, 0);
+				}
+				col.check(p, collidedType);
+				col.check(p, other1);
+				col.check(p, other2);
+			}*/
+			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
+			cells[p.prevX, p.prevY].Settle();
+			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
+			gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
+			gridTexture.SetPixel(p.x, p.y, Colour[(int)p.particleType]);
+
+			if (p.active)
+			{
+				cells[p.x, p.y].UnSettle();
+			}
+			if (p.active == false)
+			{
+				cells[p.x, p.y].Settle();
+				this.inactiveParticles[p.x, p.y] = p;
+				activeParticles.Remove(p);
+			}
+		}
+	}
 	
 	// Update is called once per frame
 	void FixedUpdate ()
@@ -185,93 +279,7 @@ public class GameGrid : MonoBehaviour
 				offset = 0.0f;
 		}
 
-		for(int i = activeParticles.Count -1; i > 0; i--)
-		{
-			Particle p = activeParticles[i];
- 
-            Vector2[] adjVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
-			cellType[] adjParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
-			int[] adjCoord = new int[4];
-
-            Collisions col = new Collisions();
-            collision xColl;
-			collision yColl;
-			adjCoord[0] = CheckRange((p.y+1), height);
-			adjCoord[1] = CheckRange((p.y-1), height);
-			
-			adjVel[0] = cells[p.x, adjCoord[0]].velocity;
-			adjVel[1] = cells[p.x, adjCoord[1]].velocity;
-
-			adjParticle[0] = cells[p.x, adjCoord[0]].particleType;
-			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
-
-			yColl = p.UpdateY(adjVel, adjParticle);
-
-            adjCoord[2] = CheckRange((p.x-1), width);
-			adjCoord[3] = CheckRange((p.x+1), width);
-
-			adjVel[2] = cells[adjCoord[2], p.y].velocity;
-			adjVel[3] = cells[adjCoord[3], p.y].velocity;
-
-			adjParticle[2] = cells[adjCoord[2], p.y].particleType;
-			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
-			xColl = p.UpdateX(adjVel, adjParticle);
-          
-			adjCoord[0] = CheckRange((p.y + 1), height);
-			adjCoord[1] = CheckRange((p.y - 1), height);
-			adjCoord[2] = CheckRange((p.x - 1), width);
-			adjCoord[3] = CheckRange((p.x + 1), width);
-
-			if (xColl.other != cellType.empty || yColl.other != cellType.empty)
-            {
-				wakeAdj(cells[p.x, p.y], adjCoord);
-                cellType collidedType  = cellType.empty , other1 = cellType.empty, other2 = cellType.empty;
-                if (yColl.location == 0)
-                {
-                    collidedType = Search_Collided(p, 0, 1);
-                    other1 = Search_Collided(p, -1, 0);
-                    other2 = Search_Collided(p, 1, 0);
-                }
-                if(yColl.location == 1)
-                {
-                    collidedType = Search_Collided(p, 0, -1);
-                    other1 = Search_Collided(p, -1, 0);
-                    other2 = Search_Collided(p, 1, 0);
-                    
-                }
-                if (xColl.location == 2)
-                {
-                    collidedType = Search_Collided(p, -1, 0);
-                    other1 = Search_Collided(p, -1, 0);
-                    other2 = Search_Collided(p, 1, 0);
-                }
-                else if (xColl.location == 3)
-                {
-                    collidedType = Search_Collided(p, 1, 0);
-                    other1 = Search_Collided(p, -1, 0);
-                    other2 = Search_Collided(p, 1, 0);
-                }
-                col.check(p, collidedType);
-                col.check(p, other1);
-                col.check(p, other2);
-            }
-			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
-			cells[p.prevX, p.prevY].Settle();
-			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
-            gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
-            gridTexture.SetPixel(p.x, p.y, Colour[(int)p.particleType]);
-
-            if (p.active)
-			{
-				cells[p.x, p.y].UnSettle();
-			}
-			if (p.active == false)
-			{
-				cells[p.x, p.y].Settle();
-				this.inactiveParticles[p.x, p.y] = p;
-				activeParticles.Remove(p);
-			}
-		}
+		UpdateActiveParticles();
 
 		/*for(int i = 0; i < activeParticles.Count-1; i++)
 		{

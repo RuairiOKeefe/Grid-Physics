@@ -251,7 +251,7 @@ public class Particle
 			speed = 5.0f;
 		if (particleType == cellType.lava)
 			speed = 2.0f;
-		if (adjParticle[1] != cellType.empty && adjVel[1].y == 0.0f)
+		if (adjParticle[1] != cellType.empty)
 		{
 			if (shiftDelay < Time.time)
 			{
@@ -284,7 +284,7 @@ public class Particle
 							velocity.x = 0.0f;
 						}
 				}
-				shiftDelay = Time.time + (10 / speed);
+				shiftDelay = Time.time + (10*(1 / speed));
 			}
 			if (adjParticle[1] == cellType.empty)
 			{
