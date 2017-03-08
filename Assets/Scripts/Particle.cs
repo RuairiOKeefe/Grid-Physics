@@ -141,6 +141,7 @@ public class Particle
         prevY = y;
 		collision coll = new collision();
 		coll.other = cellType.empty;
+		//ApplyGravity();
 		if (velocity.y < 0)
         {
 			if (adjParticle[1] != cellType.empty)
@@ -205,8 +206,6 @@ public class Particle
 		coll.other = cellType.empty;
 		if (active)
 		{
-			ApplyGravity();
-
 			if (moveTimeY <= Time.time)
 			{
 				return AttemptY(adjVel, adjParticle);
