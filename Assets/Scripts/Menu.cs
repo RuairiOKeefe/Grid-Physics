@@ -29,7 +29,7 @@ public class Menu : MonoBehaviour
         temp_pos.y += 0.3f;
         //temp_pos.x += 0.3f;
         menuTrasform.position = temp_pos;
-        menuTrasform.LookAt(menuTrasform.position + cam.transform.rotation * Vector3.forward, cam.transform.rotation * Vector3.up);
+        //menuTrasform.LookAt(menuTrasform.position + cam.transform.rotation * Vector3.forward, cam.transform.rotation * Vector3.up);
     }
     private void ShowMenu()
     {
@@ -44,6 +44,7 @@ public class Menu : MonoBehaviour
     {
         final_menu = Instantiate(Prefabmenu);
         menuTrasform = final_menu.transform;
+        moveMenu();
         final_menu.SetActive(false);
     }
 
@@ -53,7 +54,6 @@ public class Menu : MonoBehaviour
         RaycastHit hit;
         Material touched = Resources.Load("LAser", typeof(Material)) as Material;
         Material notTouched = Resources.Load("Point Shader", typeof(Material)) as Material;
-        //moveMenu();
         modes += 1;
         int layerMask = LayerMask.GetMask("UI");
 
