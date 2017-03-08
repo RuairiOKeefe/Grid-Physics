@@ -187,7 +187,7 @@ public class Particle
 		coll.other = cellType.empty;
 
 		if (this.particleType == cellType.water || this.particleType == cellType.lava)//May want to create liquid bool for particles
-			LiquidShift(adjParticle);
+			LiquidShift(adjVel, adjParticle);
 
 		if (active)
 		{
@@ -244,14 +244,14 @@ public class Particle
 		}
 	}
 
-	public void LiquidShift(cellType[] adjParticle)
+	public void LiquidShift(Vector2[] adjVel, cellType[] adjParticle)
 	{
 		float speed = 0.0f;
 		if (particleType == cellType.water)
 			speed = 5.0f;
 		if (particleType == cellType.lava)
 			speed = 2.0f;
-		if (adjParticle[1] != cellType.empty)
+		if (adjParticle[1] != cellType.empty && adjVel[1].y == 0.0f)
 		{
 			if (shiftDelay < Time.time)
 			{
@@ -286,7 +286,10 @@ public class Particle
 				}
 				shiftDelay = Time.time + (10 / speed);
 			}
-			velocity.y = -9.8f;
+			if (adjParticle[1] == cellType.empty)
+			{
+				y--;
+			}
 		}
 	}
 
