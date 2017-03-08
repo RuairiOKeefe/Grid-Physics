@@ -53,7 +53,7 @@ public class Menu : MonoBehaviour
         RaycastHit hit;
         Material touched = Resources.Load("LAser", typeof(Material)) as Material;
         Material notTouched = Resources.Load("Point Shader", typeof(Material)) as Material;
-        moveMenu();
+        //moveMenu();
         modes += 1;
         int layerMask = LayerMask.GetMask("UI");
 
