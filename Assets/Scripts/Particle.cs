@@ -9,6 +9,7 @@ public class Particle
 	public bool active = true;
 	public Vector2 velocity;
 	public cellType particleType;
+	public float terminalVelocity = -100f;//may want to calculate as a function of mass
 
 	public int prevX { get; private set; }
 	public int prevY { get; private set; }
@@ -141,6 +142,7 @@ public class Particle
         prevY = y;
 		collision coll = new collision();
 		coll.other = cellType.empty;
+		ApplyGravity();
 		if (velocity.y < 0)
         {
 			if (adjParticle[1] != cellType.empty)
@@ -187,7 +189,7 @@ public class Particle
 		coll.other = cellType.empty;
 
 		if (this.particleType == cellType.water || this.particleType == cellType.lava)//May want to create liquid bool for particles
-			LiquidShift(adjParticle);
+			LiquidShift(adjVel, adjParticle);
 
 		if (active)
 		{
@@ -205,32 +207,32 @@ public class Particle
 		coll.other = cellType.empty;
 		if (active)
 		{
-			ApplyGravity();
-
 			if (moveTimeY <= Time.time)
 			{
 				return AttemptY(adjVel, adjParticle);
 			}
-
-			if ((velocity.x == 0 && velocity.y == 0) && (particleType != cellType.water)) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
+			if (particleType != cellType.water)
 			{
-				if (!timingOut)
+				if (velocity.x == 0 && velocity.y == 0 && adjParticle[1] != cellType.empty) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
 				{
-					inactiveTime = Time.time + 3.0f;
-					timingOut = true;
-				}
+					if (!timingOut)
+					{
+						inactiveTime = Time.time + 5.0f;
+						timingOut = true;
+					}
 
-				if (timingOut && inactiveTime <= Time.time)
-				{
-					velocity = new Vector2(0.0f, 0.0f);
-					active = false;
+					if (timingOut && inactiveTime <= Time.time)
+					{
+						velocity = new Vector2(0.0f, 0.0f);
+						active = false;
+					}
+					return coll;
 				}
-				return coll;
-			}
-			else //If it is moving make sure it is not timing out
-			{
-				if (timingOut)
-					timingOut = false;
+				else //If it is moving make sure it is not timing out
+				{
+					if (timingOut)
+						timingOut = false;
+				}
 			}
 		}
 		return coll;
@@ -238,13 +240,13 @@ public class Particle
 
 	public void ApplyGravity()
 	{
-		if (velocity.y > -50.0f)
+		if (velocity.y > terminalVelocity)
 		{
-			velocity.y += (-9.8f * Time.deltaTime);
+			velocity.y += (-9.8f * 10 * Time.deltaTime);
 		}
 	}
 
-	public void LiquidShift(cellType[] adjParticle)
+	public void LiquidShift(Vector2[] adjVel, cellType[] adjParticle)
 	{
 		float speed = 0.0f;
 		if (particleType == cellType.water)
@@ -284,9 +286,12 @@ public class Particle
 							velocity.x = 0.0f;
 						}
 				}
-				shiftDelay = Time.time + (10 / speed);
+				shiftDelay = Time.time + (10*(1 / speed));
 			}
-			velocity.y = -9.8f;
+			if (adjParticle[1] == cellType.empty)
+			{
+				y--;
+			}
 		}
 	}
 
