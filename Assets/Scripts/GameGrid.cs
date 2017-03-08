@@ -90,7 +90,7 @@ public class GameGrid : MonoBehaviour
 		}
 		if ((cells[adjCoord[3], c.y].settled) && (cells[adjCoord[3], c.y].particleType != cellType.empty) && (!cells[adjCoord[3], c.y].barrier))
 		{
-			Particle p = inactiveParticles[adjCoord[2], c.y];
+			Particle p = inactiveParticles[adjCoord[3], c.y];
 			p.active = true;
 			cells[adjCoord[3], c.y].UnSettle();
 			inactiveParticles[adjCoord[3], c.y] = null;
@@ -168,7 +168,7 @@ public class GameGrid : MonoBehaviour
 		for (int i = activeParticles.Count - 1; i > 0; i--)
 		{
 			Particle p = activeParticles[i];
-
+			gridTexture.SetPixel(p.x, p.y, Colour[(int)cellType.empty]);
 			Vector2[] adjVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
 			cellType[] adjParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
 			int[] adjCoord = new int[4];
@@ -186,6 +186,7 @@ public class GameGrid : MonoBehaviour
 			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
 
 			yColl = p.UpdateY(adjVel, adjParticle);
+			gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.prevX, p.prevY].Settle();
 
@@ -198,6 +199,7 @@ public class GameGrid : MonoBehaviour
 			adjParticle[2] = cells[adjCoord[2], p.y].particleType;
 			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
 			xColl = p.UpdateX(adjVel, adjParticle);
+			gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.prevX, p.prevY].Settle();
 
@@ -206,7 +208,7 @@ public class GameGrid : MonoBehaviour
 			adjCoord[2] = CheckRange((p.x - 1), width);
 			adjCoord[3] = CheckRange((p.x + 1), width);
 
-			/*if (xColl.other != cellType.empty || yColl.other != cellType.empty)
+			if (xColl.other != cellType.empty || yColl.other != cellType.empty)
 			{
 				wakeAdj(cells[p.x, p.y], adjCoord);
 				cellType collidedType = cellType.empty, other1 = cellType.empty, other2 = cellType.empty;
@@ -238,7 +240,7 @@ public class GameGrid : MonoBehaviour
 				col.check(p, collidedType);
 				col.check(p, other1);
 				col.check(p, other2);
-			}*/
+			}
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.prevX, p.prevY].Settle();
 			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
@@ -280,11 +282,6 @@ public class GameGrid : MonoBehaviour
 		}
 
 		UpdateActiveParticles();
-
-		/*for(int i = 0; i < activeParticles.Count-1; i++)
-		{
-			Particle p = activeParticles[i];
-		}*/
 
 		gridTexture.Apply();
 

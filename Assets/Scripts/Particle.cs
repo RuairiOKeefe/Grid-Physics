@@ -211,26 +211,28 @@ public class Particle
 			{
 				return AttemptY(adjVel, adjParticle);
 			}
-
-			if ((velocity.x == 0 && velocity.y == 0) && (particleType != cellType.water)) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
+			if (particleType != cellType.water)
 			{
-				if (!timingOut)
+				if (velocity.x == 0 && velocity.y == 0 && adjParticle[1] != cellType.empty) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
 				{
-					inactiveTime = Time.time + 3.0f;
-					timingOut = true;
-				}
+					if (!timingOut)
+					{
+						inactiveTime = Time.time + 5.0f;
+						timingOut = true;
+					}
 
-				if (timingOut && inactiveTime <= Time.time)
-				{
-					velocity = new Vector2(0.0f, 0.0f);
-					active = false;
+					if (timingOut && inactiveTime <= Time.time)
+					{
+						velocity = new Vector2(0.0f, 0.0f);
+						active = false;
+					}
+					return coll;
 				}
-				return coll;
-			}
-			else //If it is moving make sure it is not timing out
-			{
-				if (timingOut)
-					timingOut = false;
+				else //If it is moving make sure it is not timing out
+				{
+					if (timingOut)
+						timingOut = false;
+				}
 			}
 		}
 		return coll;
@@ -240,7 +242,7 @@ public class Particle
 	{
 		if (velocity.y > terminalVelocity)
 		{
-			velocity.y += (-9.8f * Time.deltaTime);
+			velocity.y += (-9.8f * 10 * Time.deltaTime);
 		}
 	}
 
