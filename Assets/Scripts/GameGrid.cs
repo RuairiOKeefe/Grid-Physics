@@ -195,7 +195,7 @@ public class GameGrid : MonoBehaviour
 
 		foreach (KeyValuePair<coordPair, Particle> kp in activeParticles)
 		{
-			Particle p = kp.Value;
+			Particle p = activeParticles[kp.Key];
  
             Vector2[] adjVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
 			cellType[] adjParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
@@ -276,6 +276,9 @@ public class GameGrid : MonoBehaviour
 
             if (p.active)
 			{
+				coordPair arse = new coordPair() { x = kp.Value.x, y = kp.Value.y };
+				activeParticles.Add(arse, kp.Value);
+				activeParticles.Remove(kp.Key);
 				cells[p.x, p.y].UnSettle();
 			}
 			if (p.active == false)
