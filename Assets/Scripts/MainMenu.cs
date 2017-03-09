@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,16 +8,23 @@ public class MainMenu : MonoBehaviour {
 
     public float timer = 2.0f;
     public AudioSource leverPull;
+
+    public GameObject main;
     public GameObject materials;
     public GameObject options;
+    public GameObject controllerMenu;
+    public GameObject audioMenu;
+    public GameObject videoMenu;
+
+    public GameObject grid;
 
 	// Use this for initialization
-	void Start () {
-		
+	public void Start () {
+
 	}
- 
-    // Update is called once per frame
-    void Update () {
+	
+	// Update is called once per frame
+	public void Update () {
 
         if (transform.localPosition.z < -0.700 )
         {
@@ -34,9 +42,63 @@ public class MainMenu : MonoBehaviour {
         }
     }
 
+
+    public void sandboxButton()
+    {
+        SceneManager.LoadScene(1);
+    }
+
+    //Used in main menu only
+    public void optionsButton()
+    {
+
+        //Close main menu
+        if (main.activeSelf)
+        {
+            main.SetActive(false);
+        }
+
+        options.SetActive(true);
+    }
+
+    //Controller settings menu
+    public void controllerButton()
+    {
+
+        //Close options menu
+        if (options.activeSelf)
+        {
+            options.SetActive(false);
+        }
+
+        controllerMenu.SetActive(true);
+    }
+
+    public void audioButton()
+    {
+        //Close options menu
+        if (options.activeSelf)
+        {
+            options.SetActive(false);
+        }
+
+        audioMenu.SetActive(true);
+    }
+
+    public void videoButton()
+    {
+        //Close options menu
+        if (options.activeSelf)
+        {
+            options.SetActive(false);
+        }
+
+        videoMenu.SetActive(true);
+    }
+
     public void exitButton()
     {
-        if(SceneManager.GetActiveScene().name == "Main Menu")
+        if(SceneManager.GetActiveScene().name == "ActualMainMenu")
         {
             //This is just for the editor
             UnityEditor.EditorApplication.isPlaying = false;
@@ -50,6 +112,51 @@ public class MainMenu : MonoBehaviour {
         }
     }
 
+    public void homeButton(string menu)
+    {
+        switch (menu)
+        {
+            case "options":
+                options.SetActive(false);
+                break;
+            case "controllers":
+                controllerMenu.SetActive(false);
+                break;
+            case "audio":
+                audioMenu.SetActive(false);
+                break;
+            case "video":
+                videoMenu.SetActive(false);
+                break;
+        }
+
+        main.SetActive(true);
+    }
+
+    public void backButton(string menu)
+    {
+        switch (menu)
+        {
+            case "options":
+                options.SetActive(false);
+                main.SetActive(true);
+                break;
+            case "controllers":
+                controllerMenu.SetActive(false);
+                options.SetActive(true);
+                break;
+            case "audio":
+                audioMenu.SetActive(false);
+                options.SetActive(true);
+                break;
+            case "video":
+                videoMenu.SetActive(false);
+                options.SetActive(true);
+                break;
+        }
+
+    }
+
     //Function for materials button in UI
     public void materialsButton()
     {
@@ -57,6 +164,11 @@ public class MainMenu : MonoBehaviour {
         if (options.activeSelf)
         {
             options.SetActive(false);
+        }
+
+        if (main.activeSelf)
+        {
+            main.SetActive(false);
         }
 
         if (!materials.activeSelf)
@@ -69,7 +181,9 @@ public class MainMenu : MonoBehaviour {
         }
     }
 
-    public void optionsButton()
+
+    //Used in UI options
+    public void optionsButtonUI()
     {
         //Close materials menu if its active 
         if (materials.activeSelf)
@@ -85,5 +199,11 @@ public class MainMenu : MonoBehaviour {
         {
             options.SetActive(false);
         }
+    }
+
+    public void switchParticle(string type)
+    {
+        cellType cType = (cellType)System.Enum.Parse(typeof(cellType), type);
+        (grid.GetComponent<GameGrid>() as GameGrid).ChangeType(cType);
     }
 }

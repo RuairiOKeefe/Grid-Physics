@@ -9,6 +9,7 @@ public class Particle
 	public bool active = true;
 	public Vector2 velocity;
 	public cellType particleType;
+	public float terminalVelocity = -100f;//may want to calculate as a function of mass
 
 	public int prevX { get; private set; }
 	public int prevY { get; private set; }
@@ -44,6 +45,32 @@ public class Particle
 		prevY = y;
 		this.width = width;
 		this.height = height;
+	}
+
+	public Particle(int x, int y, bool active, Vector2 velocity, cellType particleType, int prevX, int prevY, float moveTimeX, float moveTimeY, bool timingOut, float inactiveTime, int width, int height, float shiftDelay)
+	{
+		this.x = x;
+		this.y = y;
+		this.active = active;
+		this.velocity = velocity;
+		this.particleType = particleType;
+		this.prevX = prevX;
+		this.prevY = prevY;
+		this.moveTimeX = moveTimeX;
+		this.moveTimeY = moveTimeY;
+		this.timingOut = timingOut;
+		this.inactiveTime = inactiveTime;
+		this.width = width;
+		this.height = height;
+		this.shiftDelay = shiftDelay;
+	}
+
+	public Particle Clone()
+	{
+		//This is awful there must be a better way
+		Particle clone = new Particle(x, y, active, velocity, particleType, prevX, prevY, moveTimeX, moveTimeY, timingOut, inactiveTime, width, height, shiftDelay);
+
+		return clone;
 	}
 
 	public void SetParticle(int x, int y, cellType particleType, Vector2 velocity, int width, int height)
@@ -90,7 +117,7 @@ public class Particle
 			}
 
 			if (velocity.x != 0)
-				moveTimeX = 10 / Mathf.Abs(velocity.x);
+				moveTimeX = Time.time + (1 / Mathf.Abs(velocity.x));
 			return coll;
 		}
         else
@@ -109,7 +136,7 @@ public class Particle
 					x = 0;
 			}
 			if (velocity.x != 0)
-				moveTimeX = 10 / Mathf.Abs(velocity.x);
+				moveTimeX = Time.time + (1 / Mathf.Abs(velocity.x));
 			return coll;
 		}
 
@@ -121,6 +148,7 @@ public class Particle
         prevY = y;
 		collision coll = new collision();
 		coll.other = cellType.empty;
+		ApplyGravity();
 		if (velocity.y < 0)
         {
 			if (adjParticle[1] != cellType.empty)
@@ -137,7 +165,7 @@ public class Particle
 					y = height-1;
 			}
 			if (velocity.y != 0)
-				moveTimeY = 10 / Mathf.Abs(velocity.y);
+				moveTimeY = Time.time + (1 / Mathf.Abs(velocity.y));
 			return coll;
 		}
         else
@@ -156,7 +184,7 @@ public class Particle
 					y = 0;
 			}
 			if(velocity.y != 0)
-				moveTimeY = 10 / Mathf.Abs(velocity.y);
+				moveTimeY = Time.time + (1 / Mathf.Abs(velocity.y));
 			return coll;
 		}
     }
@@ -166,8 +194,8 @@ public class Particle
 		collision coll = new collision();
 		coll.other = cellType.empty;
 
-		//if (this.particleType == cellType.water || this.particleType == cellType.lava)//May want to create liquid bool for particles
-		//	LiquidShift(adjParticle);
+		if (this.particleType == cellType.water || this.particleType == cellType.lava)//May want to create liquid bool for particles
+			LiquidShift(adjVel, adjParticle);
 
 		if (active)
 		{
@@ -185,32 +213,32 @@ public class Particle
 		coll.other = cellType.empty;
 		if (active)
 		{
-			ApplyGravity();
-
-			if (moveTimeY <= Time.time && (velocity.y != 0))
+			if (moveTimeY <= Time.time)
 			{
 				return AttemptY(adjVel, adjParticle);
 			}
-
-			if (velocity.x == 0 && velocity.y == 0) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
+			if (particleType != cellType.water)
 			{
-				if (!timingOut)
+				if (velocity.x == 0 && velocity.y == 0 && adjParticle[1] != cellType.empty) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
 				{
-					inactiveTime = Time.time + 3.0f;
-					timingOut = true;
-				}
+					if (!timingOut)
+					{
+						inactiveTime = Time.time + 5.0f;
+						timingOut = true;
+					}
 
-				if (timingOut && inactiveTime <= Time.time)
-				{
-					velocity = new Vector2(0.0f, 0.0f);
-					active = false;
+					if (timingOut && inactiveTime <= Time.time)
+					{
+						velocity = new Vector2(0.0f, 0.0f);
+						active = false;
+					}
+					return coll;
 				}
-				return coll;
-			}
-			else //If it is moving make sure it is not timing out
-			{
-				if (timingOut)
-					timingOut = false;
+				else //If it is moving make sure it is not timing out
+				{
+					if (timingOut)
+						timingOut = false;
+				}
 			}
 		}
 		return coll;
@@ -218,13 +246,13 @@ public class Particle
 
 	public void ApplyGravity()
 	{
-		if (velocity.y != -9.8f)
+		if (velocity.y > terminalVelocity)
 		{
-			velocity.y += (-9.8f * Time.deltaTime);
+			velocity.y += (-9.8f * 10 * Time.deltaTime);
 		}
 	}
 
-	public void LiquidShift(cellType[] adjParticle)
+	public void LiquidShift(Vector2[] adjVel, cellType[] adjParticle)
 	{
 		float speed = 0.0f;
 		if (particleType == cellType.water)
@@ -264,10 +292,18 @@ public class Particle
 							velocity.x = 0.0f;
 						}
 				}
-				shiftDelay = Time.time + 0.2f;
+				shiftDelay = Time.time + (10*(1 / speed));
 			}
-			velocity.y = -9.8f;
+			if (adjParticle[1] == cellType.empty)
+			{
+				y--;
+			}
 		}
+	}
+
+	public void ResetX()//Resets all timers related to x movement
+	{
+		shiftDelay = 0;
 	}
 
 	public void defaultCollision(bool yAxis, bool positive, Vector2 adjVel)
@@ -294,6 +330,7 @@ public class Particle
 				{
 					this.velocity.x += (adjVel.x - this.velocity.x);
 				}
+				ResetX();
 			}
 		}
 	}

@@ -23,6 +23,7 @@ public struct collision
 	public int location;
 }
 
+
 public struct tree
 {
     public int amount_of_growth;
@@ -48,7 +49,7 @@ public class GameGrid : MonoBehaviour
 	Cell[,] cells;
 
 	List<Particle> activeParticles = new List<Particle>();
-	List<Particle> inactiveParticles = new List<Particle>();
+	Particle[,] inactiveParticles;
 
     List<tree> trees = new List<tree>();
 
@@ -74,10 +75,50 @@ public class GameGrid : MonoBehaviour
 		return newCoord;
 	}
 
+	void wakeAdj(Cell c, int[] adjCoord)
+	{
+		if ((cells[c.x, adjCoord[0]].settled) && (cells[c.x, adjCoord[0]].particleType != cellType.empty) && (!cells[c.x, adjCoord[0]].barrier))
+		{
+			Particle p = inactiveParticles[c.x, adjCoord[0]];
+			p.active = true;
+			cells[c.x, adjCoord[0]].UnSettle();
+			cells[c.x, adjCoord[0]].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
+			inactiveParticles[c.x, adjCoord[0]] = null;
+			activeParticles.Add(p);
+		}
+		if ((cells[c.x, adjCoord[1]].settled) && (cells[c.x, adjCoord[1]].particleType != cellType.empty) && (!cells[c.x, adjCoord[1]].barrier))
+		{
+			Particle p = inactiveParticles[c.x, adjCoord[1]];
+			p.active = true;
+			cells[c.x, adjCoord[1]].UnSettle();
+			cells[c.x, adjCoord[1]].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
+			inactiveParticles[c.x, adjCoord[1]] = null;
+			activeParticles.Add(p);
+		}
+		if ((cells[adjCoord[2], c.y].settled) && (cells[adjCoord[2], c.y].particleType != cellType.empty) && (!cells[adjCoord[2], c.y].barrier))
+		{
+			Particle p = inactiveParticles[adjCoord[2], c.y];
+			p.active = true;
+			cells[adjCoord[2], c.y].UnSettle();
+			cells[adjCoord[2], c.y].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
+			inactiveParticles[adjCoord[2], c.y] = null;
+			activeParticles.Add(p);
+		}
+		if ((cells[adjCoord[3], c.y].settled) && (cells[adjCoord[3], c.y].particleType != cellType.empty) && (!cells[adjCoord[3], c.y].barrier))
+		{
+			Particle p = inactiveParticles[adjCoord[3], c.y];
+			p.active = true;
+			cells[adjCoord[3], c.y].UnSettle();
+			cells[adjCoord[3], c.y].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
+			inactiveParticles[adjCoord[3], c.y] = null;
+			activeParticles.Add(p);
+		}
+	}
+
     void CreateGrid()
     {
 		cells = new Cell[width, height]; //Create an multidimensional array of cells to fit the grid
-
+		inactiveParticles = new Particle[width, height];
 		for (int x = 0; x < width; x++)
 		{
 			for (int y = 0; y < height; y++)
@@ -96,6 +137,11 @@ public class GameGrid : MonoBehaviour
 			{
 				if (j < 2)
 				{
+					Particle p = new Particle(i, j, cellType.stone, new Vector2(0.0f, 0.0f), width, height);
+					p.active = false;
+					inactiveParticles[i,j] = p;
+					cells[i, j].Settle();
+					cells[i, j].SetBarrier();
 					cells[i, j].SetParticle(cellType.stone, new Vector2(0,0));
 				}
 			}
@@ -134,33 +180,15 @@ public class GameGrid : MonoBehaviour
 		}
 	}
 
-	
-	// Update is called once per frame
-	void FixedUpdate ()
+	public void UpdateActiveParticles()
 	{
-		txt = cam.GetComponent<Text>();
-		txt.text = "Active Particles: " + activeParticles.Count;
-		if(delay <= Time.time && createParticles)
-		{
-
-			if (CreateParticle(offset, 0.8f))
-			{
-				delay = Time.time + 0.0f;//Modify to change frequency of particles
-			}
-			else
-			{
-				offset += 1.0f / width;
-			}
-
-			if (offset >= 1.0f)
-				offset = 0.0f;
-		}
-
-		for (int i = activeParticles.Count - 1; i > -1; i--)
+		for (int i = activeParticles.Count - 1; i > 0; i--)
 		{
 			Particle p = activeParticles[i];
- 
-            Vector2[] adjVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
+			cells[p.x, p.y].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
+			cells[p.x, p.y].Settle();
+			gridTexture.SetPixel(p.x, p.y, Colour[(int)cellType.empty]);
+			Vector2[] adjVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
 			cellType[] adjParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
 			int[] adjCoord = new int[4];
 
@@ -179,12 +207,12 @@ public class GameGrid : MonoBehaviour
 			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
 
 			yColl = p.UpdateY(adjVel, adjParticle);
-      
+			gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
-			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
+			cells[p.prevX, p.prevY].Settle();
 
-            adjCoord[2] = CheckRange((p.x-1), width);
-			adjCoord[3] = CheckRange((p.x+1), width);
+			adjCoord[2] = CheckRange((p.x - 1), width);
+			adjCoord[3] = CheckRange((p.x + 1), width);
 
 			adjVel[2] = cells[adjCoord[2], p.y].velocity;
 			adjVel[3] = cells[adjCoord[3], p.y].velocity;
@@ -245,22 +273,48 @@ public class GameGrid : MonoBehaviour
                     new_tree.speed_of_growth = 5;
                     new_tree.turns = 1;
                     new_tree.wood = p;
-                    trees.Add(new_tree);
+                   // trees.Add(new_tree);
                 }
             }
             gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
             gridTexture.SetPixel(p.x, p.y, Colour[(int)p.particleType]);
 
-            if (p.active)
+			if (p.active)
 			{
 				cells[p.x, p.y].UnSettle();
 			}
 			if (p.active == false /*|| p.particleType == cellType.wood_base*/)
 			{
-				inactiveParticles.Add(p);
+				cells[p.x, p.y].Settle();
+				this.inactiveParticles[p.x, p.y] = p;
 				activeParticles.Remove(p);
 			}
 		}
+	}
+	
+	// Update is called once per frame
+	void FixedUpdate ()
+	{
+		txt = cam.GetComponent<Text>();
+		txt.text = "Active Particles: " + activeParticles.Count;
+		if(delay <= Time.time && createParticles)
+		{
+
+			if (CreateParticle(offset, 0.8f))
+			{
+				delay = Time.time + 0.2f;//Modify to change frequency of particles
+			}
+			else
+			{
+				offset += 1.0f / width;
+			}
+
+			if (offset >= 1.0f)
+				offset = 0.0f;
+		}
+
+		UpdateActiveParticles();
+
 		gridTexture.Apply();
 
 		GetComponent<Renderer>().material.mainTexture = gridTexture;
@@ -269,6 +323,7 @@ public class GameGrid : MonoBehaviour
             Growing(c);
         }
 	}
+
     public cellType Search_Collided(Particle current , int x , int y)
     {
         cellType newP;
