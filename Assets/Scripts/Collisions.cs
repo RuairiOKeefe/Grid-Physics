@@ -14,6 +14,9 @@ public class Collisions
             case cellType.lava:
                 LavaCollisions(first, second);
                 break;
+            case cellType.plant:
+                PlantCollsions(first, second);
+                break;
         }
     }      
 
@@ -43,5 +46,22 @@ public class Collisions
                 lava.particleType = cellType.stone;
                 break;
         }
+    }
+    public void PlantCollsions(Particle plant , cellType other)
+    {
+        switch (other)
+        {
+            case cellType.water:
+                plant.particleType = cellType.wood_base;
+                break;
+            case cellType.wood:
+                plant.particleType = cellType.wood;
+                break;
+            case cellType.wood_base:
+                plant.particleType = cellType.wood;
+                break;
+
+        }
+
     }
 }
