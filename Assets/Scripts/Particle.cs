@@ -148,7 +148,6 @@ public class Particle
         prevY = y;
 		collision coll = new collision();
 		coll.other = cellType.empty;
-		ApplyGravity();
 		if (velocity.y < 0)
         {
 			if (adjParticle[1] != cellType.empty)
@@ -193,10 +192,6 @@ public class Particle
 	{
 		collision coll = new collision();
 		coll.other = cellType.empty;
-
-		if (this.particleType == cellType.water || this.particleType == cellType.lava)//May want to create liquid bool for particles
-			LiquidShift(adjVel, adjParticle);
-
 		if (active)
 		{
 			if (moveTimeX <= Time.time && (velocity.x != 0))
@@ -217,31 +212,38 @@ public class Particle
 			{
 				return AttemptY(adjVel, adjParticle);
 			}
-			if (particleType != cellType.water)
-			{
-				if (velocity.x == 0 && velocity.y == 0 && adjParticle[1] != cellType.empty) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
-				{
-					if (!timingOut)
-					{
-						inactiveTime = Time.time + 5.0f;
-						timingOut = true;
-					}
-
-					if (timingOut && inactiveTime <= Time.time)
-					{
-						velocity = new Vector2(0.0f, 0.0f);
-						active = false;
-					}
-					return coll;
-				}
-				else //If it is moving make sure it is not timing out
-				{
-					if (timingOut)
-						timingOut = false;
-				}
-			}
 		}
 		return coll;
+	}
+
+	public void IdleCheck(Vector2[] adjVel, cellType[] adjParticle)
+	{
+		if (this.particleType == cellType.water || this.particleType == cellType.lava)//May want to create liquid bool for particles
+			LiquidShift(adjVel, adjParticle);
+		ApplyGravity();
+
+		if (particleType != cellType.water)
+		{
+			if (velocity.x == 0 && velocity.y == 0 && adjParticle[1] != cellType.empty) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
+			{
+				if (!timingOut)
+				{
+					inactiveTime = Time.time + 5.0f;
+					timingOut = true;
+				}
+
+				if (timingOut && inactiveTime <= Time.time)
+				{
+					velocity = new Vector2(0.0f, 0.0f);
+					active = false;
+				}
+			}
+			else //If it is moving make sure it is not timing out
+			{
+				if (timingOut)
+					timingOut = false;
+			}
+		}
 	}
 
 	public void ApplyGravity()
@@ -261,9 +263,9 @@ public class Particle
 			speed = 2.0f;
 		if (adjParticle[1] != cellType.empty)
 		{
-			if (shiftDelay < Time.time && Mathf.Abs(velocity.x) < speed)
+			if (shiftDelay < Time.time)
 			{
-				if (adjParticle[2] == cellType.empty && adjParticle[3] == cellType.empty)
+				if (adjParticle[2] == cellType.empty && adjParticle[3] == cellType.empty && (velocity.x != speed || velocity.x != -speed))
 				{
 					int rand = Random.Range(0, 2);
 					switch (rand)
@@ -278,12 +280,12 @@ public class Particle
 				}
 				else
 				{
-					if (adjParticle[2] == cellType.empty)
+					if (adjParticle[2] == cellType.empty || velocity.x == -speed)
 					{
 						velocity.x = -speed;
 					}
 					else
-						if (adjParticle[3] == cellType.empty)
+						if (adjParticle[3] == cellType.empty || velocity.x == speed)
 						{
 							velocity.x = speed;
 						}

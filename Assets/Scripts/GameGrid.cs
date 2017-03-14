@@ -224,6 +224,27 @@ public class GameGrid : MonoBehaviour
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
 
+
+			adjCoord[0] = CheckRange((p.y + 1), height);
+			adjCoord[1] = CheckRange((p.y - 1), height);
+
+			adjVel[0] = cells[p.x, adjCoord[0]].velocity;
+			adjVel[1] = cells[p.x, adjCoord[1]].velocity;
+
+			adjParticle[0] = cells[p.x, adjCoord[0]].particleType;
+			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
+
+			adjCoord[2] = CheckRange((p.x - 1), width);
+			adjCoord[3] = CheckRange((p.x + 1), width);
+
+			adjVel[2] = cells[adjCoord[2], p.y].velocity;
+			adjVel[3] = cells[adjCoord[3], p.y].velocity;
+
+			adjParticle[2] = cells[adjCoord[2], p.y].particleType;
+			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
+
+			p.IdleCheck(adjVel, adjParticle);
+
 			if (xColl.other != cellType.empty || yColl.other != cellType.empty)
 			{
 				cellType collidedType = cellType.empty, other1 = cellType.empty, other2 = cellType.empty;
