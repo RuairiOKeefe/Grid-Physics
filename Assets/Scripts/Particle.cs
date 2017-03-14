@@ -9,7 +9,7 @@ public class Particle
 	public bool active = true;
 	public Vector2 velocity;
 	public cellType particleType;
-	public float terminalVelocity = -100f;//may want to calculate as a function of mass
+	public float terminalVelocity = -500f;//may want to calculate as a function of mass
 
 	public int prevX { get; private set; }
 	public int prevY { get; private set; }
@@ -256,12 +256,12 @@ public class Particle
 	{
 		float speed = 0.0f;
 		if (particleType == cellType.water)
-			speed = 5.0f;
+			speed = 10.0f;
 		if (particleType == cellType.lava)
 			speed = 2.0f;
 		if (adjParticle[1] != cellType.empty)
 		{
-			if (shiftDelay < Time.time)
+			if (shiftDelay < Time.time && Mathf.Abs(velocity.x) < speed)
 			{
 				if (adjParticle[2] == cellType.empty && adjParticle[3] == cellType.empty)
 				{
