@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Valve.VR.InteractionSystem;
 
 public class MainMenu : MonoBehaviour {
 
@@ -17,14 +19,17 @@ public class MainMenu : MonoBehaviour {
     public GameObject videoMenu;
 
     public GameObject grid;
+    Slider audioSlider; 
 
 	// Use this for initialization
 	public void Start () {
 
-	}
+    }
 	
 	// Update is called once per frame
 	public void Update () {
+
+        SliderUpdate();
 
         if (transform.localPosition.z < -0.700 )
         {
@@ -40,6 +45,7 @@ public class MainMenu : MonoBehaviour {
         {
             timer = 2.0f;
         }
+
     }
 
 
@@ -83,6 +89,18 @@ public class MainMenu : MonoBehaviour {
         }
 
         audioMenu.SetActive(true);
+    }
+
+    public void SliderUpdate()
+    {
+
+        GameObject temp = GameObject.Find("AudioSlider");
+        GameObject mapping = GameObject.Find("LinearMapping");
+
+        audioSlider = temp.GetComponent<Slider>();
+
+        audioSlider.value = mapping.GetComponent<LinearMapping>().value;
+
     }
 
     public void videoButton()
