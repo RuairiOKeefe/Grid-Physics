@@ -220,8 +220,6 @@ public class Particle
 	{
 		if (this.particleType == cellType.water || this.particleType == cellType.lava)//May want to create liquid bool for particles
 			LiquidShift(adjVel, adjParticle);
-		ApplyGravity();
-
 		if (particleType != cellType.water)
 		{
 			if (velocity.x == 0 && velocity.y == 0 && adjParticle[1] != cellType.empty) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
@@ -244,6 +242,7 @@ public class Particle
 					timingOut = false;
 			}
 		}
+		ApplyGravity();
 	}
 
 	public void ApplyGravity()
@@ -258,9 +257,9 @@ public class Particle
 	{
 		float speed = 0.0f;
 		if (particleType == cellType.water)
-			speed = 10.0f;
+			speed = 40.0f;
 		if (particleType == cellType.lava)
-			speed = 2.0f;
+			speed = 5.0f;
 		if (adjParticle[1] != cellType.empty)
 		{
 			if (shiftDelay < Time.time)

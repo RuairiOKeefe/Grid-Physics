@@ -162,7 +162,7 @@ public class GameGrid : MonoBehaviour
 		particleType = type;
 	}
 
-	public bool CreateParticle(float x, float y)//Create; Polymorphise. Whats the difference?
+	public bool CreateParticle(float x, float y)//Create; Polymorphise. Whats the difference? -R Huh turns out in the end we are creating them... -R
 	{
 		// x and y must be in range 0-1
 		//may add random effect to "spray" particles 
@@ -323,15 +323,9 @@ public class GameGrid : MonoBehaviour
 
 			if (CreateParticle(offset, 0.8f))
 			{
-				delay = Time.time + 0.2f;//Modify to change frequency of particles
+				delay = Time.time + 0.0f;//Modify to change frequency of particles
+				offset = (offset += (1.0f / width)) % 1;
 			}
-			else
-			{
-				offset += 1.0f / width;
-			}
-
-			if (offset >= 1.0f)
-				offset = 0.0f;
 		}
 
 		UpdateActiveParticles();
