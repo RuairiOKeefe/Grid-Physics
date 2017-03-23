@@ -302,7 +302,7 @@ public class Particle
 		}
 	}
 
-	public void ResetX()//Resets all timers related to x movement
+	public void ResetX()
 	{
 		shiftDelay = 0;
 	}

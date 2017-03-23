@@ -23,7 +23,6 @@ public struct collision
 	public int location;
 }
 
-
 public struct tree
 {
 	public int amount_of_growth;
@@ -43,6 +42,8 @@ public class GameGrid : MonoBehaviour
 
 	public Color[] Colour = new Color[6];
 
+	public GameObject charPrefab;
+
 	public GameObject cam;//Active particle debug stuff
 	Text txt;//Active particle debug stuff
 
@@ -50,6 +51,8 @@ public class GameGrid : MonoBehaviour
 
 	List<Particle> activeParticles = new List<Particle>();
 	Particle[,] inactiveParticles;
+	public List<Character> characters = new List<Character>();
+	List<GameObject> charGO = new List<GameObject>();
 
 	List<tree> trees = new List<tree>();
 
@@ -178,6 +181,12 @@ public class GameGrid : MonoBehaviour
 		{
 			return false;
 		}
+	}
+
+	public void CreateCharacter()
+	{
+		characters.Add(new Character());
+		charGO.Add(Instantiate(charPrefab));
 	}
 
 	public void UpdateActiveParticles()
@@ -310,6 +319,48 @@ public class GameGrid : MonoBehaviour
 				this.inactiveParticles[p.x, p.y] = p;
 				activeParticles.Remove(p);
 			}
+		}
+	}
+
+	public void UpdateCharacters()
+	{
+		foreach (Character c in characters)
+		{
+			Vector2[] adjVel = new Vector2[12];
+			cellType[] adjParticle = new cellType[12];
+			Vector2[] adjCoord = new Vector2[12];
+
+			adjCoord[0] = new Vector2(Mathf.Floor(c.x) - 1, Mathf.Floor(c.y) - 2);
+			adjCoord[1] = new Vector2(Mathf.Floor(c.x), Mathf.Floor(c.y) - 2);
+			adjCoord[2] = new Vector2(Mathf.Floor(c.x) + 1, Mathf.Floor(c.y) - 2);
+
+			adjCoord[3] = new Vector2(Mathf.Floor(c.x) - 1, Mathf.Floor(c.y) + 2);
+			adjCoord[4] = new Vector2(Mathf.Floor(c.x), Mathf.Floor(c.y) + 2);
+			adjCoord[5] = new Vector2(Mathf.Floor(c.x) + 1, Mathf.Floor(c.y) + 2);
+
+			for (int i = 0; i < 6; i++)
+			{
+				adjParticle[i] = cells[(int)adjCoord[i].x, (int)adjCoord[i].y].particleType;
+			}
+			c.UpdateX(adjVel, adjParticle);
+
+			adjCoord[6] = new Vector2(Mathf.Floor(c.x) - 2, Mathf.Floor(c.y) - 1);
+			adjCoord[7] = new Vector2(Mathf.Floor(c.x) - 2, Mathf.Floor(c.y));
+			adjCoord[8] = new Vector2(Mathf.Floor(c.x) - 2, Mathf.Floor(c.y) + 1);
+
+			adjCoord[9] = new Vector2(Mathf.Floor(c.x) + 2, Mathf.Floor(c.y) - 1);
+			adjCoord[10] = new Vector2(Mathf.Floor(c.x) + 2, Mathf.Floor(c.y));
+			adjCoord[11] = new Vector2(Mathf.Floor(c.x) + 2, Mathf.Floor(c.y) + 1);
+
+			for (int i = 6; i < 12; i++)
+			{
+				adjParticle[i] = cells[(int)adjCoord[i].x, (int)adjCoord[i].y].particleType;
+			}
+			c.UpdateY(adjVel, adjParticle);
+
+			float relX = c.x / width;
+			float relY = c.y / height;
+			charGO[0].GetComponent<MoveCharacter>().MoveChar(c.x, c.y);
 		}
 	}
 
