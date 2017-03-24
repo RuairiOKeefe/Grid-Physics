@@ -40,7 +40,7 @@ public class MainMenu : MonoBehaviour {
             SliderUpdate();
         }
 
-        //Testing rotation
+        //Testing rotation --REMOVE FOR FINAL VERSION
         if (Input.GetKey(KeyCode.F))
         {
             Fork.transform.Rotate(Vector3.forward * 1000 * Time.deltaTime);
