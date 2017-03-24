@@ -15,6 +15,7 @@ public class LaserPointer : MonoBehaviour
     private bool troo;
     private int mode = 0;
     private int timer;
+    private GameObject Fork;
 
     private SteamVR_Controller.Device Control
     {
@@ -43,6 +44,9 @@ public class LaserPointer : MonoBehaviour
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
         laser.SetActive(false);
+
+        //Finding the spoke to rotate inside the controller model
+        Fork = transform.Find("spoke").gameObject;
     }
 
     // Update is called once per frame
@@ -80,6 +84,8 @@ public class LaserPointer : MonoBehaviour
             if (Physics.Raycast(tracked.transform.position, transform.forward, out hit, 1000))
             {
                 invCylinder.GetComponent<GameGrid>().CreateParticle(hit.textureCoord.x, hit.textureCoord.y);
+                //Will make the little fork spin
+                Fork.transform.Rotate(Vector3.forward * 1000 * Time.deltaTime);
             }
         }
     }

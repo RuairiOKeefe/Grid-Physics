@@ -18,18 +18,33 @@ public class MainMenu : MonoBehaviour {
     public GameObject audioMenu;
     public GameObject videoMenu;
 
+    public GameObject controllerPrefab;
     public GameObject grid;
-    Slider audioSlider; 
+    Slider audioSlider;
+    GameObject Fork;
 
-	// Use this for initialization
-	public void Start () {
+    // Use this for initialization
+    public void Start () {
 
+        Instantiate(controllerPrefab);
+
+        Fork = GameObject.Find("spoke");
     }
 	
 	// Update is called once per frame
-	public void Update () {
+	public void Update ()
+    {
 
-        SliderUpdate();
+        if (audioMenu.activeSelf)
+        {
+            SliderUpdate();
+        }
+
+        //Testing rotation
+        if (Input.GetKey(KeyCode.F))
+        {
+            Fork.transform.Rotate(Vector3.forward * 1000 * Time.deltaTime);
+        }
 
         if (transform.localPosition.z < -0.700 )
         {
