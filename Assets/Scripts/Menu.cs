@@ -39,7 +39,7 @@ public class Menu : MonoBehaviour
     {
         final_menu = Prefabmenu;
         menuTrasform = final_menu.transform;
-        moveMenu();
+        //moveMenu();
         final_menu.SetActive(false);
     }
 

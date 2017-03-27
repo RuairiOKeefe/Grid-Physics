@@ -11,11 +11,14 @@ public enum cellType
 	lava,
 	water,
 	plant,
-	fire,
-	wood,
-	wood_base,
-	bush,
-	character
+    fire,
+    wood,
+    wood_base,
+    bush,
+    steam,
+    smoke,
+    ice,
+    character
 }
 
 public struct collision
@@ -217,7 +220,8 @@ public class GameGrid : MonoBehaviour
 			adjParticle[0] = cells[p.x, adjCoord[0]].particleType;
 			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
 
-			yColl = p.UpdateY(adjVel, adjParticle);
+            yColl = p.UpdateY(adjVel, adjParticle);
+
 			gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.prevX, p.prevY].Settle();
@@ -288,34 +292,23 @@ public class GameGrid : MonoBehaviour
 				col.check(p, other1);
 				col.check(p, other2);
 			}
-			if (p.particleType == cellType.wood_base)
-			{
-				bool exists = false;
-				foreach (tree c in trees)
-				{
-					if (c.wood.x == p.x && c.wood.y == p.y && c.wood.velocity != new Vector2(0.0f, 0.0f))
-					{
-						exists = true;
-					}
-				}
-				if (exists == false)
-				{
-					tree new_tree = new tree();
-					new_tree.amount_of_growth = 20;
-					new_tree.speed_of_growth = 5;
-					new_tree.turns = 1;
-					new_tree.wood = p;
-					// trees.Add(new_tree);
-				}
-			}
-			gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
+            if (p.particleType == cellType.wood_base && p.velocity == new Vector2(0.0f, 0.0f))
+            {
+                tree new_tree = new tree();
+                new_tree.amount_of_growth = 20;
+                new_tree.speed_of_growth = 1;
+                new_tree.turns = 1;
+                new_tree.wood = p;
+                trees.Add(new_tree);
+            }
+            gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
 			gridTexture.SetPixel(p.x, p.y, Colour[(int)p.particleType]);
 
 			if (p.active)
 			{
 				cells[p.x, p.y].UnSettle();
 			}
-			if (p.active == false /*|| p.particleType == cellType.wood_base*/)
+			if (p.active == false)
 			{
 				cells[p.x, p.y].Settle();
 				this.inactiveParticles[p.x, p.y] = p;
@@ -394,7 +387,8 @@ public class GameGrid : MonoBehaviour
 		{
 			for (int j = 0; j < 3; j++)
 			{
-				gridTexture.SetPixel(xRange[i], yRange[j], Colour[(int)boxType]);
+                cells[xRange[i], yRange[j]].SetParticle(boxType, new Vector2(0.0f, 0.0f));
+                gridTexture.SetPixel(xRange[i], yRange[j], Colour[(int)boxType]);
 			}
 		}
 	}
@@ -410,65 +404,96 @@ public class GameGrid : MonoBehaviour
 			if (CreateParticle(offset, 0.8f))
 			{
 				delay = Time.time + 0.0f;//Modify to change frequency of particles
-				
 			}
 			else
 			{
 				offset = (offset += (1.0f / width)) % 1;
 			}
 		}
+        UpdateActiveParticles();
+        UpdateCharacters();
+        gridTexture.Apply();
 
-		UpdateActiveParticles();
-		UpdateCharacters();
-
-		gridTexture.Apply();
+        GetComponent<Renderer>().material.mainTexture = gridTexture;
+        foreach (tree c in trees)
+        {
+            if (c.amount_of_growth != 0)
+            {
+                //Growing(c);
+            }
+        }
+        gridTexture.Apply();
 
 		GetComponent<Renderer>().material.mainTexture = gridTexture;
-		foreach (tree c in trees)
-		{
-			Growing(c);
-		}
+
 	}
 
-	public cellType Search_Collided(Particle current, int x, int y)
-	{
-		cellType newP;
-		if ((current.x + x) < 0)
-		{
-			newP = cells[width - 1, current.y + y].particleType;
-		}
-		else if (current.x + x >= width)
-		{
-			newP = cells[0, current.y + y].particleType;
-		}
-		else if ((current.y + y) >= height)
-		{
-			newP = cells[current.x + x, 0].particleType;
-		}
-		else if ((current.y + y) < 0)
-		{
-			newP = cells[current.x + x, (height - 1)].particleType;
-		}
-		else
-		{
-			newP = cells[current.x + x, current.y + y].particleType;
-		}
-		return newP;
-	}
-	public void Growing(tree plant)
-	{
-		if (plant.turns == plant.speed_of_growth)
-		{
-			cellType aboveSearch = Search_Collided(plant.wood, 1, 0);
-			if (aboveSearch == cellType.empty)
-			{
-				activeParticles.Add(new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood));
-			}
-			plant.turns = 1;
-		}
-		else
-		{
-			plant.turns++;
-		}
-	}
+    public cellType Search_Collided(Particle current , int x , int y)
+    {
+        cellType newP;
+        if ((current.x + x) < 0)
+        {
+            newP = cells[width - 1, current.y + y].particleType;
+        }
+        else if (current.x + x >= width)
+        {
+             newP = cells[0, current.y + y].particleType;
+        }
+        else if ((current.y + y) >= height)
+        {
+             newP = cells[current.x + x, 0].particleType;
+        }
+        else if ((current.y + y) < 0)
+        {
+             newP = cells[current.x + x, (height - 1)].particleType;
+        }
+        else
+        {
+            newP = cells[current.x + x, current.y + y].particleType;
+        }
+        return newP;
+    }
+    public void Growing(tree plant)
+    {
+        if (plant.turns == plant.speed_of_growth)
+        {
+            cellType aboveSearch = Search_Collided(plant.wood, 1, 0);
+            if (aboveSearch == cellType.empty)
+            {
+                activeParticles.Add(new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood));
+                plant.wood = new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood);
+                plant.amount_of_growth--;
+            }
+            else if (aboveSearch == cellType.wood)
+            {
+                activeParticles.Add(new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood));
+                plant.wood = new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood);
+                plant.amount_of_growth--;
+            }
+            plant.turns = 1;
+            gridTexture.SetPixel(plant.wood.x, plant.wood.y, Colour[(int)plant.wood.particleType]);
+        }
+        else
+        {
+            plant.turns++;
+        }
+    }
+    public void GasTime(Particle Gas)
+    {
+        int randInt = Random.Range(0, 2);
+        cellType aboveSearch = Search_Collided(Gas, 1, 0);
+        if (Gas.y > height -3)
+        {
+            Gas.particleType = cellType.empty;
+        }
+        else if(aboveSearch == cellType.empty || aboveSearch == cellType.fire && randInt == 0)
+        {
+            Gas.velocity = new Vector2(2.0f, 23.0f);
+        }
+        else 
+        {
+            Gas.velocity = new Vector2(-2.0f,0.0f);
+        }
+
+    }
 }
