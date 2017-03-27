@@ -14,7 +14,10 @@ public enum cellType
     fire,
     wood,
     wood_base,
-    bush
+    bush,
+    steam,
+    smoke,
+    ice
 }
 
 public struct collision
@@ -206,7 +209,8 @@ public class GameGrid : MonoBehaviour
 			adjParticle[0] = cells[p.x, adjCoord[0]].particleType;
 			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
 
-			yColl = p.UpdateY(adjVel, adjParticle);
+            yColl = p.UpdateY(adjVel, adjParticle);
+
 			gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
 			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.prevX, p.prevY].Settle();
@@ -224,6 +228,10 @@ public class GameGrid : MonoBehaviour
             cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
             cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
 
+            if (p.particleType == cellType.fire  || p.particleType == cellType.smoke || p.particleType == cellType.steam)
+            {
+                GasTime(p);
+            }
             if (xColl.other != cellType.empty || yColl.other != cellType.empty)
             {
                 cellType collidedType  = cellType.empty , other1 = cellType.empty, other2 = cellType.empty;
@@ -256,25 +264,14 @@ public class GameGrid : MonoBehaviour
                 col.check(p, other1);
                 col.check(p, other2);
             }
-            if (p.particleType == cellType.wood_base)
+            if (p.particleType == cellType.wood_base && p.velocity == new Vector2(0.0f, 0.0f))
             {
-                bool exists = false;
-                foreach(tree c in trees)
-                {
-                    if(c.wood.x == p.x && c.wood.y == p.y && c.wood.velocity !=  new Vector2(0.0f,0.0f))
-                    {
-                        exists = true;
-                    }
-                }
-                if (exists == false)
-                {
                     tree new_tree = new tree();
                     new_tree.amount_of_growth = 20;
-                    new_tree.speed_of_growth = 5;
+                    new_tree.speed_of_growth = 1;
                     new_tree.turns = 1;
                     new_tree.wood = p;
-                   // trees.Add(new_tree);
-                }
+                    trees.Add(new_tree);
             }
             gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
             gridTexture.SetPixel(p.x, p.y, Colour[(int)p.particleType]);
@@ -283,7 +280,7 @@ public class GameGrid : MonoBehaviour
 			{
 				cells[p.x, p.y].UnSettle();
 			}
-			if (p.active == false /*|| p.particleType == cellType.wood_base*/)
+			if (p.active == false)
 			{
 				cells[p.x, p.y].Settle();
 				this.inactiveParticles[p.x, p.y] = p;
@@ -302,7 +299,7 @@ public class GameGrid : MonoBehaviour
 
 			if (CreateParticle(offset, 0.8f))
 			{
-				delay = Time.time + 0.2f;//Modify to change frequency of particles
+				delay = Time.time;//Modify to change frequency of particles
 			}
 			else
 			{
@@ -314,14 +311,17 @@ public class GameGrid : MonoBehaviour
 		}
 
 		UpdateActiveParticles();
-
-		gridTexture.Apply();
+        foreach (tree c in trees)
+        {
+            if (c.amount_of_growth != 0)
+            {
+                //Growing(c);
+            }
+        }
+        gridTexture.Apply();
 
 		GetComponent<Renderer>().material.mainTexture = gridTexture;
-        foreach(tree c in trees)
-        {
-            Growing(c);
-        }
+
 	}
 
     public cellType Search_Collided(Particle current , int x , int y)
@@ -357,12 +357,39 @@ public class GameGrid : MonoBehaviour
             if (aboveSearch == cellType.empty)
             {
                 activeParticles.Add(new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood));
+                plant.wood = new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood);
+                plant.amount_of_growth--;
+            }
+            else if (aboveSearch == cellType.wood)
+            {
+                activeParticles.Add(new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood));
+                plant.wood = new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood);
+                plant.amount_of_growth--;
             }
             plant.turns = 1;
+            gridTexture.SetPixel(plant.wood.x, plant.wood.y, Colour[(int)plant.wood.particleType]);
         }
         else
         {
             plant.turns++;
         }
+    }
+    public void GasTime(Particle Gas)
+    {
+        int randInt = Random.Range(0, 2);
+        cellType aboveSearch = Search_Collided(Gas, 1, 0);
+        if (Gas.y > height -3)
+        {
+            Gas.particleType = cellType.empty;
+        }
+        else if(aboveSearch == cellType.empty || aboveSearch == cellType.fire && randInt == 0)
+        {
+            Gas.velocity = new Vector2(2.0f, 23.0f);
+        }
+        else 
+        {
+            Gas.velocity = new Vector2(-2.0f,0.0f);
+        }
+
     }
 }
