@@ -9,13 +9,13 @@ public class Character
 	public Vector2 velocity;
 	public float terminalVelocity = -500f;//may want to calculate as a function of mass
 
-	//private float moveTimeX;
-	//private float moveTimeY;
 	private int width;
 	private int height;
 
-	public Character()
+	public Character(int width, int height)
 	{
+		this.width = width;
+		this.height = height;
 		velocity.x = 5.0f;
 	}
 
@@ -36,6 +36,7 @@ public class Character
 				}
 			}
 			x = attX;
+			x = x % width;
 		}
         else
         {
@@ -51,6 +52,7 @@ public class Character
 				}
 			}
 			x = attX;
+			x = x % width;
 		}
 
         
@@ -58,7 +60,7 @@ public class Character
 
     public void UpdateY(Vector2[] adjVel, cellType[] adjParticle)
     {
-		float attY = y + velocity.y;
+		float attY = y + (velocity.y*Time.deltaTime);
 		if (velocity.y < 0)
         {
 			if (attY <= (Mathf.Floor(y) - 1))
@@ -68,10 +70,12 @@ public class Character
 					if (adjParticle[i] != cellType.empty)
 					{
 						attY = (Mathf.Floor(y) - 1);
+						this.velocity.y += (adjVel[i].y - this.velocity.y);
 					}
 				}
 			}
 			y = attY;
+			y = y % height;
 		}
         else
         {
@@ -82,11 +86,20 @@ public class Character
 					if (adjParticle[i] != cellType.empty)
 					{
 						attY = (Mathf.Floor(y) + 1);
+						this.velocity.y -= (adjVel[i].y - this.velocity.y);
 					}
 				}
 			}
 			y = attY;
+			y = y % height;
 		}
     }
 
+	public void ApplyGravity()
+	{
+		if (velocity.y > terminalVelocity)
+		{
+			velocity.y += (-9.8f * 10 * Time.deltaTime);
+		}
+	}
 }

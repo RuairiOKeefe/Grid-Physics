@@ -65,6 +65,7 @@ public class GameGrid : MonoBehaviour
 	void Start()
 	{
 		CreateGrid();
+		CreateCharacter();
 	}
 
 	int CheckRange(int coord, int range)
@@ -185,7 +186,7 @@ public class GameGrid : MonoBehaviour
 
 	public void CreateCharacter()
 	{
-		characters.Add(new Character());
+		characters.Add(new Character(width, height));
 		charGO.Add(Instantiate(charPrefab));
 	}
 
@@ -330,37 +331,46 @@ public class GameGrid : MonoBehaviour
 			cellType[] adjParticle = new cellType[12];
 			Vector2[] adjCoord = new Vector2[12];
 
-			adjCoord[0] = new Vector2(Mathf.Floor(c.x) - 1, Mathf.Floor(c.y) - 2);
-			adjCoord[1] = new Vector2(Mathf.Floor(c.x), Mathf.Floor(c.y) - 2);
-			adjCoord[2] = new Vector2(Mathf.Floor(c.x) + 1, Mathf.Floor(c.y) - 2);
+			c.ApplyGravity();
 
-			adjCoord[3] = new Vector2(Mathf.Floor(c.x) - 1, Mathf.Floor(c.y) + 2);
-			adjCoord[4] = new Vector2(Mathf.Floor(c.x), Mathf.Floor(c.y) + 2);
-			adjCoord[5] = new Vector2(Mathf.Floor(c.x) + 1, Mathf.Floor(c.y) + 2);
+			adjCoord[0] = new Vector2(CheckRange((int)Mathf.Floor(c.x) - 1, width), CheckRange((int)Mathf.Floor(c.y) - 2, height));
+			adjCoord[1] = new Vector2(CheckRange((int)Mathf.Floor(c.x), width), CheckRange((int)Mathf.Floor(c.y) - 2, height));
+			adjCoord[2] = new Vector2(CheckRange((int)Mathf.Floor(c.x) + 1, width), CheckRange((int)Mathf.Floor(c.y) - 2, height));
+
+			adjCoord[3] = new Vector2(CheckRange((int)Mathf.Floor(c.x) - 1, width), CheckRange((int)Mathf.Floor(c.y) + 2, height));
+			adjCoord[4] = new Vector2(CheckRange((int)Mathf.Floor(c.x), width), CheckRange((int)Mathf.Floor(c.y) + 2, height));
+			adjCoord[5] = new Vector2(CheckRange((int)Mathf.Floor(c.x) + 1, width), CheckRange((int)Mathf.Floor(c.y) + 2, height));
 
 			for (int i = 0; i < 6; i++)
 			{
-				adjParticle[i] = cells[(int)adjCoord[i].x, (int)adjCoord[i].y].particleType;
+				adjParticle[i] = cells[(int)(adjCoord[i].x), (int)(adjCoord[i].y)].particleType;
+				adjVel[i] = cells[(int)(adjCoord[i].x), (int)(adjCoord[i].y)].velocity;
 			}
-			c.UpdateX(adjVel, adjParticle);
 
-			adjCoord[6] = new Vector2(Mathf.Floor(c.x) - 2, Mathf.Floor(c.y) - 1);
-			adjCoord[7] = new Vector2(Mathf.Floor(c.x) - 2, Mathf.Floor(c.y));
-			adjCoord[8] = new Vector2(Mathf.Floor(c.x) - 2, Mathf.Floor(c.y) + 1);
+			c.UpdateY(adjVel, adjParticle);
 
-			adjCoord[9] = new Vector2(Mathf.Floor(c.x) + 2, Mathf.Floor(c.y) - 1);
-			adjCoord[10] = new Vector2(Mathf.Floor(c.x) + 2, Mathf.Floor(c.y));
-			adjCoord[11] = new Vector2(Mathf.Floor(c.x) + 2, Mathf.Floor(c.y) + 1);
+			adjCoord[6] = new Vector2(CheckRange((int)Mathf.Floor(c.x) - 2, width), CheckRange((int)Mathf.Floor(c.y) - 1, height));
+			adjCoord[7] = new Vector2(CheckRange((int)Mathf.Floor(c.x) - 2, width), CheckRange((int)Mathf.Floor(c.y), height));
+			adjCoord[8] = new Vector2(CheckRange((int)Mathf.Floor(c.x) - 2, width), CheckRange((int)Mathf.Floor(c.y) + 1, height));
+
+			adjCoord[9] = new Vector2(CheckRange((int)Mathf.Floor(c.x) + 2, width), CheckRange((int)Mathf.Floor(c.y) - 1, height));
+			adjCoord[10] = new Vector2(CheckRange((int)Mathf.Floor(c.x) + 2, width), CheckRange((int)Mathf.Floor(c.y), height));
+			adjCoord[11] = new Vector2(CheckRange((int)Mathf.Floor(c.x) + 2, width), CheckRange((int)Mathf.Floor(c.y) + 1, height));
 
 			for (int i = 6; i < 12; i++)
 			{
-				adjParticle[i] = cells[(int)adjCoord[i].x, (int)adjCoord[i].y].particleType;
+				adjParticle[i] = cells[(int)(adjCoord[i].x), (int)(adjCoord[i].y)].particleType;
+				adjVel[i] = cells[(int)(adjCoord[i].x), (int)(adjCoord[i].y)].velocity;
 			}
-			c.UpdateY(adjVel, adjParticle);
+			c.UpdateX(adjVel, adjParticle);
 
-			float relX = c.x / width;
-			float relY = c.y / height;
-			charGO[0].GetComponent<MoveCharacter>().MoveChar(c.x, c.y);
+			float relX = c.x;
+			float relY = c.y;
+			if (c.x != 0)
+				relX = c.x / width;
+			if (c.y != 0)
+				relY = c.y / height;
+			charGO[0].GetComponent<MoveCharacter>().MoveChar(relX, relY);
 		}
 	}
 
@@ -380,6 +390,7 @@ public class GameGrid : MonoBehaviour
 		}
 
 		UpdateActiveParticles();
+		UpdateCharacters();
 
 		gridTexture.Apply();
 
