@@ -387,7 +387,8 @@ public class GameGrid : MonoBehaviour
 		{
 			for (int j = 0; j < 3; j++)
 			{
-				gridTexture.SetPixel(xRange[i], yRange[j], Colour[(int)boxType]);
+                cells[xRange[i], yRange[j]].SetParticle(boxType, new Vector2(0.0f, 0.0f));
+                gridTexture.SetPixel(xRange[i], yRange[j], Colour[(int)boxType]);
 			}
 		}
 	}
