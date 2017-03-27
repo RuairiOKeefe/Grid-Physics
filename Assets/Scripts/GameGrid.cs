@@ -17,7 +17,8 @@ public enum cellType
     bush,
     steam,
     smoke,
-    ice
+    ice,
+    character
 }
 
 public struct collision
@@ -26,13 +27,12 @@ public struct collision
 	public int location;
 }
 
-
 public struct tree
 {
-    public int amount_of_growth;
-    public Particle wood;
-    public int speed_of_growth;
-    public int turns;
+	public int amount_of_growth;
+	public Particle wood;
+	public int speed_of_growth;
+	public int turns;
 }
 
 public class GameGrid : MonoBehaviour
@@ -46,6 +46,8 @@ public class GameGrid : MonoBehaviour
 
 	public Color[] Colour = new Color[6];
 
+	public GameObject charPrefab;
+
 	public GameObject cam;//Active particle debug stuff
 	Text txt;//Active particle debug stuff
 
@@ -53,8 +55,10 @@ public class GameGrid : MonoBehaviour
 
 	List<Particle> activeParticles = new List<Particle>();
 	Particle[,] inactiveParticles;
+	public List<Character> characters = new List<Character>();
+	List<GameObject> charGO = new List<GameObject>();
 
-    List<tree> trees = new List<tree>();
+	List<tree> trees = new List<tree>();
 
 	float delay;//debug temp
 	float offset;//debug temp
@@ -62,17 +66,18 @@ public class GameGrid : MonoBehaviour
 	Texture2D gridTexture;
 
 	// Use this for initialization
-	void Start ()
+	void Start()
 	{
 		CreateGrid();
+		CreateCharacter();
 	}
 
 	int CheckRange(int coord, int range)
 	{
 		int newCoord = coord;
 		if (coord < 0)
-			newCoord = range-1;
-		if (coord > range-1)
+			newCoord = range - 1;
+		if (coord > range - 1)
 			newCoord = 0;
 
 		return newCoord;
@@ -118,8 +123,8 @@ public class GameGrid : MonoBehaviour
 		}
 	}
 
-    void CreateGrid()
-    {
+	void CreateGrid()
+	{
 		cells = new Cell[width, height]; //Create an multidimensional array of cells to fit the grid
 		inactiveParticles = new Particle[width, height];
 		for (int x = 0; x < width; x++)
@@ -142,10 +147,10 @@ public class GameGrid : MonoBehaviour
 				{
 					Particle p = new Particle(i, j, cellType.stone, new Vector2(0.0f, 0.0f), width, height);
 					p.active = false;
-					inactiveParticles[i,j] = p;
+					inactiveParticles[i, j] = p;
 					cells[i, j].Settle();
 					cells[i, j].SetBarrier();
-					cells[i, j].SetParticle(cellType.stone, new Vector2(0,0));
+					cells[i, j].SetParticle(cellType.stone, new Vector2(0, 0));
 				}
 			}
 		}
@@ -165,7 +170,7 @@ public class GameGrid : MonoBehaviour
 		particleType = type;
 	}
 
-	public bool CreateParticle(float x, float y)//Create; Polymorphise. Whats the difference?
+	public bool CreateParticle(float x, float y)//Create; Polymorphise. Whats the difference? -R Huh turns out in the end we are creating them... -R
 	{
 		// x and y must be in range 0-1
 		//may add random effect to "spray" particles 
@@ -183,6 +188,12 @@ public class GameGrid : MonoBehaviour
 		}
 	}
 
+	public void CreateCharacter()
+	{
+		characters.Add(new Character(width, height));
+		charGO.Add(Instantiate(charPrefab));
+	}
+
 	public void UpdateActiveParticles()
 	{
 		for (int i = activeParticles.Count - 1; i > 0; i--)
@@ -195,14 +206,14 @@ public class GameGrid : MonoBehaviour
 			cellType[] adjParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
 			int[] adjCoord = new int[4];
 
-            Collisions col = new Collisions();
+			Collisions col = new Collisions();
 
-            collision xColl;
+			collision xColl;
 			collision yColl;
 
-			adjCoord[0] = CheckRange((p.y+1), height);
-			adjCoord[1] = CheckRange((p.y-1), height);
-			
+			adjCoord[0] = CheckRange((p.y + 1), height);
+			adjCoord[1] = CheckRange((p.y - 1), height);
+
 			adjVel[0] = cells[p.x, adjCoord[0]].velocity;
 			adjVel[1] = cells[p.x, adjCoord[1]].velocity;
 
@@ -224,57 +235,74 @@ public class GameGrid : MonoBehaviour
 			adjParticle[2] = cells[adjCoord[2], p.y].particleType;
 			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
 			xColl = p.UpdateX(adjVel, adjParticle);
-          
-            cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
-            cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
 
-            if (p.particleType == cellType.fire  || p.particleType == cellType.smoke || p.particleType == cellType.steam)
-            {
-                GasTime(p);
-            }
-            if (xColl.other != cellType.empty || yColl.other != cellType.empty)
-            {
-                cellType collidedType  = cellType.empty , other1 = cellType.empty, other2 = cellType.empty;
-                if (yColl.location == 0)
-                {
-                    collidedType = Search_Collided(p, 0, 1);
-                    other1 = Search_Collided(p, -1, 0);
-                    other2 = Search_Collided(p, 1, 0);
-                }
-                if(yColl.location == 1)
-                {
-                    collidedType = Search_Collided(p, 0, -1);
-                    other1 = Search_Collided(p, -1, 0);
-                    other2 = Search_Collided(p, 1, 0);
-                    
-                }
-                if (xColl.location == 2)
-                {
-                    collidedType = Search_Collided(p, -1, 0);
-                    other1 = Search_Collided(p, -1, 0);
-                    other2 = Search_Collided(p, 1, 0);
-                }
-                else if (xColl.location == 3)
-                {
-                    collidedType = Search_Collided(p, 1, 0);
-                    other1 = Search_Collided(p, -1, 0);
-                    other2 = Search_Collided(p, 1, 0);
-                }
-                col.check(p, collidedType);
-                col.check(p, other1);
-                col.check(p, other2);
-            }
+			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
+			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
+
+
+			adjCoord[0] = CheckRange((p.y + 1), height);
+			adjCoord[1] = CheckRange((p.y - 1), height);
+
+			adjVel[0] = cells[p.x, adjCoord[0]].velocity;
+			adjVel[1] = cells[p.x, adjCoord[1]].velocity;
+
+			adjParticle[0] = cells[p.x, adjCoord[0]].particleType;
+			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
+
+			adjCoord[2] = CheckRange((p.x - 1), width);
+			adjCoord[3] = CheckRange((p.x + 1), width);
+
+			adjVel[2] = cells[adjCoord[2], p.y].velocity;
+			adjVel[3] = cells[adjCoord[3], p.y].velocity;
+
+			adjParticle[2] = cells[adjCoord[2], p.y].particleType;
+			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
+
+			p.IdleCheck(adjVel, adjParticle);
+
+			if (xColl.other != cellType.empty || yColl.other != cellType.empty)
+			{
+				cellType collidedType = cellType.empty, other1 = cellType.empty, other2 = cellType.empty;
+				if (yColl.location == 0)
+				{
+					collidedType = Search_Collided(p, 0, 1);
+					other1 = Search_Collided(p, -1, 0);
+					other2 = Search_Collided(p, 1, 0);
+				}
+				if (yColl.location == 1)
+				{
+					collidedType = Search_Collided(p, 0, -1);
+					other1 = Search_Collided(p, -1, 0);
+					other2 = Search_Collided(p, 1, 0);
+
+				}
+				if (xColl.location == 2)
+				{
+					collidedType = Search_Collided(p, -1, 0);
+					other1 = Search_Collided(p, -1, 0);
+					other2 = Search_Collided(p, 1, 0);
+				}
+				else if (xColl.location == 3)
+				{
+					collidedType = Search_Collided(p, 1, 0);
+					other1 = Search_Collided(p, -1, 0);
+					other2 = Search_Collided(p, 1, 0);
+				}
+				col.check(p, collidedType);
+				col.check(p, other1);
+				col.check(p, other2);
+			}
             if (p.particleType == cellType.wood_base && p.velocity == new Vector2(0.0f, 0.0f))
             {
-                    tree new_tree = new tree();
-                    new_tree.amount_of_growth = 20;
-                    new_tree.speed_of_growth = 1;
-                    new_tree.turns = 1;
-                    new_tree.wood = p;
-                    trees.Add(new_tree);
+                tree new_tree = new tree();
+                new_tree.amount_of_growth = 20;
+                new_tree.speed_of_growth = 1;
+                new_tree.turns = 1;
+                new_tree.wood = p;
+                trees.Add(new_tree);
             }
             gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
-            gridTexture.SetPixel(p.x, p.y, Colour[(int)p.particleType]);
+			gridTexture.SetPixel(p.x, p.y, Colour[(int)p.particleType]);
 
 			if (p.active)
 			{
@@ -288,29 +316,105 @@ public class GameGrid : MonoBehaviour
 			}
 		}
 	}
-	
+
+	public void UpdateCharacters()
+	{
+		foreach (Character c in characters)
+		{
+			SetCharacterHitBox((int)(Mathf.Floor(c.x)), (int)(Mathf.Floor(c.y)), cellType.empty);
+			Vector2[] adjVel = new Vector2[12];
+			cellType[] adjParticle = new cellType[12];
+			Vector2[] adjCoord = new Vector2[12];
+
+			c.ApplyGravity();
+
+			adjCoord[0] = new Vector2(CheckRange((int)Mathf.Floor(c.x) - 1, width), CheckRange((int)Mathf.Floor(c.y) + 2, height));
+			adjCoord[1] = new Vector2(CheckRange((int)Mathf.Floor(c.x), width), CheckRange((int)Mathf.Floor(c.y) + 2, height));
+			adjCoord[2] = new Vector2(CheckRange((int)Mathf.Floor(c.x) + 1, width), CheckRange((int)Mathf.Floor(c.y) + 2, height));
+
+			adjCoord[3] = new Vector2(CheckRange((int)Mathf.Floor(c.x) - 1, width), CheckRange((int)Mathf.Floor(c.y) - 2, height));
+			adjCoord[4] = new Vector2(CheckRange((int)Mathf.Floor(c.x), width), CheckRange((int)Mathf.Floor(c.y) - 2, height));
+			adjCoord[5] = new Vector2(CheckRange((int)Mathf.Floor(c.x) + 1, width), CheckRange((int)Mathf.Floor(c.y) - 2, height));
+
+			for (int i = 0; i < 6; i++)
+			{
+				adjParticle[i] = cells[(int)(adjCoord[i].x), (int)(adjCoord[i].y)].particleType;
+				adjVel[i] = cells[(int)(adjCoord[i].x), (int)(adjCoord[i].y)].velocity;
+			}
+
+			c.UpdateY(adjVel, adjParticle);
+
+			adjCoord[6] = new Vector2(CheckRange((int)Mathf.Floor(c.x) - 2, width), CheckRange((int)Mathf.Floor(c.y) - 1, height));
+			adjCoord[7] = new Vector2(CheckRange((int)Mathf.Floor(c.x) - 2, width), CheckRange((int)Mathf.Floor(c.y), height));
+			adjCoord[8] = new Vector2(CheckRange((int)Mathf.Floor(c.x) - 2, width), CheckRange((int)Mathf.Floor(c.y) + 1, height));
+
+			adjCoord[9] = new Vector2(CheckRange((int)Mathf.Floor(c.x) + 2, width), CheckRange((int)Mathf.Floor(c.y) - 1, height));
+			adjCoord[10] = new Vector2(CheckRange((int)Mathf.Floor(c.x) + 2, width), CheckRange((int)Mathf.Floor(c.y), height));
+			adjCoord[11] = new Vector2(CheckRange((int)Mathf.Floor(c.x) + 2, width), CheckRange((int)Mathf.Floor(c.y) + 1, height));
+
+			for (int i = 6; i < 12; i++)
+			{
+				adjParticle[i] = cells[(int)(adjCoord[i].x), (int)(adjCoord[i].y)].particleType;
+				adjVel[i] = cells[(int)(adjCoord[i].x), (int)(adjCoord[i].y)].velocity;
+			}
+			c.UpdateX(adjVel, adjParticle);
+			SetCharacterHitBox((int)(Mathf.Floor(c.x)), (int)(Mathf.Floor(c.y)), cellType.character);
+			//print(c.x + ", " + c.y);
+			float relX = c.x;
+			float relY = c.y;
+			if (c.x != 0)
+				relX = c.x / width;
+			if (c.y != 0)
+				relY = c.y / height;
+			charGO[0].GetComponent<MoveCharacter>().MoveChar(relX, relY);
+		}
+	}
+
+	public void SetCharacterHitBox(int x, int y, cellType boxType)
+	{
+		int[] xRange = new int[3];
+		int[] yRange = new int[3];
+
+		xRange[0] = CheckRange(x - 1, width);
+		xRange[1] = x;
+		xRange[2] = CheckRange(x + 1, width);
+
+		yRange[0] = CheckRange(y - 1, width);
+		yRange[1] = y;
+		yRange[2] = CheckRange(y + 1, width);
+
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				gridTexture.SetPixel(xRange[i], yRange[j], Colour[(int)boxType]);
+			}
+		}
+	}
+
 	// Update is called once per frame
-	void FixedUpdate ()
+	void FixedUpdate()
 	{
 		txt = cam.GetComponent<Text>();
 		txt.text = "Active Particles: " + activeParticles.Count;
-		if(delay <= Time.time && createParticles)
+		if (delay <= Time.time && createParticles)
 		{
 
 			if (CreateParticle(offset, 0.8f))
 			{
-				delay = Time.time;//Modify to change frequency of particles
+				delay = Time.time + 0.0f;//Modify to change frequency of particles
 			}
 			else
 			{
-				offset += 1.0f / width;
+				offset = (offset += (1.0f / width)) % 1;
 			}
-
-			if (offset >= 1.0f)
-				offset = 0.0f;
 		}
 
-		UpdateActiveParticles();
+        UpdateCharacters();
+
+        gridTexture.Apply();
+
+        GetComponent<Renderer>().material.mainTexture = gridTexture;
         foreach (tree c in trees)
         {
             if (c.amount_of_growth != 0)
@@ -392,4 +496,47 @@ public class GameGrid : MonoBehaviour
         }
 
     }
+
+	public cellType Search_Collided(Particle current, int x, int y)
+	{
+		cellType newP;
+		if ((current.x + x) < 0)
+		{
+			newP = cells[width - 1, current.y + y].particleType;
+		}
+		else if (current.x + x >= width)
+		{
+			newP = cells[0, current.y + y].particleType;
+		}
+		else if ((current.y + y) >= height)
+		{
+			newP = cells[current.x + x, 0].particleType;
+		}
+		else if ((current.y + y) < 0)
+		{
+			newP = cells[current.x + x, (height - 1)].particleType;
+		}
+		else
+		{
+			newP = cells[current.x + x, current.y + y].particleType;
+		}
+		return newP;
+	}
+	public void Growing(tree plant)
+	{
+		if (plant.turns == plant.speed_of_growth)
+		{
+			cellType aboveSearch = Search_Collided(plant.wood, 1, 0);
+			if (aboveSearch == cellType.empty)
+			{
+				activeParticles.Add(new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood));
+			}
+			plant.turns = 1;
+		}
+		else
+		{
+			plant.turns++;
+		}
+	}
+>>>>>>> refs/remotes/origin/master
 }
