@@ -101,7 +101,7 @@ public class MainMenu : MonoBehaviour {
         if(SceneManager.GetActiveScene().name == "ActualMainMenu")
         {
             //This is just for the editor
-            UnityEditor.EditorApplication.isPlaying = false;
+            //UnityEditor.EditorApplication.isPlaying = false;
             //This will work in the actual build
             Application.Quit();
         }
