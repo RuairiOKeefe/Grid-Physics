@@ -85,7 +85,11 @@ public class LaserPointer : MonoBehaviour
             {
                 invCylinder.GetComponent<GameGrid>().CreateParticle(hit.textureCoord.x, hit.textureCoord.y);
                 //Will make the little fork spin
-                Fork.transform.Rotate(Vector3.forward * 1000 * Time.deltaTime);
+                if (Fork != null)
+                {
+                    Fork.transform.Rotate(Vector3.forward * 1000 * Time.deltaTime);
+                }
+                
             }
         }
     }

@@ -8,9 +8,6 @@ using Valve.VR.InteractionSystem;
 
 public class MainMenu : MonoBehaviour {
 
-    public float timer = 2.0f;
-    public AudioSource leverPull;
-
     public GameObject main;
     public GameObject materials;
     public GameObject options;
@@ -44,21 +41,6 @@ public class MainMenu : MonoBehaviour {
         if (Input.GetKey(KeyCode.F))
         {
             Fork.transform.Rotate(Vector3.forward * 1000 * Time.deltaTime);
-        }
-
-        if (transform.localPosition.z < -0.700 )
-        {
-            timer -= Time.deltaTime;
-
-            if(timer <= 0.0f)
-            {
-                SceneManager.LoadScene(1);
-                timer = 2.0f;
-            }
-        }
-        else
-        {
-            timer = 2.0f;
         }
 
     }
