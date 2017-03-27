@@ -496,47 +496,4 @@ public class GameGrid : MonoBehaviour
         }
 
     }
-
-	public cellType Search_Collided(Particle current, int x, int y)
-	{
-		cellType newP;
-		if ((current.x + x) < 0)
-		{
-			newP = cells[width - 1, current.y + y].particleType;
-		}
-		else if (current.x + x >= width)
-		{
-			newP = cells[0, current.y + y].particleType;
-		}
-		else if ((current.y + y) >= height)
-		{
-			newP = cells[current.x + x, 0].particleType;
-		}
-		else if ((current.y + y) < 0)
-		{
-			newP = cells[current.x + x, (height - 1)].particleType;
-		}
-		else
-		{
-			newP = cells[current.x + x, current.y + y].particleType;
-		}
-		return newP;
-	}
-	public void Growing(tree plant)
-	{
-		if (plant.turns == plant.speed_of_growth)
-		{
-			cellType aboveSearch = Search_Collided(plant.wood, 1, 0);
-			if (aboveSearch == cellType.empty)
-			{
-				activeParticles.Add(new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood));
-			}
-			plant.turns = 1;
-		}
-		else
-		{
-			plant.turns++;
-		}
-	}
->>>>>>> refs/remotes/origin/master
 }
