@@ -45,8 +45,6 @@ public class LaserPointer : MonoBehaviour
         laserTransform = laser.transform;
         laser.SetActive(false);
 
-        //Finding the spoke to rotate inside the controller model
-        //Fork = transform.Find("spoke").gameObject;
     }
 
     // Update is called once per frame
@@ -84,11 +82,6 @@ public class LaserPointer : MonoBehaviour
             if (Physics.Raycast(tracked.transform.position, transform.forward, out hit, 1000))
             {
                 invCylinder.GetComponent<GameGrid>().CreateParticle(hit.textureCoord.x, hit.textureCoord.y);
-                //Will make the little fork spin
-                if (Fork != null)
-                {
-                    Fork.transform.Rotate(Vector3.forward * 1000 * Time.deltaTime);
-                }
                 
             }
         }

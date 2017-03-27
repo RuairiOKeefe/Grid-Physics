@@ -410,9 +410,8 @@ public class GameGrid : MonoBehaviour
 				offset = (offset += (1.0f / width)) % 1;
 			}
 		}
-
+        UpdateActiveParticles();
         UpdateCharacters();
-
         gridTexture.Apply();
 
         GetComponent<Renderer>().material.mainTexture = gridTexture;
