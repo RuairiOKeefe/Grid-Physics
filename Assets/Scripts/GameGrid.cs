@@ -14,7 +14,8 @@ public enum cellType
 	fire,
 	wood,
 	wood_base,
-	bush
+	bush,
+	character
 }
 
 public struct collision
@@ -327,19 +328,20 @@ public class GameGrid : MonoBehaviour
 	{
 		foreach (Character c in characters)
 		{
+			SetCharacterHitBox((int)(Mathf.Floor(c.x)), (int)(Mathf.Floor(c.y)), cellType.empty);
 			Vector2[] adjVel = new Vector2[12];
 			cellType[] adjParticle = new cellType[12];
 			Vector2[] adjCoord = new Vector2[12];
 
 			c.ApplyGravity();
 
-			adjCoord[0] = new Vector2(CheckRange((int)Mathf.Floor(c.x) - 1, width), CheckRange((int)Mathf.Floor(c.y) - 2, height));
-			adjCoord[1] = new Vector2(CheckRange((int)Mathf.Floor(c.x), width), CheckRange((int)Mathf.Floor(c.y) - 2, height));
-			adjCoord[2] = new Vector2(CheckRange((int)Mathf.Floor(c.x) + 1, width), CheckRange((int)Mathf.Floor(c.y) - 2, height));
+			adjCoord[0] = new Vector2(CheckRange((int)Mathf.Floor(c.x) - 1, width), CheckRange((int)Mathf.Floor(c.y) + 2, height));
+			adjCoord[1] = new Vector2(CheckRange((int)Mathf.Floor(c.x), width), CheckRange((int)Mathf.Floor(c.y) + 2, height));
+			adjCoord[2] = new Vector2(CheckRange((int)Mathf.Floor(c.x) + 1, width), CheckRange((int)Mathf.Floor(c.y) + 2, height));
 
-			adjCoord[3] = new Vector2(CheckRange((int)Mathf.Floor(c.x) - 1, width), CheckRange((int)Mathf.Floor(c.y) + 2, height));
-			adjCoord[4] = new Vector2(CheckRange((int)Mathf.Floor(c.x), width), CheckRange((int)Mathf.Floor(c.y) + 2, height));
-			adjCoord[5] = new Vector2(CheckRange((int)Mathf.Floor(c.x) + 1, width), CheckRange((int)Mathf.Floor(c.y) + 2, height));
+			adjCoord[3] = new Vector2(CheckRange((int)Mathf.Floor(c.x) - 1, width), CheckRange((int)Mathf.Floor(c.y) - 2, height));
+			adjCoord[4] = new Vector2(CheckRange((int)Mathf.Floor(c.x), width), CheckRange((int)Mathf.Floor(c.y) - 2, height));
+			adjCoord[5] = new Vector2(CheckRange((int)Mathf.Floor(c.x) + 1, width), CheckRange((int)Mathf.Floor(c.y) - 2, height));
 
 			for (int i = 0; i < 6; i++)
 			{
@@ -363,7 +365,8 @@ public class GameGrid : MonoBehaviour
 				adjVel[i] = cells[(int)(adjCoord[i].x), (int)(adjCoord[i].y)].velocity;
 			}
 			c.UpdateX(adjVel, adjParticle);
-
+			SetCharacterHitBox((int)(Mathf.Floor(c.x)), (int)(Mathf.Floor(c.y)), cellType.character);
+			//print(c.x + ", " + c.y);
 			float relX = c.x;
 			float relY = c.y;
 			if (c.x != 0)
@@ -371,6 +374,28 @@ public class GameGrid : MonoBehaviour
 			if (c.y != 0)
 				relY = c.y / height;
 			charGO[0].GetComponent<MoveCharacter>().MoveChar(relX, relY);
+		}
+	}
+
+	public void SetCharacterHitBox(int x, int y, cellType boxType)
+	{
+		int[] xRange = new int[3];
+		int[] yRange = new int[3];
+
+		xRange[0] = CheckRange(x - 1, width);
+		xRange[1] = x;
+		xRange[2] = CheckRange(x + 1, width);
+
+		yRange[0] = CheckRange(y - 1, width);
+		yRange[1] = y;
+		yRange[2] = CheckRange(y + 1, width);
+
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				gridTexture.SetPixel(xRange[i], yRange[j], Colour[(int)boxType]);
+			}
 		}
 	}
 
@@ -385,6 +410,10 @@ public class GameGrid : MonoBehaviour
 			if (CreateParticle(offset, 0.8f))
 			{
 				delay = Time.time + 0.0f;//Modify to change frequency of particles
+				
+			}
+			else
+			{
 				offset = (offset += (1.0f / width)) % 1;
 			}
 		}
