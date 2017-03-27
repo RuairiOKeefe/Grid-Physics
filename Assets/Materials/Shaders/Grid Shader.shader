@@ -9,6 +9,7 @@
 	{
 		Tags{ "Queue" = "Transparent" "IgnoreProjector" = "True" }
 		ZWrite Off
+		Cull Off
 		Blend SrcAlpha OneMinusSrcAlpha
 		LOD 100
 
