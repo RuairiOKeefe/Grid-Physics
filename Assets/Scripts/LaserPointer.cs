@@ -46,7 +46,7 @@ public class LaserPointer : MonoBehaviour
         laser.SetActive(false);
 
         //Finding the spoke to rotate inside the controller model
-        Fork = transform.Find("spoke").gameObject;
+        //Fork = transform.Find("spoke").gameObject;
     }
 
     // Update is called once per frame

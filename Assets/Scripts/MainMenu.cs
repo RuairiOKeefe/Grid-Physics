@@ -23,9 +23,6 @@ public class MainMenu : MonoBehaviour {
     // Use this for initialization
     public void Start () {
 
-        Instantiate(controllerPrefab);
-
-        Fork = GameObject.Find("spoke");
     }
 	
 	// Update is called once per frame
@@ -37,11 +34,6 @@ public class MainMenu : MonoBehaviour {
             SliderUpdate();
         }
 
-        //Testing rotation --REMOVE FOR FINAL VERSION
-        if (Input.GetKey(KeyCode.F))
-        {
-            Fork.transform.Rotate(Vector3.forward * 1000 * Time.deltaTime);
-        }
 
     }
 
