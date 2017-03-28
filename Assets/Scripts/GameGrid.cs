@@ -259,6 +259,10 @@ public class GameGrid : MonoBehaviour
 			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
 
 			p.IdleCheck(adjVel, adjParticle);
+            if(p.particleType == cellType.fire  || p.particleType == cellType.smoke || p.particleType == cellType.steam)
+            {
+                GasTime(p);
+            }
 
 			if (xColl.other != cellType.empty || yColl.other != cellType.empty)
 			{
@@ -492,7 +496,7 @@ public class GameGrid : MonoBehaviour
 		}
 		else
 		{
-			Gas.velocity = new Vector2(-2.0f, 0.0f);
+			Gas.velocity = new Vector2(-2.0f, 23.0f);
 		}
 
 	}
