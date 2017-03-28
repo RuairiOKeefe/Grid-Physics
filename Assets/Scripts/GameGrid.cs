@@ -342,6 +342,7 @@ public class GameGrid : MonoBehaviour
 				adjVel[i] = cells[(int)(adjCoord[i].x), (int)(adjCoord[i].y)].velocity;
 			}
 
+			c.Jump(adjParticle);
 			c.UpdateY(adjVel, adjParticle);
 
 			adjCoord[6] = new Vector2(CheckRange((int)Mathf.Floor(c.x) - 2, width), CheckRange((int)Mathf.Floor(c.y) - 1, height));
