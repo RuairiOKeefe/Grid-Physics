@@ -379,9 +379,9 @@ public class GameGrid : MonoBehaviour
 		xRange[1] = x;
 		xRange[2] = CheckRange(x + 1, width);
 
-		yRange[0] = CheckRange(y - 1, width);
+		yRange[0] = CheckRange(y - 1, height);
 		yRange[1] = y;
-		yRange[2] = CheckRange(y + 1, width);
+		yRange[2] = CheckRange(y + 1, height);
 
 		for (int i = 0; i < 3; i++)
 		{
