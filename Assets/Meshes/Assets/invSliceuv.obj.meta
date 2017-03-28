@@ -1,17 +1,17 @@
 fileFormatVersion: 2
 guid: e61562f49e139f14b8a80d9a9c37590c
-timeCreated: 1490632184
+timeCreated: 1490655724
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
-    100000: //RootNode
-    100002: pPipe1
-    400000: //RootNode
-    400002: pPipe1
-    2300000: pPipe1
-    3300000: pPipe1
-    4300000: pPipe1
+    100000: invSlice:pPipe1
+    100002: //RootNode
+    400000: invSlice:pPipe1
+    400002: //RootNode
+    2300000: invSlice:pPipe1
+    3300000: invSlice:pPipe1
+    4300000: invSlice:pPipe1
   materials:
     importMaterials: 1
     materialName: 0
