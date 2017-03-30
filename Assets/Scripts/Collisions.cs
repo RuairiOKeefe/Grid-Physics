@@ -88,10 +88,7 @@ public class Collisions
         switch (other)
         {
             case cellType.water:
-                if (plant.velocity == new Vector2(0.0f, 0.0f))
-                {
-                    plant.particleType = cellType.wood_base;
-                }
+                plant.particleType = cellType.wood_base;
                 break;
             case cellType.wood:
                 plant.particleType = cellType.wood;

@@ -259,6 +259,10 @@ public class GameGrid : MonoBehaviour
 			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
 
 			p.IdleCheck(adjVel, adjParticle);
+            if(p.particleType == cellType.fire  || p.particleType == cellType.smoke || p.particleType == cellType.steam)
+            {
+                GasTime(p);
+            }
 
 			if (xColl.other != cellType.empty || yColl.other != cellType.empty)
 			{
@@ -342,6 +346,7 @@ public class GameGrid : MonoBehaviour
 				adjVel[i] = cells[(int)(adjCoord[i].x), (int)(adjCoord[i].y)].velocity;
 			}
 
+			c.Jump(adjParticle);
 			c.UpdateY(adjVel, adjParticle);
 
 			adjCoord[6] = new Vector2(CheckRange((int)Mathf.Floor(c.x) - 2, width), CheckRange((int)Mathf.Floor(c.y) - 1, height));
@@ -378,9 +383,9 @@ public class GameGrid : MonoBehaviour
 		xRange[1] = x;
 		xRange[2] = CheckRange(x + 1, width);
 
-		yRange[0] = CheckRange(y - 1, width);
+		yRange[0] = CheckRange(y - 1, height);
 		yRange[1] = y;
-		yRange[2] = CheckRange(y + 1, width);
+		yRange[2] = CheckRange(y + 1, height);
 
 		for (int i = 0; i < 3; i++)
 		{
@@ -491,7 +496,7 @@ public class GameGrid : MonoBehaviour
 		}
 		else
 		{
-			Gas.velocity = new Vector2(-2.0f, 0.0f);
+			Gas.velocity = new Vector2(-2.0f, 23.0f);
 		}
 
 	}
