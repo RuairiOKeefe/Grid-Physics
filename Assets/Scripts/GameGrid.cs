@@ -48,7 +48,7 @@ public class GameGrid : MonoBehaviour
 
 	public GameObject charPrefab;
 
-	public GameObject cam;//Active particle debug stuff
+	//public GameObject cam;//Active particle debug stuff
 	Text txt;//Active particle debug stuff
 
 	Cell[,] cells;
@@ -259,10 +259,13 @@ public class GameGrid : MonoBehaviour
 			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
 
 			p.IdleCheck(adjVel, adjParticle);
-
+            if(p.particleType == cellType.fire || p.particleType == cellType.smoke || p.particleType == cellType.steam)
+            {
+                GasTime(p);
+            }
 			if (xColl.other != cellType.empty || yColl.other != cellType.empty)
 			{
-				cellType collidedType = cellType.empty, other1 = cellType.empty, other2 = cellType.empty;
+                Particle collidedType = new Particle(), other1 = new Particle(), other2 = new Particle();
 				if (yColl.location == 0)
 				{
 					collidedType = Search_Collided(p, 0, 1);
@@ -278,17 +281,19 @@ public class GameGrid : MonoBehaviour
 				}
 				if (xColl.location == 2)
 				{
-					collidedType = Search_Collided(p, -1, 0);
-					other1 = Search_Collided(p, -1, 0);
-					other2 = Search_Collided(p, 1, 0);
+					collidedType = Search_Collided(p, 1, 0);
+					other1 = Search_Collided(p, 0, -1);
+					other2 = Search_Collided(p, 0, 1);
 				}
 				else if (xColl.location == 3)
 				{
-					collidedType = Search_Collided(p, 1, 0);
-					other1 = Search_Collided(p, -1, 0);
-					other2 = Search_Collided(p, 1, 0);
-				}
-				col.check(p, collidedType);
+					collidedType = Search_Collided(p, -1, 0);
+                    other1 = Search_Collided(p, 0, -1);
+                    other2 = Search_Collided(p, 0, 1);
+                }
+
+                wakeAdj(cells[p.x,p.y], adjCoord);
+                col.check(p, collidedType);
 				col.check(p, other1);
 				col.check(p, other2);
 			}
@@ -396,8 +401,8 @@ public class GameGrid : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate()
 	{
-		txt = cam.GetComponent<Text>();
-		txt.text = "Active Particles: " + activeParticles.Count;
+		//txt = cam.GetComponent<Text>();
+		//txt.text = "Active Particles: " + activeParticles.Count;
 		if (delay <= Time.time && createParticles)
 		{
 
@@ -410,6 +415,7 @@ public class GameGrid : MonoBehaviour
 				offset = (offset += (1.0f / width)) % 1;
 			}
 		}
+        UpdateActiveParticles();
 
         UpdateCharacters();
 
@@ -429,28 +435,28 @@ public class GameGrid : MonoBehaviour
 
 	}
 
-    public cellType Search_Collided(Particle current , int x , int y)
+    public Particle Search_Collided(Particle current , int x , int y)
     {
-        cellType newP;
+        Particle newP;
         if ((current.x + x) < 0)
         {
-            newP = cells[width - 1, current.y + y].particleType;
+            newP = new Particle(width - 1, current.y + y, cells[width - 1, current.y + y].particleType);
         }
         else if (current.x + x >= width)
         {
-             newP = cells[0, current.y + y].particleType;
+             newP = new Particle(0, current.y + y, cells[0, current.y + y].particleType);
         }
         else if ((current.y + y) >= height)
         {
-             newP = cells[current.x + x, 0].particleType;
+             newP = new Particle(current.x + x, 0, cells[current.x + x, 0].particleType);
         }
         else if ((current.y + y) < 0)
         {
-             newP = cells[current.x + x, (height - 1)].particleType;
+             newP = new Particle(current.x + x, (height - 1), cells[current.x + x, (height - 1)].particleType);
         }
         else
         {
-            newP = cells[current.x + x, current.y + y].particleType;
+            newP = new Particle(current.x + x, current.y + y, cells[current.x + x, current.y + y].particleType);
         }
         return newP;
     }
@@ -458,14 +464,14 @@ public class GameGrid : MonoBehaviour
     {
         if (plant.turns == plant.speed_of_growth)
         {
-            cellType aboveSearch = Search_Collided(plant.wood, 1, 0);
-            if (aboveSearch == cellType.empty)
+            Particle aboveSearch = Search_Collided(plant.wood, 1, 0);
+            if (aboveSearch.particleType == cellType.empty)
             {
                 activeParticles.Add(new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood));
                 plant.wood = new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood);
                 plant.amount_of_growth--;
             }
-            else if (aboveSearch == cellType.wood)
+            else if (aboveSearch.particleType == cellType.wood)
             {
                 activeParticles.Add(new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood));
                 plant.wood = new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood);
@@ -482,12 +488,12 @@ public class GameGrid : MonoBehaviour
     public void GasTime(Particle Gas)
     {
         int randInt = Random.Range(0, 2);
-        cellType aboveSearch = Search_Collided(Gas, 1, 0);
+        Particle aboveSearch = Search_Collided(Gas, 1, 0);
         if (Gas.y > height -3)
         {
             Gas.particleType = cellType.empty;
         }
-        else if(aboveSearch == cellType.empty || aboveSearch == cellType.fire && randInt == 0)
+        else if(aboveSearch.particleType == cellType.empty || aboveSearch.particleType == cellType.fire && randInt == 0)
         {
             Gas.velocity = new Vector2(2.0f, 23.0f);
         }
