@@ -292,7 +292,7 @@ public class GameGrid : MonoBehaviour
                     other2 = Search_Collided(p, 0, 1);
                 }
 
-                wakeAdj(cells[p.x,p.y], adjCoord);
+                //wakeAdj(cells[p.x,p.y], adjCoord);
                 col.check(p, collidedType);
 				col.check(p, other1);
 				col.check(p, other2);
