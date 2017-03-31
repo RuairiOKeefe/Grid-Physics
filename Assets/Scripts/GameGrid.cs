@@ -61,6 +61,7 @@ public class GameGrid : MonoBehaviour
 	List<tree> trees = new List<tree>();
 
 	float delay;//debug temp
+	float charDelay;//debug temp
 	float offset;//debug temp
 
 	Texture2D gridTexture;
@@ -69,7 +70,7 @@ public class GameGrid : MonoBehaviour
 	void Start()
 	{
 		CreateGrid();
-		CreateCharacter();
+		CreateCharacter(width, height); //For some reason this has to be where they spawn?
 	}
 
 	int CheckRange(int coord, int range)
@@ -155,12 +156,55 @@ public class GameGrid : MonoBehaviour
 			}
 		}
 
+		FillGrid();
+
 		foreach (Cell c in cells)
 		{
 			gridTexture.SetPixel(c.x, c.y, Colour[(int)c.particleType]);
 			if (c.velocity.x == 0 && c.velocity.y == 0)
 			{
 				c.Settle();
+			}
+		}
+	}
+
+	public void FillGrid()
+	{
+		for (int i = 0; i < width; i++)
+		{
+			for (int j = 0; j < height; j++)
+			{
+				if (j > 1 && j < 71)
+				{
+					Particle p = new Particle(i, j, cellType.stone, new Vector2(0.0f, 0.0f), width, height);
+					p.active = false;
+					inactiveParticles[i, j] = p;
+					cells[i, j].Settle();
+					cells[i, j].SetParticle(cellType.stone, new Vector2(0, 0));
+				}
+
+				if (j > 70 && j < 81)
+				{
+					Particle p = new Particle(i, j, cellType.stone, new Vector2(0.0f, 0.0f), width, height);
+					p.active = false;
+					inactiveParticles[i, j] = p;
+					cells[i, j].Settle();
+
+					int rand = Random.Range(0, 10);
+					if(rand + (j-76) > 5)
+						cells[i, j].SetParticle(cellType.sand, new Vector2(0, 0));
+					else
+						cells[i, j].SetParticle(cellType.stone, new Vector2(0, 0));
+				}
+
+				if (j > 80 && j < 150)
+				{
+					Particle p = new Particle(i, j, cellType.stone, new Vector2(0.0f, 0.0f), width, height);
+					p.active = false;
+					inactiveParticles[i, j] = p;
+					cells[i, j].Settle();
+					cells[i, j].SetParticle(cellType.sand, new Vector2(0, 0));
+				}
 			}
 		}
 	}
@@ -188,9 +232,9 @@ public class GameGrid : MonoBehaviour
 		}
 	}
 
-	public void CreateCharacter()
+	public void CreateCharacter(int x, int y)
 	{
-		characters.Add(new Character(width, height));
+		characters.Add(new Character(x, y));
 		charGO.Add(Instantiate(charPrefab));
 	}
 
@@ -370,7 +414,7 @@ public class GameGrid : MonoBehaviour
 				relX = c.x / width;
 			if (c.y != 0)
 				relY = c.y / height;
-			charGO[0].GetComponent<MoveCharacter>().MoveChar(relX, relY);
+			charGO[characters.IndexOf(c)].GetComponent<MoveCharacter>().MoveChar(relX, relY, c.movingLeft);
 		}
 	}
 
@@ -407,13 +451,20 @@ public class GameGrid : MonoBehaviour
 
 			if (CreateParticle(offset, 0.8f))
 			{
-				delay = Time.time + 0.0f;//Modify to change frequency of particles
+				delay = Time.time + 0.2f;//Modify to change frequency of particles
 			}
 			else
 			{
 				offset = (offset += (1.0f / width)) % 1;
 			}
 		}
+
+		/*if (charDelay <= Time.time)
+		{
+			CreateCharacter(width, height);
+			charDelay = Time.time + 10.0f;
+		}*/
+
 		UpdateActiveParticles();
 		UpdateCharacters();
 		gridTexture.Apply();
