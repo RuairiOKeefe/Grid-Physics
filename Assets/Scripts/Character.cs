@@ -9,6 +9,7 @@ public class Character
 	public float maxSpeed = 20;
 	public Vector2 velocity;
 	public float terminalVelocity = -50f;//may want to calculate as a function of mass
+	public bool movingLeft;
 
 	private int width;
 	private int height;
@@ -121,8 +122,11 @@ public class Character
 			}
 			else
 			{
-				if(initX-1 < x && x < initX+1)
+				if (initX - 1 < x && x < initX + 1)
+				{
 					velocity.x = -velocity.x;
+					movingLeft = !movingLeft;
+				}
 				tryJump = false;
 				jumpCD = false;
 			}
