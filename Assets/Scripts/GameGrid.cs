@@ -37,8 +37,11 @@ public struct Collide
 
 public struct Tree
 {
-	public Particle currentParticle;
+	public int x;
+	public int y;
 	public int remainingGrowth;
+	public int branchPoint;
+	public bool branch;
 	public float growthRate;
 	public float nextGrow;
 }
@@ -234,12 +237,12 @@ public class GameGrid : MonoBehaviour
 			particleState = State.empty;
 		else
 			if (type == Substance.Fire || type == Substance.Smoke || type == Substance.Steam)
-				particleState = State.gas;
-			else
+			particleState = State.gas;
+		else
 				if (type == Substance.Water || type == Substance.Lava)
-					particleState = State.liquid;
-				else
-					particleState = State.solid;
+			particleState = State.liquid;
+		else
+			particleState = State.solid;
 	}
 
 	public bool CreateParticle(float x, float y)//Create; Polymorphise. Whats the difference? -R Huh turns out` in the end we are creating them... -R
@@ -297,7 +300,7 @@ public class GameGrid : MonoBehaviour
 			int[] adjacentCoordinates = new int[4];
 			Vector2[] adjacentVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
 			Substance[] adjacentParticle = new Substance[4]; //Adjacent particles. Up Down Left Right
-			
+
 
 			Collisions collisions = new Collisions();
 
@@ -354,12 +357,14 @@ public class GameGrid : MonoBehaviour
 			if (p.particleType == Substance.Root && p.velocity == new Vector2(0.0f, 0.0f))
 			{
 				Tree newTree = new Tree();
-				trees.Add(newTree);
-				newTree.currentParticle = p;
-				newTree.remainingGrowth = 20;
-				newTree.growthRate = 0.4f;
+				newTree.x = p.x;
+				newTree.y = p.y;
+				newTree.remainingGrowth = 50 + Random.Range(-30, 30);
+				newTree.branchPoint = (newTree.remainingGrowth / 2) + Random.Range(-newTree.remainingGrowth / 2 + 1, newTree.remainingGrowth / 2);
+				newTree.growthRate = 0.6f;
 				newTree.nextGrow = Time.time + newTree.growthRate;
 				p.particleType = Substance.Wood;
+				trees.Add(newTree);
 			}
 
 			p.IdleCheck(adjacentVel, adjacentParticle);
@@ -499,7 +504,9 @@ public class GameGrid : MonoBehaviour
 
 			if (CreateParticle(offset, 0.8f))
 			{
-				delay = Time.time + 0.2f;//Modify to change frequency of particles
+				delay = Time.time + 1.2f;//Modify to change frequency of particles
+				if (particleType == Substance.Plant)
+					createParticles = false;
 			}
 			else
 			{
@@ -518,9 +525,13 @@ public class GameGrid : MonoBehaviour
 		gridTexture.Apply();
 
 		GetComponent<Renderer>().material.mainTexture = gridTexture;
-		foreach (Tree t in trees)
+		for (int i = trees.Count - 1; i >= 0; i--)
 		{
-
+			trees[i] = Grow(trees[i]);
+			if (trees[i].remainingGrowth <= 0)
+			{
+				trees.Remove(trees[i]);
+			}
 		}
 		gridTexture.Apply();
 
@@ -554,8 +565,125 @@ public class GameGrid : MonoBehaviour
 		return newP;
 	}
 
-	public void Grow(Tree plant)
+	public void CreateTree(int x, int y, int remainingGrowth)
 	{
-		
+		Tree newTree = new Tree();
+		newTree.x = x;
+		newTree.y = y;
+		newTree.remainingGrowth = remainingGrowth + Random.Range(-remainingGrowth/2, remainingGrowth / 2);
+		newTree.branchPoint = (newTree.remainingGrowth / 2) + Random.Range(-newTree.remainingGrowth / 2 + 1, newTree.remainingGrowth / 2);
+		newTree.growthRate = 0.6f;
+		newTree.nextGrow = Time.time + newTree.growthRate;
+		trees.Add(newTree);
+	}
+
+	public Tree Grow(Tree tree)
+	{
+		int[] xRange = new int[3];
+		int[] yRange = new int[3];
+
+		xRange[0] = CheckRange(tree.x - 1, width);
+		xRange[1] = tree.x;
+		xRange[2] = CheckRange(tree.x + 1, width);
+
+		yRange[0] = CheckRange(tree.y - 1, height);
+		yRange[1] = tree.y;
+		yRange[2] = CheckRange(tree.y + 1, height);
+
+		Substance growthType = Substance.Wood;
+
+		if (tree.remainingGrowth < 5)
+			growthType = Substance.Bush;
+
+		if (Time.time < tree.nextGrow)
+		{
+			if (cells[xRange[1], yRange[2]].particleType == Substance.Empty && !tree.branch)
+			{
+				tree = AttemptGrowth(tree, xRange[1], yRange[2], growthType);
+			}
+			else
+			{
+				if (cells[xRange[0], yRange[2]].particleType == Substance.Empty && cells[xRange[2], yRange[2]].particleType == Substance.Empty)
+				{
+					int rand = Random.Range(0, 2);
+					switch (rand)
+					{
+						case 0:
+							tree = AttemptGrowth(tree, xRange[0], yRange[2], growthType);
+							break;
+						case 1:
+							tree = AttemptGrowth(tree, xRange[2], yRange[2], growthType);
+							break;
+					}
+				}
+				else
+				{
+					if (cells[xRange[0], yRange[2]].particleType == Substance.Empty)
+					{
+						tree = AttemptGrowth(tree, xRange[0], yRange[2], growthType);
+					}
+					else
+						if (cells[xRange[2], yRange[2]].particleType == Substance.Empty)
+						{
+							tree = AttemptGrowth(tree, xRange[2], yRange[2], growthType);
+						}
+					else
+					{
+						if (cells[xRange[0], yRange[1]].particleType == Substance.Empty && cells[xRange[2], yRange[1]].particleType == Substance.Empty)
+						{
+							int rand = Random.Range(0, 2);
+							switch (rand)
+							{
+								case 0:
+									tree = AttemptGrowth(tree, xRange[0], yRange[1], growthType);
+									break;
+								case 1:
+									tree = AttemptGrowth(tree, xRange[2], yRange[1], growthType);
+									break;
+							}
+						}
+						else
+						{
+							if (cells[xRange[0], yRange[1]].particleType == Substance.Empty)
+							{
+								tree = AttemptGrowth(tree, xRange[0], yRange[1], growthType);
+							}
+							else
+								if (cells[xRange[2], yRange[1]].particleType == Substance.Empty)
+							{
+								tree = AttemptGrowth(tree, xRange[2], yRange[1], growthType);
+							}
+						}
+					}
+				}
+			}
+			if (tree.remainingGrowth == tree.branchPoint)
+			{
+				for (int i = 0; i < 3; i++)
+				{
+					for (int j = 0; j < 2; j++)
+					{
+						if (i != 1 && cells[xRange[i], yRange[j]].particleType == Substance.Empty)
+							CreateTree(xRange[i], yRange[j], tree.remainingGrowth);
+					}
+				}
+				tree.branch = true;
+				tree.branchPoint = tree.remainingGrowth / 2 + Random.Range(-tree.remainingGrowth / 2 + 1, tree.remainingGrowth / 2);
+			}
+			tree.nextGrow = Time.time + tree.growthRate;
+		}
+
+		return tree;
+	}
+
+	public Tree AttemptGrowth(Tree tree, int x, int y, Substance growthType)
+	{
+		inactiveParticles[x, y] = new Particle(x, y, growthType, State.solid, true);
+		cells[x, y].SetParticle(growthType, new Vector2(0.0f, 0.0f));
+		gridTexture.SetPixel(x, y, Colour[(int)growthType]);
+		tree.remainingGrowth = tree.remainingGrowth - 1;
+		tree.x = x;
+		tree.y = y;
+		return tree;
 	}
 }

@@ -11,6 +11,7 @@ public class Particle
 	public Substance particleType;
 	public float terminalVelocity = -500f;//may want to calculate as a function of mass
 	public State particleState;
+	public bool immobile;
 
 	public int previousX { get; private set; }
 	public int previousY { get; private set; }
@@ -28,13 +29,14 @@ public class Particle
 	{
 		
 	}
-    public Particle(int x , int y , Substance particleType, State particleState)
+    public Particle(int x , int y , Substance particleType, State particleState, bool immobile)
     {
         this.x = x;
         this.y = y;
         this.particleType = particleType;
 		this.particleState = particleState;
         this.velocity = new Vector2(0.0f, 0.0f);
+		this.immobile = immobile;
     }
 	public Particle(int x, int y, Substance particleType, State particleState, Vector2 velocity, int width, int height)
 	{
@@ -50,11 +52,13 @@ public class Particle
 		this.height = height;
 	}
 
-	public void SetParticle(int x, int y, Substance particleType, Vector2 velocity, int width, int height)
+	public void SetParticle(int x, int y, Substance particleType, State particleState, bool immobile, Vector2 velocity, int width, int height)
 	{
 		this.x = x;
 		this.y = y;
 		this.particleType = particleType;
+		this.particleState = particleState;
+		this.immobile = immobile;
 		this.velocity = velocity;
 		active = true;
 		previousX = x;
@@ -221,7 +225,7 @@ public class Particle
 					timingOut = false;
 			}
 		}
-		if (this.particleState == State.solid || this.particleState == State.liquid)
+		if ((this.particleState == State.solid || this.particleState == State.liquid ) && !immobile)
 			ApplyGravity();
 	}
 
