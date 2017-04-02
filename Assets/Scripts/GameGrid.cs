@@ -294,61 +294,62 @@ public class GameGrid : MonoBehaviour
 			cells[p.x, p.y].SetParticle(Substance.Empty, new Vector2(0.0f, 0.0f));
 			cells[p.x, p.y].Settle();
 			gridTexture.SetPixel(p.x, p.y, Colour[(int)Substance.Empty]);
-			Vector2[] adjVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
-			Substance[] adjParticle = new Substance[4]; //Adjacent particles. Up Down Left Right
-			int[] adjCoord = new int[4];
+			int[] adjacentCoordinates = new int[4];
+			Vector2[] adjacentVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
+			Substance[] adjacentParticle = new Substance[4]; //Adjacent particles. Up Down Left Right
+			
 
-			Collisions col = new Collisions();
+			Collisions collisions = new Collisions();
 
-			Collide xColl;
-			Collide yColl;
+			Collide xCollision;
+			Collide yCollision;
 
-			adjCoord[0] = CheckRange((p.y + 1), height);
-			adjCoord[1] = CheckRange((p.y - 1), height);
+			adjacentCoordinates[0] = CheckRange((p.y + 1), height);
+			adjacentCoordinates[1] = CheckRange((p.y - 1), height);
 
-			adjVel[0] = cells[p.x, adjCoord[0]].velocity;
-			adjVel[1] = cells[p.x, adjCoord[1]].velocity;
+			adjacentVel[0] = cells[p.x, adjacentCoordinates[0]].velocity;
+			adjacentVel[1] = cells[p.x, adjacentCoordinates[1]].velocity;
 
-			adjParticle[0] = cells[p.x, adjCoord[0]].particleType;
-			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
+			adjacentParticle[0] = cells[p.x, adjacentCoordinates[0]].particleType;
+			adjacentParticle[1] = cells[p.x, adjacentCoordinates[1]].particleType;
 
-			yColl = p.UpdateY(adjVel, adjParticle);
+			yCollision = p.UpdateY(adjacentVel, adjacentParticle);
 
 			gridTexture.SetPixel(p.previousX, p.previousY, Colour[(int)Substance.Empty]);
 			cells[p.previousX, p.previousY].SetParticle(Substance.Empty, new Vector2(0.0f, 0.0f));
 			cells[p.previousX, p.previousY].Settle();
 
-			adjCoord[2] = CheckRange((p.x - 1), width);
-			adjCoord[3] = CheckRange((p.x + 1), width);
+			adjacentCoordinates[2] = CheckRange((p.x - 1), width);
+			adjacentCoordinates[3] = CheckRange((p.x + 1), width);
 
-			adjVel[2] = cells[adjCoord[2], p.y].velocity;
-			adjVel[3] = cells[adjCoord[3], p.y].velocity;
+			adjacentVel[2] = cells[adjacentCoordinates[2], p.y].velocity;
+			adjacentVel[3] = cells[adjacentCoordinates[3], p.y].velocity;
 
-			adjParticle[2] = cells[adjCoord[2], p.y].particleType;
-			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
-			xColl = p.UpdateX(adjVel, adjParticle);
+			adjacentParticle[2] = cells[adjacentCoordinates[2], p.y].particleType;
+			adjacentParticle[3] = cells[adjacentCoordinates[3], p.y].particleType;
+			xCollision = p.UpdateX(adjacentVel, adjacentParticle);
 
 			cells[p.previousX, p.previousY].SetParticle(Substance.Empty, new Vector2(0.0f, 0.0f));
 			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
 
 
-			adjCoord[0] = CheckRange((p.y + 1), height);
-			adjCoord[1] = CheckRange((p.y - 1), height);
+			adjacentCoordinates[0] = CheckRange((p.y + 1), height);
+			adjacentCoordinates[1] = CheckRange((p.y - 1), height);
 
-			adjVel[0] = cells[p.x, adjCoord[0]].velocity;
-			adjVel[1] = cells[p.x, adjCoord[1]].velocity;
+			adjacentVel[0] = cells[p.x, adjacentCoordinates[0]].velocity;
+			adjacentVel[1] = cells[p.x, adjacentCoordinates[1]].velocity;
 
-			adjParticle[0] = cells[p.x, adjCoord[0]].particleType;
-			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
+			adjacentParticle[0] = cells[p.x, adjacentCoordinates[0]].particleType;
+			adjacentParticle[1] = cells[p.x, adjacentCoordinates[1]].particleType;
 
-			adjCoord[2] = CheckRange((p.x - 1), width);
-			adjCoord[3] = CheckRange((p.x + 1), width);
+			adjacentCoordinates[2] = CheckRange((p.x - 1), width);
+			adjacentCoordinates[3] = CheckRange((p.x + 1), width);
 
-			adjVel[2] = cells[adjCoord[2], p.y].velocity;
-			adjVel[3] = cells[adjCoord[3], p.y].velocity;
+			adjacentVel[2] = cells[adjacentCoordinates[2], p.y].velocity;
+			adjacentVel[3] = cells[adjacentCoordinates[3], p.y].velocity;
 
-			adjParticle[2] = cells[adjCoord[2], p.y].particleType;
-			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
+			adjacentParticle[2] = cells[adjacentCoordinates[2], p.y].particleType;
+			adjacentParticle[3] = cells[adjacentCoordinates[3], p.y].particleType;
 
 			if (p.particleType == Substance.Root && p.velocity == new Vector2(0.0f, 0.0f))
 			{
@@ -361,39 +362,39 @@ public class GameGrid : MonoBehaviour
 				p.particleType = Substance.Wood;
 			}
 
-			p.IdleCheck(adjVel, adjParticle);
+			p.IdleCheck(adjacentVel, adjacentParticle);
 
-			if (xColl.other != Substance.Empty || yColl.other != Substance.Empty)
+			if (xCollision.other != Substance.Empty || yCollision.other != Substance.Empty)
 			{
 				Substance collidedType = Substance.Empty, other1 = Substance.Empty, other2 = Substance.Empty;
-				if (yColl.location == 0)
+				if (yCollision.location == 0)
 				{
-					collidedType = Search_Collided(p, 0, 1);
-					other1 = Search_Collided(p, -1, 0);
-					other2 = Search_Collided(p, 1, 0);
+					collidedType = SearchCollided(p, 0, 1);
+					other1 = SearchCollided(p, -1, 0);
+					other2 = SearchCollided(p, 1, 0);
 				}
-				if (yColl.location == 1)
+				if (yCollision.location == 1)
 				{
-					collidedType = Search_Collided(p, 0, -1);
-					other1 = Search_Collided(p, -1, 0);
-					other2 = Search_Collided(p, 1, 0);
+					collidedType = SearchCollided(p, 0, -1);
+					other1 = SearchCollided(p, -1, 0);
+					other2 = SearchCollided(p, 1, 0);
 
 				}
-				if (xColl.location == 2)
+				if (xCollision.location == 2)
 				{
-					collidedType = Search_Collided(p, -1, 0);
-					other1 = Search_Collided(p, -1, 0);
-					other2 = Search_Collided(p, 1, 0);
+					collidedType = SearchCollided(p, -1, 0);
+					other1 = SearchCollided(p, -1, 0);
+					other2 = SearchCollided(p, 1, 0);
 				}
-				else if (xColl.location == 3)
+				else if (xCollision.location == 3)
 				{
-					collidedType = Search_Collided(p, 1, 0);
-					other1 = Search_Collided(p, -1, 0);
-					other2 = Search_Collided(p, 1, 0);
+					collidedType = SearchCollided(p, 1, 0);
+					other1 = SearchCollided(p, -1, 0);
+					other2 = SearchCollided(p, 1, 0);
 				}
-				col.check(p, collidedType);
-				col.check(p, other1);
-				col.check(p, other2);
+				collisions.check(p, collidedType);
+				collisions.check(p, other1);
+				collisions.check(p, other2);
 			}
 
 			gridTexture.SetPixel(p.previousX, p.previousY, Colour[(int)Substance.Empty]);
@@ -527,7 +528,7 @@ public class GameGrid : MonoBehaviour
 
 	}
 
-	public Substance Search_Collided(Particle current, int x, int y)
+	public Substance SearchCollided(Particle current, int x, int y)
 	{
 		Substance newP;
 		if ((current.x + x) < 0)
@@ -553,7 +554,7 @@ public class GameGrid : MonoBehaviour
 		return newP;
 	}
 
-	public void Growing(Tree plant)
+	public void Grow(Tree plant)
 	{
 		
 	}
