@@ -29,7 +29,7 @@ public enum Substance //Material is used already by steamVR...
 	Character
 }
 
-public struct Collision
+public struct Collide
 {
 	public Substance other;
 	public int location;
@@ -300,8 +300,8 @@ public class GameGrid : MonoBehaviour
 
 			Collisions col = new Collisions();
 
-			Collision xColl;
-			Collision yColl;
+			Collide xColl;
+			Collide yColl;
 
 			adjCoord[0] = CheckRange((p.y + 1), height);
 			adjCoord[1] = CheckRange((p.y - 1), height);

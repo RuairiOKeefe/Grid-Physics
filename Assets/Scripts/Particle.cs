@@ -72,17 +72,17 @@ public class Particle
 		previousY = y;
 	}
 
-	public Collision AttemptX(Vector2[] adjVel, Substance[] adjParticle)
+	public Collide AttemptX(Vector2[] adjVel, Substance[] adjParticle)
     {
 		previousX = x;
-		Collision coll = new Collision();
+		Collide coll = new Collide();
 		coll.other = Substance.Empty;
         if (velocity.x < 0)
         {
 			if (adjParticle[2] != Substance.Empty)
 			{
 				defaultCollision(false, false, adjVel[2]);
-				coll = new Collision();
+				coll = new Collide();
 				coll.other = adjParticle[2];
 				coll.location = 2;
 			}
@@ -102,7 +102,7 @@ public class Particle
 			if (adjParticle[3] != Substance.Empty)
 			{
 				defaultCollision(false, true, adjVel[3]);
-				coll = new Collision();
+				coll = new Collide();
 				coll.other = adjParticle[3];
 				coll.location = 3;
 			}
@@ -120,17 +120,17 @@ public class Particle
         
     }
 
-    public Collision AttemptY(Vector2[] adjVel, Substance[] adjParticle)
+    public Collide AttemptY(Vector2[] adjVel, Substance[] adjParticle)
     {
         previousY = y;
-		Collision coll = new Collision();
+		Collide coll = new Collide();
 		coll.other = Substance.Empty;
 		if (velocity.y < 0)
         {
 			if (adjParticle[1] != Substance.Empty)
 			{
 				defaultCollision(true, false, adjVel[1]);
-				coll = new Collision();
+				coll = new Collide();
 				coll.other = adjParticle[1];
 				coll.location = 1;
 			}
@@ -149,7 +149,7 @@ public class Particle
 			if (adjParticle[0] != Substance.Empty)
 			{
 				defaultCollision(true, true, adjVel[0]);
-				coll = new Collision();
+				coll = new Collide();
 				coll.other = adjParticle[0];
 				coll.location = 0;
 			}
@@ -165,9 +165,9 @@ public class Particle
 		}
     }
 
-	public Collision UpdateX(Vector2[] adjVel, Substance[] adjParticle) 
+	public Collide UpdateX(Vector2[] adjVel, Substance[] adjParticle) 
 	{
-		Collision coll = new Collision();
+		Collide coll = new Collide();
 		coll.other = Substance.Empty;
 		if (active)
 		{
@@ -179,9 +179,9 @@ public class Particle
 		return coll;
 	}
 
-	public Collision UpdateY(Vector2[] adjVel, Substance[] adjParticle)
+	public Collide UpdateY(Vector2[] adjVel, Substance[] adjParticle)
 	{
-		Collision coll = new Collision();
+		Collide coll = new Collide();
 		coll.other = Substance.Empty;
 		if (active)
 		{
