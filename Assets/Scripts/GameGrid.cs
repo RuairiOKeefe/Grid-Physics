@@ -504,9 +504,7 @@ public class GameGrid : MonoBehaviour
 
 			if (CreateParticle(offset, 0.8f))
 			{
-				delay = Time.time + 1.2f;//Modify to change frequency of particles
-				if (particleType == Substance.Plant)
-					createParticles = false;
+				delay = Time.time + 0.2f;//Modify to change frequency of particles
 			}
 			else
 			{
@@ -669,6 +667,8 @@ public class GameGrid : MonoBehaviour
 				}
 				tree.branch = true;
 				tree.branchPoint = tree.remainingGrowth / 2 + Random.Range(-tree.remainingGrowth / 2 + 1, tree.remainingGrowth / 2);
+				if (tree.branchPoint < 2)
+					tree.branchPoint = 100;
 			}
 			tree.nextGrow = Time.time + tree.growthRate;
 		}
