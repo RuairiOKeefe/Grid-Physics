@@ -264,7 +264,10 @@ public class GameGrid : MonoBehaviour
 			int randX = CheckRange(gridX + Random.Range(-8, 8), width);
 			int randY = CheckRange(gridY + Random.Range(-8, 8), height);
 
-			activeParticles.Add(new Particle(randX, randY, particleType, particleState, new Vector2(0.0f, -9.8f), width, height));
+			if (cells[randX, randY].particleType == cellType.empty)
+			{
+				activeParticles.Add(new Particle(randX, randY, particleType, particleState, new Vector2(0.0f, -9.8f), width, height));
+			}
 		}
 
 		return true;
@@ -287,7 +290,6 @@ public class GameGrid : MonoBehaviour
 			int[] adjacentCoordinates = new int[4];
 			Vector2[] adjacentVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
 			cellType[] adjacentParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
-
 
 			Collisions collisions = new Collisions();
 
@@ -353,6 +355,7 @@ public class GameGrid : MonoBehaviour
 				p.particleType = cellType.wood;
 				trees.Add(newTree);
 			}
+
 			p.IdleCheck(adjacentVel, adjacentParticle);
 
 			if (xCollision.other != cellType.empty || yCollision.other != cellType.empty)
@@ -499,8 +502,11 @@ public class GameGrid : MonoBehaviour
 		{
 			for (int j = 0; j < 3; j++)
 			{
-				cells[xRange[i], yRange[j]].SetParticle(boxType, new Vector2(0.0f, 0.0f));
-				gridTexture.SetPixel(xRange[i], yRange[j], Colour[(int)boxType]);
+				if (cells[xRange[i], yRange[j]].particleType == cellType.empty || boxType == cellType.empty)
+				{
+					cells[xRange[i], yRange[j]].SetParticle(boxType, new Vector2(0.0f, 0.0f));
+					gridTexture.SetPixel(xRange[i], yRange[j], Colour[(int)boxType]);
+				}
 			}
 		}
 	}
