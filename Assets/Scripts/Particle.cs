@@ -10,9 +10,11 @@ public class Particle
 	public Vector2 velocity;
 	public cellType particleType;
 	public float terminalVelocity = -500f;//may want to calculate as a function of mass
+	public State particleState;
+	public bool immobile;
 
-	public int prevX { get; private set; }
-	public int prevY { get; private set; }
+	public int previousX { get; private set; }
+	public int previousY { get; private set; }
 
 	private float moveTimeX;
 	private float moveTimeY;
@@ -27,61 +29,40 @@ public class Particle
 	{
 		
 	}
-    public Particle(int x , int y , cellType particleType)
+    public Particle(int x , int y , cellType particleType, State particleState, bool immobile)
     {
         this.x = x;
         this.y = y;
         this.particleType = particleType;
+		this.particleState = particleState;
         this.velocity = new Vector2(0.0f, 0.0f);
+		this.immobile = immobile;
     }
-	public Particle(int x, int y, cellType particleType, Vector2 velocity, int width, int height)
+	public Particle(int x, int y, cellType particleType, State particleState, Vector2 velocity, int width, int height)
 	{
 		this.x = x;
 		this.y = y;
 		this.particleType = particleType;
+		this.particleState = particleState;
 		this.velocity = velocity;
 		active = true;
-		prevX = x;
-		prevY = y;
+		previousX = x;
+		previousY = y;
 		this.width = width;
 		this.height = height;
 	}
 
-	public Particle(int x, int y, bool active, Vector2 velocity, cellType particleType, int prevX, int prevY, float moveTimeX, float moveTimeY, bool timingOut, float inactiveTime, int width, int height, float shiftDelay)
-	{
-		this.x = x;
-		this.y = y;
-		this.active = active;
-		this.velocity = velocity;
-		this.particleType = particleType;
-		this.prevX = prevX;
-		this.prevY = prevY;
-		this.moveTimeX = moveTimeX;
-		this.moveTimeY = moveTimeY;
-		this.timingOut = timingOut;
-		this.inactiveTime = inactiveTime;
-		this.width = width;
-		this.height = height;
-		this.shiftDelay = shiftDelay;
-	}
-
-	public Particle Clone()
-	{
-		//This is awful there must be a better way
-		Particle clone = new Particle(x, y, active, velocity, particleType, prevX, prevY, moveTimeX, moveTimeY, timingOut, inactiveTime, width, height, shiftDelay);
-
-		return clone;
-	}
-
-	public void SetParticle(int x, int y, cellType particleType, Vector2 velocity, int width, int height)
+	public void SetParticle(int x, int y, cellType particleType, State particleState, bool immobile, Vector2 velocity, int width, int height)
 	{
 		this.x = x;
 		this.y = y;
 		this.particleType = particleType;
+		this.particleState = particleState;
+		this.immobile = immobile;
 		this.velocity = velocity;
 		active = true;
-		prevX = x;
-		prevY = y;
+		previousX = x;
+		previousY = y;
 		this.width = width;
 		this.height = height;
 	}
@@ -91,13 +72,13 @@ public class Particle
 		this.x = x;
 		this.y = y;
 		this.velocity = velocity;
-		prevX = x;
-		prevY = y;
+		previousX = x;
+		previousY = y;
 	}
 
 	public collision AttemptX(Vector2[] adjVel, cellType[] adjParticle)
     {
-		prevX = x;
+		previousX = x;
 		collision coll = new collision();
 		coll.other = cellType.empty;
         if (velocity.x < 0)
@@ -145,7 +126,7 @@ public class Particle
 
     public collision AttemptY(Vector2[] adjVel, cellType[] adjParticle)
     {
-        prevY = y;
+        previousY = y;
 		collision coll = new collision();
 		coll.other = cellType.empty;
 		if (velocity.y < 0)
@@ -218,8 +199,10 @@ public class Particle
 
 	public void IdleCheck(Vector2[] adjVel, cellType[] adjParticle)
 	{
-		if (this.particleType == cellType.water || this.particleType == cellType.lava)//May want to create liquid bool for particles
+		if (this.particleState == State.liquid)
 			LiquidShift(adjVel, adjParticle);
+		if (this.particleState == State.gas)
+			GasShift(adjVel, adjParticle);
 		if (particleType != cellType.water)
 		{
 			if (velocity.x == 0 && velocity.y == 0 && adjParticle[1] != cellType.empty) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
@@ -242,7 +225,8 @@ public class Particle
 					timingOut = false;
 			}
 		}
-		ApplyGravity();
+		if ((this.particleState == State.solid || this.particleState == State.liquid ) && !immobile)
+			ApplyGravity();
 	}
 
 	public void ApplyGravity()
@@ -255,7 +239,7 @@ public class Particle
 
 	public void LiquidShift(Vector2[] adjVel, cellType[] adjParticle)
 	{
-		float speed = 0.0f;
+		float speed = 10.0f;
 		if (particleType == cellType.water)
 			speed = 40.0f;
 		if (particleType == cellType.lava)
@@ -299,6 +283,32 @@ public class Particle
 			{
 				y--;
 			}
+		}
+	}
+
+	public void GasShift(Vector2[] adjVel, cellType[] adjParticle)
+	{
+		float speed = 2.0f;
+		float gasTerminalVel = 100.0f;
+		float gasAcc = 10.0f;
+
+		if (shiftDelay < Time.time)
+		{
+			int rand = Random.Range(0, 2);
+			switch (rand)
+			{
+				case 0:
+					velocity.x = -speed;
+					break;
+				case 1:
+					velocity.x = speed;
+					break;
+			}
+		}
+		shiftDelay = Time.time + (10 * (1 / speed));
+		if (velocity.y < gasTerminalVel)
+		{
+			velocity.y += (gasAcc * 10 * Time.deltaTime);
 		}
 	}
 

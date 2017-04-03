@@ -2,12 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Valve.VR.InteractionSystem;
 
 public class MainMenu : MonoBehaviour {
-
-    public float timer = 2.0f;
-    public AudioSource leverPull;
 
     public GameObject main;
     public GameObject materials;
@@ -16,30 +15,26 @@ public class MainMenu : MonoBehaviour {
     public GameObject audioMenu;
     public GameObject videoMenu;
 
+    public GameObject controllerPrefab;
     public GameObject grid;
+    Slider audioSlider;
+    GameObject Fork;
 
-	// Use this for initialization
-	public void Start () {
+    // Use this for initialization
+    public void Start () {
 
-	}
+    }
 	
 	// Update is called once per frame
-	public void Update () {
+	public void Update ()
+    {
 
-        if (transform.localPosition.z < -0.700 )
+        if (audioMenu.activeSelf)
         {
-            timer -= Time.deltaTime;
+            SliderUpdate();
+        }
 
-            if(timer <= 0.0f)
-            {
-                SceneManager.LoadScene(1);
-                timer = 2.0f;
-            }
-        }
-        else
-        {
-            timer = 2.0f;
-        }
+
     }
 
 
@@ -83,6 +78,18 @@ public class MainMenu : MonoBehaviour {
         }
 
         audioMenu.SetActive(true);
+    }
+
+    public void SliderUpdate()
+    {
+
+        GameObject temp = GameObject.Find("AudioSlider");
+        GameObject mapping = GameObject.Find("LinearMapping");
+
+        audioSlider = temp.GetComponent<Slider>();
+
+        audioSlider.value = mapping.GetComponent<LinearMapping>().value;
+
     }
 
     public void videoButton()

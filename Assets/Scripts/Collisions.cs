@@ -20,7 +20,7 @@ public class Collisions
             case cellType.wood:
                 WoodCollisions(first, second);
                 break;
-            case cellType.wood_base:
+            case cellType.root:
                 Wood_BaseCollsions(first, second);
                 break;
             case cellType.fire:
@@ -46,8 +46,8 @@ public class Collisions
             case cellType.wood:
                 other.particleType = cellType.fire;
                 break;
-            case cellType.wood_base:
-                other.particleType = cellType.fire;
+            case cellType.root:
+                fire.particleType = cellType.fire;
                 break;
             case cellType.plant:
                 other.particleType = cellType.fire;
@@ -106,12 +106,12 @@ public class Collisions
         switch (other.particleType)
         {
             case cellType.water:
-                plant.particleType = cellType.wood_base;
+                plant.particleType = cellType.root;
                 break;
             case cellType.wood:
                 plant.particleType = cellType.wood;
                 break;
-            case cellType.wood_base:
+            case cellType.root:
                 plant.particleType = cellType.wood;
                 break;
             case cellType.fire:
