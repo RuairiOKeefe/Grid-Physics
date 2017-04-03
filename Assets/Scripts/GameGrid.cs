@@ -366,12 +366,11 @@ public class GameGrid : MonoBehaviour
 				p.particleType = cellType.wood;
 				trees.Add(newTree);
 			}
-
 			p.IdleCheck(adjacentVel, adjacentParticle);
 
 			if (xCollision.other != cellType.empty || yCollision.other != cellType.empty)
 			{
-				cellType collidedType = cellType.empty, other1 = cellType.empty, other2 = cellType.empty;
+				Particle collidedType = new Particle(), other1 = new Particle(), other2 = new Particle();
 				if (yCollision.location == 0)
 				{
 					collidedType = SearchCollided(p, 0, 1);
@@ -387,21 +386,21 @@ public class GameGrid : MonoBehaviour
 				}
 				if (xCollision.location == 2)
 				{
-					collidedType = Search_Collided(p, 1, 0);
-					other1 = Search_Collided(p, 0, -1);
-					other2 = Search_Collided(p, 0, 1);
+					collidedType = SearchCollided(p, 1, 0);
+					other1 = SearchCollided(p, 0, -1);
+					other2 = SearchCollided(p, 0, 1);
 				}
 				else if (xCollision.location == 3)
 				{
-					collidedType = Search_Collided(p, -1, 0);
-                    other1 = Search_Collided(p, 0, -1);
-                    other2 = Search_Collided(p, 0, 1);
-                }
+					collidedType = SearchCollided(p, -1, 0);
+					other1 = SearchCollided(p, 0, -1);
+					other2 = SearchCollided(p, 0, 1);
+				}
 
-                //wakeAdj(cells[p.x,p.y], adjCoord);
-                col.check(p, collidedType);
-				col.check(p, other1);
-				col.check(p, other2);
+				//wakeAdj(cells[p.x,p.y], adjCoord);
+				collisions.check(p, collidedType);
+				collisions.check(p, other1);
+				collisions.check(p, other2);
 			}
 
 			gridTexture.SetPixel(p.previousX, p.previousY, Colour[(int)cellType.empty]);
@@ -513,7 +512,7 @@ public class GameGrid : MonoBehaviour
 				offset = (offset += (1.0f / width)) % 1;
 			}
 		}
-        UpdateActiveParticles();
+		UpdateActiveParticles();
 
 		/*if (charDelay <= Time.time)
 		{
@@ -540,28 +539,28 @@ public class GameGrid : MonoBehaviour
 
 	}
 
-	public cellType SearchCollided(Particle current, int x, int y)
+	public Particle SearchCollided(Particle current, int x, int y)
 	{
-		cellType newP;
+		Particle newP;
 		if ((current.x + x) < 0)
 		{
-			newP = cells[width - 1, current.y + y].particleType;
+			newP = new Particle(width - 1, current.y + y, cells[width - 1, current.y + y].particleType);
 		}
 		else if (current.x + x >= width)
 		{
-			newP = cells[0, current.y + y].particleType;
+			newP = new Particle(0, current.y + y, cells[0, current.y + y].particleType);
 		}
 		else if ((current.y + y) >= height)
 		{
-			newP = cells[current.x + x, 0].particleType;
+			newP = new Particle(current.x + x, 0, cells[current.x + x, 0].particleType);
 		}
 		else if ((current.y + y) < 0)
 		{
-			newP = cells[current.x + x, (height - 1)].particleType;
+			newP = new Particle(current.x + x, (height - 1), cells[current.x + x, (height - 1)].particleType);
 		}
 		else
 		{
-			newP = cells[current.x + x, current.y + y].particleType;
+			newP = new Particle(current.x + x, current.y + y, cells[current.x + x, current.y + y].particleType);
 		}
 		return newP;
 	}
@@ -571,7 +570,7 @@ public class GameGrid : MonoBehaviour
 		Tree newTree = new Tree();
 		newTree.x = x;
 		newTree.y = y;
-		newTree.remainingGrowth = remainingGrowth + Random.Range(-remainingGrowth/2, remainingGrowth / 2);
+		newTree.remainingGrowth = remainingGrowth + Random.Range(-remainingGrowth / 2, remainingGrowth / 2);
 		newTree.branchPoint = (newTree.remainingGrowth / 2) + Random.Range(-newTree.remainingGrowth / 2 + 1, newTree.remainingGrowth / 2);
 		newTree.growthRate = 0.6f;
 		newTree.nextGrow = Time.time + newTree.growthRate;
@@ -625,9 +624,9 @@ public class GameGrid : MonoBehaviour
 					}
 					else
 						if (cells[xRange[2], yRange[2]].particleType == cellType.empty)
-						{
-							tree = AttemptGrowth(tree, xRange[2], yRange[2], growthType);
-						}
+					{
+						tree = AttemptGrowth(tree, xRange[2], yRange[2], growthType);
+					}
 					else
 					{
 						if (cells[xRange[0], yRange[1]].particleType == cellType.empty && cells[xRange[2], yRange[1]].particleType == cellType.empty)

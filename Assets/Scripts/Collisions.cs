@@ -90,7 +90,7 @@ public class Collisions
             case cellType.wood:
                 other.particleType = cellType.fire;
                 break;
-            case cellType.wood_base:
+            case cellType.root:
                 other.particleType = cellType.fire;
                 break;
             case cellType.plant:
@@ -210,7 +210,7 @@ public class Collisions
             case cellType.wood:
                 other.particleType = cellType.fire;
                 break;
-            case cellType.wood_base:
+            case cellType.root:
                 other.particleType = cellType.fire;
                 break;
             case cellType.plant:
