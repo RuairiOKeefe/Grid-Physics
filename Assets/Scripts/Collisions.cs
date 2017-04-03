@@ -4,157 +4,157 @@ using UnityEngine;
 
 public class Collisions
 {
-    public void check(Particle first , cellType second)
+    public void check(Particle first , Substance second)
     {
         switch (first.particleType)
         {
-            case cellType.water:
+            case Substance.Water:
                 WaterCollisions(first, second);
                 break;
-            case cellType.lava:
+            case Substance.Lava:
                 LavaCollisions(first, second);
                 break;
-            case cellType.plant:
+            case Substance.Plant:
                 PlantCollsions(first, second);
                 break;
-            case cellType.wood:
+            case Substance.Wood:
                 WoodCollisions(first, second);
                 break;
-            case cellType.wood_base:
+            case Substance.Root:
                 Wood_BaseCollsions(first, second);
                 break;
-            case cellType.fire:
+            case Substance.Fire:
                 FireCollisions(first, second);
                 break;
-            case cellType.ice:
+            case Substance.Ice:
                 IceCollisions(first, second);
                 break;
-            case cellType.steam:
+            case Substance.Steam:
                 SteamCollisions(first, second);
                 break;
         }
     }      
 
 
-    public void FireCollisions(Particle fire, cellType other)
+    public void FireCollisions(Particle fire, Substance other)
     {
         switch (other)
         {
-            case cellType.wood:
-                fire.particleType = cellType.fire;
+            case Substance.Wood:
+                fire.particleType = Substance.Fire;
                 break;
-            case cellType.wood_base:
-                fire.particleType = cellType.fire;
+            case Substance.Root:
+                fire.particleType = Substance.Fire;
                 break;
-            case cellType.plant:
-                fire.particleType = cellType.fire;
+            case Substance.Plant:
+                fire.particleType = Substance.Fire;
                 break;
-            case cellType.water:
-                fire.particleType = cellType.steam;
+            case Substance.Water:
+                fire.particleType = Substance.Steam;
                 break;
-            case cellType.ice:
-                fire.particleType = cellType.water;
+            case Substance.Ice:
+                fire.particleType = Substance.Water;
                 break;
         }
     }
 
 
-    public void WaterCollisions(Particle water, cellType other)
+    public void WaterCollisions(Particle water, Substance other)
     {
         switch (other)
         {
-            case cellType.lava:
-                water.particleType = cellType.stone;
+            case Substance.Lava:
+                water.particleType = Substance.Stone;
                 break;
-            case cellType.fire:
-                water.particleType = cellType.steam;
+            case Substance.Fire:
+                water.particleType = Substance.Steam;
                 break;
-            case cellType.ice:
-                water.particleType = cellType.ice;
+            case Substance.Ice:
+                water.particleType = Substance.Ice;
                 break;
         }
     }
-    public void LavaCollisions(Particle lava, cellType other)
+    public void LavaCollisions(Particle lava, Substance other)
     {
         switch (other)
         {
-            case cellType.water:
-                lava.particleType = cellType.stone;
+            case Substance.Water:
+                lava.particleType = Substance.Stone;
                 break;
         }
     }
-    public void PlantCollsions(Particle plant , cellType other)
+    public void PlantCollsions(Particle plant , Substance other)
     {
         switch (other)
         {
-            case cellType.water:
-                plant.particleType = cellType.wood_base;
+            case Substance.Water:
+                plant.particleType = Substance.Root;
                 break;
-            case cellType.wood:
-                plant.particleType = cellType.wood;
+            case Substance.Wood:
+                plant.particleType = Substance.Wood;
                 break;
-            case cellType.wood_base:
-                plant.particleType = cellType.wood;
+            case Substance.Root:
+                plant.particleType = Substance.Wood;
                 break;
-            case cellType.fire:
-                plant.particleType = cellType.fire;
+            case Substance.Fire:
+                plant.particleType = Substance.Fire;
                 break;
-            case cellType.lava:
-                plant.particleType = cellType.fire;
-                break;
-        }
-
-    }
-    public void WoodCollisions(Particle wood, cellType other)
-    {
-        switch (other)
-        {
-            case cellType.fire:
-                wood.particleType = cellType.fire;
-                break;
-            case cellType.lava:
-                wood.particleType = cellType.fire;
+            case Substance.Lava:
+                plant.particleType = Substance.Fire;
                 break;
         }
 
     }
-    public void Wood_BaseCollsions(Particle wood_again, cellType other)
+    public void WoodCollisions(Particle wood, Substance other)
     {
         switch (other)
         {
-            case cellType.fire:
-                wood_again.particleType = cellType.smoke;
+            case Substance.Fire:
+                wood.particleType = Substance.Fire;
                 break;
-            case cellType.lava:
-                wood_again.particleType = cellType.smoke;
-                break;
-        }
-    }
-    public void IceCollisions(Particle Ice, cellType other)
-    {
-        switch (other)
-        {
-            case cellType.fire:
-                Ice.particleType = cellType.water;
-                break;
-            case cellType.lava:
-                Ice.particleType = cellType.water;
-                break;
-            case cellType.water:
-                Ice.particleType = cellType.water;
+            case Substance.Lava:
+                wood.particleType = Substance.Fire;
                 break;
         }
 
     }
-    public void SteamCollisions(Particle steam, cellType other)
+    public void Wood_BaseCollsions(Particle wood_again, Substance other)
     {
         switch (other)
         {
-            case cellType.water:
-                steam.particleType = cellType.water;
+            case Substance.Fire:
+                wood_again.particleType = Substance.Smoke;
                 break;
-            case cellType.ice:
-                steam.particleType = cellType.water;
+            case Substance.Lava:
+                wood_again.particleType = Substance.Smoke;
+                break;
+        }
+    }
+    public void IceCollisions(Particle Ice, Substance other)
+    {
+        switch (other)
+        {
+            case Substance.Fire:
+                Ice.particleType = Substance.Water;
+                break;
+            case Substance.Lava:
+                Ice.particleType = Substance.Water;
+                break;
+            case Substance.Water:
+                Ice.particleType = Substance.Water;
+                break;
+        }
+
+    }
+    public void SteamCollisions(Particle steam, Substance other)
+    {
+        switch (other)
+        {
+            case Substance.Water:
+                steam.particleType = Substance.Water;
+                break;
+            case Substance.Ice:
+                steam.particleType = Substance.Water;
                 break;
         }
     }
