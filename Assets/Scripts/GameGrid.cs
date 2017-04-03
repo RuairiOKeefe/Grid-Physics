@@ -3,7 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum cellType
+public enum State
+{
+	solid,
+	liquid,
+	gas,
+	empty
+}
+
+public enum cellType //Material is used already by steamVR...
 {
 	empty,
 	sand,
@@ -13,7 +21,7 @@ public enum cellType
 	plant,
 	fire,
 	wood,
-	wood_base,
+	root,
 	bush,
 	steam,
 	smoke,
@@ -27,12 +35,15 @@ public struct collision
 	public int location;
 }
 
-public struct tree
+public struct Tree
 {
-	public int amount_of_growth;
-	public Particle wood;
-	public int speed_of_growth;
-	public int turns;
+	public int x;
+	public int y;
+	public int remainingGrowth;
+	public int branchPoint;
+	public bool branch;
+	public float growthRate;
+	public float nextGrow;
 }
 
 public class GameGrid : MonoBehaviour
@@ -44,11 +55,13 @@ public class GameGrid : MonoBehaviour
 
 	public cellType particleType;
 
+	public State particleState;
+
 	public Color[] Colour = new Color[6];
 
 	public GameObject charPrefab;
 
-	public GameObject cam;//Active particle debug stuff
+	//public GameObject cam;//Active particle debug stuff
 	Text txt;//Active particle debug stuff
 
 	Cell[,] cells;
@@ -58,9 +71,10 @@ public class GameGrid : MonoBehaviour
 	public List<Character> characters = new List<Character>();
 	List<GameObject> charGO = new List<GameObject>();
 
-	List<tree> trees = new List<tree>();
+	List<Tree> trees = new List<Tree>();
 
 	float delay;//debug temp
+	float charDelay;//debug temp
 	float offset;//debug temp
 
 	Texture2D gridTexture;
@@ -69,7 +83,7 @@ public class GameGrid : MonoBehaviour
 	void Start()
 	{
 		CreateGrid();
-		CreateCharacter();
+		CreateCharacter(width, height); //For some reason this has to be where they spawn?
 	}
 
 	int CheckRange(int coord, int range)
@@ -145,7 +159,7 @@ public class GameGrid : MonoBehaviour
 			{
 				if (j < 2)
 				{
-					Particle p = new Particle(i, j, cellType.stone, new Vector2(0.0f, 0.0f), width, height);
+					Particle p = new Particle(i, j, cellType.stone, State.solid, new Vector2(0.0f, 0.0f), width, height);
 					p.active = false;
 					inactiveParticles[i, j] = p;
 					cells[i, j].Settle();
@@ -154,6 +168,8 @@ public class GameGrid : MonoBehaviour
 				}
 			}
 		}
+
+		FillGrid();
 
 		foreach (Cell c in cells)
 		{
@@ -165,21 +181,80 @@ public class GameGrid : MonoBehaviour
 		}
 	}
 
+	public void FillGrid()
+	{
+		for (int i = 0; i < width; i++)
+		{
+			for (int j = 0; j < height; j++)
+			{
+				if (j > 1 && j < 71)
+				{
+					Particle p = new Particle(i, j, cellType.stone, State.solid, new Vector2(0.0f, 0.0f), width, height);
+					p.active = false;
+					inactiveParticles[i, j] = p;
+					cells[i, j].Settle();
+					cells[i, j].SetParticle(cellType.stone, new Vector2(0, 0));
+				}
+
+				if (j > 70 && j < 81)
+				{
+					int rand = Random.Range(0, 10);
+					if (rand + (j - 76) > 5)
+					{
+						Particle p = new Particle(i, j, cellType.sand, State.solid, new Vector2(0.0f, 0.0f), width, height);
+						p.active = false;
+						inactiveParticles[i, j] = p;
+						cells[i, j].Settle();
+						cells[i, j].SetParticle(cellType.sand, new Vector2(0, 0));
+					}
+					else
+					{
+						Particle p = new Particle(i, j, cellType.stone, State.solid, new Vector2(0.0f, 0.0f), width, height);
+						p.active = false;
+						inactiveParticles[i, j] = p;
+						cells[i, j].Settle();
+						cells[i, j].SetParticle(cellType.stone, new Vector2(0, 0));
+					}
+				}
+
+				if (j > 80 && j < 150)
+				{
+					Particle p = new Particle(i, j, cellType.stone, State.solid, new Vector2(0.0f, 0.0f), width, height);
+					p.active = false;
+					inactiveParticles[i, j] = p;
+					cells[i, j].Settle();
+					cells[i, j].SetParticle(cellType.sand, new Vector2(0, 0));
+				}
+			}
+		}
+	}
+
 	public void ChangeType(cellType type)
 	{
 		particleType = type;
+
+		if (type == cellType.empty)
+			particleState = State.empty;
+		else
+			if (type == cellType.fire || type == cellType.smoke || type == cellType.steam)
+			particleState = State.gas;
+		else
+				if (type == cellType.water || type == cellType.lava)
+			particleState = State.liquid;
+		else
+			particleState = State.solid;
 	}
 
-	public bool CreateParticle(float x, float y)//Create; Polymorphise. Whats the difference? -R Huh turns out in the end we are creating them... -R
+	public bool CreateParticle(float x, float y)//Create; Polymorphise. Whats the difference? -R Huh turns out` in the end we are creating them... -R
 	{
 		// x and y must be in range 0-1
 		//may add random effect to "spray" particles 
-		int gridX = Mathf.RoundToInt(x * width);
+		int gridX = Mathf.RoundToInt(x * width);//***************************  TEST FLOORING  ***************************
 		int gridY = Mathf.RoundToInt(y * height);
 
 		if (cells[gridX, gridY].particleType == cellType.empty)
 		{
-			activeParticles.Add(new Particle(gridX, gridY, particleType, new Vector2(0.0f, -9.8f), width, height));
+			activeParticles.Add(new Particle(gridX, gridY, particleType, particleState, new Vector2(0.0f, -9.8f), width, height));//Adjust spawn velocity for gases?
 			return true;
 		}
 		else
@@ -188,9 +263,29 @@ public class GameGrid : MonoBehaviour
 		}
 	}
 
-	public void CreateCharacter()
+	public bool SprayParticles(float x, float y)//Create; Polymorphise. Whats the difference? -R Huh turns out` in the end we are creating them... -R
 	{
-		characters.Add(new Character(width, height));
+		int gridX = Mathf.RoundToInt(x * width);
+		int gridY = Mathf.RoundToInt(y * height);
+
+		for (int i = 0; i < 20; i++)
+		{
+			int randX = gridX + Random.Range(-8, 8);
+			int randY = gridY + Random.Range(-8, 8);
+
+			if (cells[randX, randY].particleType == cellType.empty)
+			{
+				activeParticles.Add(new Particle(randX, randY, particleType, particleState, new Vector2(0.0f, -9.8f), width, height));
+				cells[randX, randY].SetParticle(particleType, new Vector2(0.0f, -9.8f));
+			}
+		}
+
+		return true;
+	}
+
+	public void CreateCharacter(int x, int y)
+	{
+		characters.Add(new Character(x, y));
 		charGO.Add(Instantiate(charPrefab));
 	}
 
@@ -202,106 +297,113 @@ public class GameGrid : MonoBehaviour
 			cells[p.x, p.y].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.x, p.y].Settle();
 			gridTexture.SetPixel(p.x, p.y, Colour[(int)cellType.empty]);
-			Vector2[] adjVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
-			cellType[] adjParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
-			int[] adjCoord = new int[4];
+			int[] adjacentCoordinates = new int[4];
+			Vector2[] adjacentVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
+			cellType[] adjacentParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
 
-			Collisions col = new Collisions();
 
-			collision xColl;
-			collision yColl;
+			Collisions collisions = new Collisions();
 
-			adjCoord[0] = CheckRange((p.y + 1), height);
-			adjCoord[1] = CheckRange((p.y - 1), height);
+			collision xCollision;
+			collision yCollision;
 
-			adjVel[0] = cells[p.x, adjCoord[0]].velocity;
-			adjVel[1] = cells[p.x, adjCoord[1]].velocity;
+			adjacentCoordinates[0] = CheckRange((p.y + 1), height);
+			adjacentCoordinates[1] = CheckRange((p.y - 1), height);
 
-			adjParticle[0] = cells[p.x, adjCoord[0]].particleType;
-			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
+			adjacentVel[0] = cells[p.x, adjacentCoordinates[0]].velocity;
+			adjacentVel[1] = cells[p.x, adjacentCoordinates[1]].velocity;
 
-			yColl = p.UpdateY(adjVel, adjParticle);
+			adjacentParticle[0] = cells[p.x, adjacentCoordinates[0]].particleType;
+			adjacentParticle[1] = cells[p.x, adjacentCoordinates[1]].particleType;
 
-			gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
-			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
-			cells[p.prevX, p.prevY].Settle();
+			yCollision = p.UpdateY(adjacentVel, adjacentParticle);
 
-			adjCoord[2] = CheckRange((p.x - 1), width);
-			adjCoord[3] = CheckRange((p.x + 1), width);
+			gridTexture.SetPixel(p.previousX, p.previousY, Colour[(int)cellType.empty]);
+			cells[p.previousX, p.previousY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
+			cells[p.previousX, p.previousY].Settle();
 
-			adjVel[2] = cells[adjCoord[2], p.y].velocity;
-			adjVel[3] = cells[adjCoord[3], p.y].velocity;
+			adjacentCoordinates[2] = CheckRange((p.x - 1), width);
+			adjacentCoordinates[3] = CheckRange((p.x + 1), width);
 
-			adjParticle[2] = cells[adjCoord[2], p.y].particleType;
-			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
-			xColl = p.UpdateX(adjVel, adjParticle);
+			adjacentVel[2] = cells[adjacentCoordinates[2], p.y].velocity;
+			adjacentVel[3] = cells[adjacentCoordinates[3], p.y].velocity;
 
-			cells[p.prevX, p.prevY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
+			adjacentParticle[2] = cells[adjacentCoordinates[2], p.y].particleType;
+			adjacentParticle[3] = cells[adjacentCoordinates[3], p.y].particleType;
+			xCollision = p.UpdateX(adjacentVel, adjacentParticle);
+
+			cells[p.previousX, p.previousY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
 
 
-			adjCoord[0] = CheckRange((p.y + 1), height);
-			adjCoord[1] = CheckRange((p.y - 1), height);
+			adjacentCoordinates[0] = CheckRange((p.y + 1), height);
+			adjacentCoordinates[1] = CheckRange((p.y - 1), height);
 
-			adjVel[0] = cells[p.x, adjCoord[0]].velocity;
-			adjVel[1] = cells[p.x, adjCoord[1]].velocity;
+			adjacentVel[0] = cells[p.x, adjacentCoordinates[0]].velocity;
+			adjacentVel[1] = cells[p.x, adjacentCoordinates[1]].velocity;
 
-			adjParticle[0] = cells[p.x, adjCoord[0]].particleType;
-			adjParticle[1] = cells[p.x, adjCoord[1]].particleType;
+			adjacentParticle[0] = cells[p.x, adjacentCoordinates[0]].particleType;
+			adjacentParticle[1] = cells[p.x, adjacentCoordinates[1]].particleType;
 
-			adjCoord[2] = CheckRange((p.x - 1), width);
-			adjCoord[3] = CheckRange((p.x + 1), width);
+			adjacentCoordinates[2] = CheckRange((p.x - 1), width);
+			adjacentCoordinates[3] = CheckRange((p.x + 1), width);
 
-			adjVel[2] = cells[adjCoord[2], p.y].velocity;
-			adjVel[3] = cells[adjCoord[3], p.y].velocity;
+			adjacentVel[2] = cells[adjacentCoordinates[2], p.y].velocity;
+			adjacentVel[3] = cells[adjacentCoordinates[3], p.y].velocity;
 
-			adjParticle[2] = cells[adjCoord[2], p.y].particleType;
-			adjParticle[3] = cells[adjCoord[3], p.y].particleType;
+			adjacentParticle[2] = cells[adjacentCoordinates[2], p.y].particleType;
+			adjacentParticle[3] = cells[adjacentCoordinates[3], p.y].particleType;
 
-			p.IdleCheck(adjVel, adjParticle);
-
-			if (xColl.other != cellType.empty || yColl.other != cellType.empty)
+			if (p.particleType == cellType.root && p.velocity == new Vector2(0.0f, 0.0f))
 			{
-				cellType collidedType = cellType.empty, other1 = cellType.empty, other2 = cellType.empty;
-				if (yColl.location == 0)
+				Tree newTree = new Tree();
+				newTree.x = p.x;
+				newTree.y = p.y;
+				newTree.remainingGrowth = 50 + Random.Range(-30, 30);
+				newTree.branchPoint = (newTree.remainingGrowth / 2) + Random.Range(-newTree.remainingGrowth / 2 + 1, newTree.remainingGrowth / 2);
+				newTree.growthRate = 0.6f;
+				newTree.nextGrow = Time.time + newTree.growthRate;
+				p.particleType = cellType.wood;
+				trees.Add(newTree);
+			}
+			p.IdleCheck(adjacentVel, adjacentParticle);
+
+			if (xCollision.other != cellType.empty || yCollision.other != cellType.empty)
+			{
+				Particle collidedType = new Particle(), other1 = new Particle(), other2 = new Particle();
+				if (yCollision.location == 0)
 				{
-					collidedType = Search_Collided(p, 0, 1);
-					other1 = Search_Collided(p, -1, 0);
-					other2 = Search_Collided(p, 1, 0);
+					collidedType = SearchCollided(p, 0, 1);
+					other1 = SearchCollided(p, -1, 0);
+					other2 = SearchCollided(p, 1, 0);
 				}
-				if (yColl.location == 1)
+				if (yCollision.location == 1)
 				{
-					collidedType = Search_Collided(p, 0, -1);
-					other1 = Search_Collided(p, -1, 0);
-					other2 = Search_Collided(p, 1, 0);
+					collidedType = SearchCollided(p, 0, -1);
+					other1 = SearchCollided(p, -1, 0);
+					other2 = SearchCollided(p, 1, 0);
 
 				}
-				if (xColl.location == 2)
+				if (xCollision.location == 2)
 				{
-					collidedType = Search_Collided(p, -1, 0);
-					other1 = Search_Collided(p, -1, 0);
-					other2 = Search_Collided(p, 1, 0);
+					collidedType = SearchCollided(p, 1, 0);
+					other1 = SearchCollided(p, 0, -1);
+					other2 = SearchCollided(p, 0, 1);
 				}
-				else if (xColl.location == 3)
+				else if (xCollision.location == 3)
 				{
-					collidedType = Search_Collided(p, 1, 0);
-					other1 = Search_Collided(p, -1, 0);
-					other2 = Search_Collided(p, 1, 0);
+					collidedType = SearchCollided(p, -1, 0);
+					other1 = SearchCollided(p, 0, -1);
+					other2 = SearchCollided(p, 0, 1);
 				}
-				col.check(p, collidedType);
-				col.check(p, other1);
-				col.check(p, other2);
+
+				//wakeAdj(cells[p.x,p.y], adjCoord);
+				collisions.check(p, collidedType);
+				collisions.check(p, other1);
+				collisions.check(p, other2);
 			}
-			if (p.particleType == cellType.wood_base && p.velocity == new Vector2(0.0f, 0.0f))
-			{
-				tree new_tree = new tree();
-				new_tree.amount_of_growth = 20;
-				new_tree.speed_of_growth = 1;
-				new_tree.turns = 1;
-				new_tree.wood = p;
-				trees.Add(new_tree);
-			}
-			gridTexture.SetPixel(p.prevX, p.prevY, Colour[(int)cellType.empty]);
+
+			gridTexture.SetPixel(p.previousX, p.previousY, Colour[(int)cellType.empty]);
 			gridTexture.SetPixel(p.x, p.y, Colour[(int)p.particleType]);
 
 			if (p.active)
@@ -366,7 +468,7 @@ public class GameGrid : MonoBehaviour
 				relX = c.x / width;
 			if (c.y != 0)
 				relY = c.y / height;
-			charGO[0].GetComponent<MoveCharacter>().MoveChar(relX, relY);
+			charGO[characters.IndexOf(c)].GetComponent<MoveCharacter>().MoveChar(relX, relY, c.movingLeft);
 		}
 	}
 
@@ -396,14 +498,14 @@ public class GameGrid : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate()
 	{
-		txt = cam.GetComponent<Text>();
-		txt.text = "Active Particles: " + activeParticles.Count;
+		//txt = cam.GetComponent<Text>();
+		//txt.text = "Active Particles: " + activeParticles.Count;
 		if (delay <= Time.time && createParticles)
 		{
 
 			if (CreateParticle(offset, 0.8f))
 			{
-				delay = Time.time + 0.0f;//Modify to change frequency of particles
+				delay = Time.time + 0.2f;//Modify to change frequency of particles
 			}
 			else
 			{
@@ -411,15 +513,24 @@ public class GameGrid : MonoBehaviour
 			}
 		}
 		UpdateActiveParticles();
+
+		/*if (charDelay <= Time.time)
+		{
+			CreateCharacter(width, height);
+			charDelay = Time.time + 10.0f;
+		}*/
+
+		UpdateActiveParticles();
 		UpdateCharacters();
 		gridTexture.Apply();
 
 		GetComponent<Renderer>().material.mainTexture = gridTexture;
-		foreach (tree c in trees)
+		for (int i = trees.Count - 1; i >= 0; i--)
 		{
-			if (c.amount_of_growth != 0)
+			trees[i] = Grow(trees[i]);
+			if (trees[i].remainingGrowth <= 0)
 			{
-				//Growing(c);
+				trees.Remove(trees[i]);
 			}
 		}
 		gridTexture.Apply();
@@ -428,72 +539,153 @@ public class GameGrid : MonoBehaviour
 
 	}
 
-	public cellType Search_Collided(Particle current, int x, int y)
+	public Particle SearchCollided(Particle current, int x, int y)
 	{
-		cellType newP;
+		Particle newP;
 		if ((current.x + x) < 0)
 		{
-			newP = cells[width - 1, current.y + y].particleType;
+			newP = new Particle(width - 1, current.y + y, cells[width - 1, current.y + y].particleType);
 		}
 		else if (current.x + x >= width)
 		{
-			newP = cells[0, current.y + y].particleType;
+			newP = new Particle(0, current.y + y, cells[0, current.y + y].particleType);
 		}
 		else if ((current.y + y) >= height)
 		{
-			newP = cells[current.x + x, 0].particleType;
+			newP = new Particle(current.x + x, 0, cells[current.x + x, 0].particleType);
 		}
 		else if ((current.y + y) < 0)
 		{
-			newP = cells[current.x + x, (height - 1)].particleType;
+			newP = new Particle(current.x + x, (height - 1), cells[current.x + x, (height - 1)].particleType);
 		}
 		else
 		{
-			newP = cells[current.x + x, current.y + y].particleType;
+			newP = new Particle(current.x + x, current.y + y, cells[current.x + x, current.y + y].particleType);
 		}
 		return newP;
 	}
-	public void Growing(tree plant)
+
+	public void CreateTree(int x, int y, int remainingGrowth)
 	{
-		if (plant.turns == plant.speed_of_growth)
-		{
-			cellType aboveSearch = Search_Collided(plant.wood, 1, 0);
-			if (aboveSearch == cellType.empty)
-			{
-				activeParticles.Add(new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood));
-				plant.wood = new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood);
-				plant.amount_of_growth--;
-			}
-			else if (aboveSearch == cellType.wood)
-			{
-				activeParticles.Add(new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood));
-				plant.wood = new Particle(plant.wood.x, plant.wood.y + 1, cellType.wood);
-				plant.amount_of_growth--;
-			}
-			plant.turns = 1;
-			gridTexture.SetPixel(plant.wood.x, plant.wood.y, Colour[(int)plant.wood.particleType]);
-		}
-		else
-		{
-			plant.turns++;
-		}
+		Tree newTree = new Tree();
+		newTree.x = x;
+		newTree.y = y;
+		newTree.remainingGrowth = remainingGrowth + Random.Range(-remainingGrowth / 2, remainingGrowth / 2);
+		newTree.branchPoint = (newTree.remainingGrowth / 2) + Random.Range(-newTree.remainingGrowth / 2 + 1, newTree.remainingGrowth / 2);
+		newTree.growthRate = 0.6f;
+		newTree.nextGrow = Time.time + newTree.growthRate;
+		trees.Add(newTree);
 	}
-	public void GasTime(Particle Gas)
+
+	public Tree Grow(Tree tree)
 	{
-		int randInt = Random.Range(0, 2);
-		cellType aboveSearch = Search_Collided(Gas, 1, 0);
-		if (Gas.y > height - 3)
+		int[] xRange = new int[3];
+		int[] yRange = new int[3];
+
+		xRange[0] = CheckRange(tree.x - 1, width);
+		xRange[1] = tree.x;
+		xRange[2] = CheckRange(tree.x + 1, width);
+
+		yRange[0] = CheckRange(tree.y - 1, height);
+		yRange[1] = tree.y;
+		yRange[2] = CheckRange(tree.y + 1, height);
+
+		cellType growthType = cellType.wood;
+
+		if (tree.remainingGrowth < 5)
+			growthType = cellType.bush;
+
+		if (Time.time < tree.nextGrow)
 		{
-			Gas.particleType = cellType.empty;
-		}
-		else if (aboveSearch == cellType.empty || aboveSearch == cellType.fire && randInt == 0)
-		{
-			Gas.velocity = new Vector2(2.0f, 23.0f);
-		}
-		else
-		{
-			Gas.velocity = new Vector2(-2.0f, 0.0f);
+			if (cells[xRange[1], yRange[2]].particleType == cellType.empty && !tree.branch)
+			{
+				tree = AttemptGrowth(tree, xRange[1], yRange[2], growthType);
+			}
+			else
+			{
+				if (cells[xRange[0], yRange[2]].particleType == cellType.empty && cells[xRange[2], yRange[2]].particleType == cellType.empty)
+				{
+					int rand = Random.Range(0, 2);
+					switch (rand)
+					{
+						case 0:
+							tree = AttemptGrowth(tree, xRange[0], yRange[2], growthType);
+							break;
+						case 1:
+							tree = AttemptGrowth(tree, xRange[2], yRange[2], growthType);
+							break;
+					}
+				}
+				else
+				{
+					if (cells[xRange[0], yRange[2]].particleType == cellType.empty)
+					{
+						tree = AttemptGrowth(tree, xRange[0], yRange[2], growthType);
+					}
+					else
+						if (cells[xRange[2], yRange[2]].particleType == cellType.empty)
+					{
+						tree = AttemptGrowth(tree, xRange[2], yRange[2], growthType);
+					}
+					else
+					{
+						if (cells[xRange[0], yRange[1]].particleType == cellType.empty && cells[xRange[2], yRange[1]].particleType == cellType.empty)
+						{
+							int rand = Random.Range(0, 2);
+							switch (rand)
+							{
+								case 0:
+									tree = AttemptGrowth(tree, xRange[0], yRange[1], growthType);
+									break;
+								case 1:
+									tree = AttemptGrowth(tree, xRange[2], yRange[1], growthType);
+									break;
+							}
+						}
+						else
+						{
+							if (cells[xRange[0], yRange[1]].particleType == cellType.empty)
+							{
+								tree = AttemptGrowth(tree, xRange[0], yRange[1], growthType);
+							}
+							else
+								if (cells[xRange[2], yRange[1]].particleType == cellType.empty)
+							{
+								tree = AttemptGrowth(tree, xRange[2], yRange[1], growthType);
+							}
+						}
+					}
+				}
+			}
+			if (tree.remainingGrowth == tree.branchPoint)
+			{
+				for (int i = 0; i < 3; i++)
+				{
+					for (int j = 0; j < 2; j++)
+					{
+						if (i != 1 && cells[xRange[i], yRange[j]].particleType == cellType.empty)
+							CreateTree(xRange[i], yRange[j], tree.remainingGrowth);
+					}
+				}
+				tree.branch = true;
+				tree.branchPoint = tree.remainingGrowth / 2 + Random.Range(-tree.remainingGrowth / 2 + 1, tree.remainingGrowth / 2);
+				if (tree.branchPoint < 2)
+					tree.branchPoint = 100;
+			}
+			tree.nextGrow = Time.time + tree.growthRate;
 		}
 
+		return tree;
+	}
+
+	public Tree AttemptGrowth(Tree tree, int x, int y, cellType growthType)
+	{
+		inactiveParticles[x, y] = new Particle(x, y, growthType, State.solid, true);
+		cells[x, y].SetParticle(growthType, new Vector2(0.0f, 0.0f));
+		gridTexture.SetPixel(x, y, Colour[(int)growthType]);
+		tree.remainingGrowth = tree.remainingGrowth - 1;
+		tree.x = x;
+		tree.y = y;
+		return tree;
 	}
 }
