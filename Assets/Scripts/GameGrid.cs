@@ -61,7 +61,7 @@ public class GameGrid : MonoBehaviour
 
 	public GameObject charPrefab;
 
-	public GameObject cam;//Active particle debug stuff
+	//public GameObject cam;//Active particle debug stuff
 	Text txt;//Active particle debug stuff
 
 	Cell[,] cells;
@@ -366,7 +366,6 @@ public class GameGrid : MonoBehaviour
 				p.particleType = cellType.wood;
 				trees.Add(newTree);
 			}
-
 			p.IdleCheck(adjacentVel, adjacentParticle);
 
 			if (xCollision.other != cellType.empty || yCollision.other != cellType.empty)
@@ -387,19 +386,21 @@ public class GameGrid : MonoBehaviour
 				}
 				if (xCollision.location == 2)
 				{
-					collidedType = SearchCollided(p, -1, 0);
-					other1 = SearchCollided(p, -1, 0);
-					other2 = SearchCollided(p, 1, 0);
+					collidedType = Search_Collided(p, 1, 0);
+					other1 = Search_Collided(p, 0, -1);
+					other2 = Search_Collided(p, 0, 1);
 				}
 				else if (xCollision.location == 3)
 				{
-					collidedType = SearchCollided(p, 1, 0);
-					other1 = SearchCollided(p, -1, 0);
-					other2 = SearchCollided(p, 1, 0);
-				}
-				collisions.check(p, collidedType);
-				collisions.check(p, other1);
-				collisions.check(p, other2);
+					collidedType = Search_Collided(p, -1, 0);
+                    other1 = Search_Collided(p, 0, -1);
+                    other2 = Search_Collided(p, 0, 1);
+                }
+
+                //wakeAdj(cells[p.x,p.y], adjCoord);
+                col.check(p, collidedType);
+				col.check(p, other1);
+				col.check(p, other2);
 			}
 
 			gridTexture.SetPixel(p.previousX, p.previousY, Colour[(int)cellType.empty]);
@@ -497,8 +498,8 @@ public class GameGrid : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate()
 	{
-		txt = cam.GetComponent<Text>();
-		txt.text = "Active Particles: " + activeParticles.Count;
+		//txt = cam.GetComponent<Text>();
+		//txt.text = "Active Particles: " + activeParticles.Count;
 		if (delay <= Time.time && createParticles)
 		{
 
@@ -511,6 +512,7 @@ public class GameGrid : MonoBehaviour
 				offset = (offset += (1.0f / width)) % 1;
 			}
 		}
+        UpdateActiveParticles();
 
 		/*if (charDelay <= Time.time)
 		{

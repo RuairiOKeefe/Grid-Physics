@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Collisions
 {
-    public void check(Particle first , cellType second)
+    public void check(Particle first , Particle second)
     {
         switch (first.particleType)
         {
@@ -32,39 +32,43 @@ public class Collisions
             case cellType.steam:
                 SteamCollisions(first, second);
                 break;
+            case cellType.smoke:
+                SmokeCollisions(first, second);
+                break;
         }
     }      
 
 
-    public void FireCollisions(Particle fire, cellType other)
+    public void FireCollisions(Particle fire, Particle other)
     {
-        switch (other)
+        switch (other.particleType)
         {
             case cellType.wood:
-                fire.particleType = cellType.fire;
+                other.particleType = cellType.fire;
                 break;
             case cellType.root:
                 fire.particleType = cellType.fire;
                 break;
             case cellType.plant:
-                fire.particleType = cellType.fire;
+                other.particleType = cellType.fire;
                 break;
             case cellType.water:
-                fire.particleType = cellType.steam;
+                other.particleType = cellType.steam;
                 break;
             case cellType.ice:
-                fire.particleType = cellType.water;
+                other.particleType = cellType.water;
                 break;
         }
     }
 
 
-    public void WaterCollisions(Particle water, cellType other)
+    public void WaterCollisions(Particle water, Particle other)
     {
-        switch (other)
+        switch (other.particleType)
         {
             case cellType.lava:
-                water.particleType = cellType.stone;
+                water.particleType = cellType.steam;
+                other.particleType = cellType.stone;
                 break;
             case cellType.fire:
                 water.particleType = cellType.steam;
@@ -72,20 +76,34 @@ public class Collisions
             case cellType.ice:
                 water.particleType = cellType.ice;
                 break;
+
         }
     }
-    public void LavaCollisions(Particle lava, cellType other)
+    public void LavaCollisions(Particle lava, Particle other)
     {
-        switch (other)
+        switch (other.particleType)
         {
             case cellType.water:
                 lava.particleType = cellType.stone;
+                other.particleType = cellType.steam;
+                break;
+            case cellType.wood:
+                other.particleType = cellType.fire;
+                break;
+            case cellType.wood_base:
+                other.particleType = cellType.fire;
+                break;
+            case cellType.plant:
+                other.particleType = cellType.fire;
+                break;
+            case cellType.ice:
+                other.particleType = cellType.water;
                 break;
         }
     }
-    public void PlantCollsions(Particle plant , cellType other)
+    public void PlantCollsions(Particle plant , Particle other)
     {
-        switch (other)
+        switch (other.particleType)
         {
             case cellType.water:
                 plant.particleType = cellType.root;
@@ -105,22 +123,49 @@ public class Collisions
         }
 
     }
-    public void WoodCollisions(Particle wood, cellType other)
+    public void WoodCollisions(Particle wood, Particle other)
     {
-        switch (other)
+        switch (other.particleType)
         {
             case cellType.fire:
-                wood.particleType = cellType.fire;
+                int rand = Random.Range(0, 2);
+                if(rand == 0)
+                {
+                    wood.particleType = cellType.fire;
+                }
+                else
+                {
+                    wood.particleType = cellType.smoke;
+                }
                 break;
             case cellType.lava:
-                wood.particleType = cellType.fire;
+                int rander = Random.Range(0, 2);
+                if (rander == 0)
+                {
+                    wood.particleType = cellType.fire;
+                }
+                else
+                {
+                    wood.particleType = cellType.smoke;
+                }
+                break;
+            case cellType.smoke:
+                int randerer = Random.Range(0, 2);
+                if (randerer == 0)
+                {
+                    wood.particleType = cellType.fire;
+                }
+                else
+                {
+                    wood.particleType = cellType.smoke;
+                }
                 break;
         }
 
     }
-    public void Wood_BaseCollsions(Particle wood_again, cellType other)
+    public void Wood_BaseCollsions(Particle wood_again, Particle other)
     {
-        switch (other)
+        switch (other.particleType)
         {
             case cellType.fire:
                 wood_again.particleType = cellType.smoke;
@@ -130,9 +175,9 @@ public class Collisions
                 break;
         }
     }
-    public void IceCollisions(Particle Ice, cellType other)
+    public void IceCollisions(Particle Ice, Particle other)
     {
-        switch (other)
+        switch (other.particleType)
         {
             case cellType.fire:
                 Ice.particleType = cellType.water;
@@ -146,15 +191,30 @@ public class Collisions
         }
 
     }
-    public void SteamCollisions(Particle steam, cellType other)
+    public void SteamCollisions(Particle steam, Particle other)
     {
-        switch (other)
+        switch (other.particleType)
         {
             case cellType.water:
                 steam.particleType = cellType.water;
                 break;
             case cellType.ice:
                 steam.particleType = cellType.water;
+                break;
+        }
+    }
+    public void SmokeCollisions(Particle smoke, Particle other)
+    {
+        switch (other.particleType)
+        {
+            case cellType.wood:
+                other.particleType = cellType.fire;
+                break;
+            case cellType.wood_base:
+                other.particleType = cellType.fire;
+                break;
+            case cellType.plant:
+                other.particleType = cellType.fire;
                 break;
         }
     }
