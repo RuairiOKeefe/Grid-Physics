@@ -519,7 +519,6 @@ public class GameGrid : MonoBehaviour
 				offset = (offset += (1.0f / width)) % 1;
 			}
 		}
-		UpdateActiveParticles();
 
 		/*if (charDelay <= Time.time)
 		{
