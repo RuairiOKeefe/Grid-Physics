@@ -81,7 +81,7 @@ public class LaserPointer : MonoBehaviour
             //Control.TriggerHapticPulse(500);
             if (Physics.Raycast(tracked.transform.position, transform.forward, out hit, 1000))
             {
-                invCylinder.GetComponent<GameGrid>().CreateParticle(hit.textureCoord.x, hit.textureCoord.y);
+                invCylinder.GetComponent<GameGrid>().SprayParticles(hit.textureCoord.x, hit.textureCoord.y);
                 
             }
         }
