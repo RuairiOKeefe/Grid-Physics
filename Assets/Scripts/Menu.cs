@@ -10,7 +10,6 @@ public class Menu : MonoBehaviour
     private Transform menuTrasform;
     private GameObject final_menu;
     public cellType cells;
-    public GameObject controller;
 
     private SteamVR_Controller.Device Control
     {
@@ -30,7 +29,6 @@ public class Menu : MonoBehaviour
     private void ShowMenu()
     {
         final_menu.SetActive(true);
-        controller.SetActive(false);
     }
     void Awake()
     {
@@ -57,7 +55,6 @@ public class Menu : MonoBehaviour
         else if (Control.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad) && final_menu.activeSelf)
         {
             final_menu.SetActive(false);
-            controller.SetActive(true);
 
         }
     }

@@ -24,11 +24,6 @@ public class SteamVR_Camera : MonoBehaviour
 	private Transform _ears;
 	public Transform ears { get { return _ears; } }
 
-	public Ray GetRay()
-	{
-		return new Ray(_head.position, _head.forward);
-	}
-
 	public bool wireframe = false;
 
 	static public float sceneResolutionScale
