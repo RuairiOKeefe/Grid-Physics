@@ -11,7 +11,7 @@ public class Cell
 
 	public bool barrier;
 
-	public Substance particleType { get; private set; }
+	public cellType particleType { get; private set; }
 
 	public Vector2 velocity = new Vector2(0,0);
 
@@ -26,7 +26,7 @@ public class Cell
 		this.barrier = true;
 	}
 
-	public void SetParticle(Substance particleType, Vector2 velocity)
+	public void SetParticle(cellType particleType, Vector2 velocity)
 	{
 		this.particleType = particleType;
 		this.velocity = velocity;

@@ -9,7 +9,7 @@ public class Menu : MonoBehaviour
     private SteamVR_TrackedObject tracked;
     private Transform menuTrasform;
     private GameObject final_menu;
-    public Substance cells;
+    public cellType cells;
     public GameObject controller;
 
     private SteamVR_Controller.Device Control

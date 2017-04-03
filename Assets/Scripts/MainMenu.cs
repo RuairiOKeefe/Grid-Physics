@@ -210,7 +210,7 @@ public class MainMenu : MonoBehaviour {
 
     public void switchParticle(string type)
     {
-        Substance cType = (Substance)System.Enum.Parse(typeof(Substance), type);
+        cellType cType = (cellType)System.Enum.Parse(typeof(cellType), type);
         (grid.GetComponent<GameGrid>() as GameGrid).ChangeType(cType);
     }
 }

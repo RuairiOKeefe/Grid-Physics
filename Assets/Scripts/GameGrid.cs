@@ -11,27 +11,27 @@ public enum State
 	empty
 }
 
-public enum Substance //Material is used already by steamVR...
+public enum cellType //Material is used already by steamVR...
 {
-	Empty,
-	Sand,
-	Stone,
-	Lava,
-	Water,
-	Plant,
-	Fire,
-	Wood,
-	Root,
-	Bush,
-	Steam,
-	Smoke,
-	Ice,
-	Character
+	empty,
+	sand,
+	stone,
+	lava,
+	water,
+	plant,
+	fire,
+	wood,
+	root,
+	bush,
+	steam,
+	smoke,
+	ice,
+	character
 }
 
-public struct Collide
+public struct collision
 {
-	public Substance other;
+	public cellType other;
 	public int location;
 }
 
@@ -53,7 +53,7 @@ public class GameGrid : MonoBehaviour
 	public int width;
 	public int height;
 
-	public Substance particleType;
+	public cellType particleType;
 
 	public State particleState;
 
@@ -99,39 +99,39 @@ public class GameGrid : MonoBehaviour
 
 	void wakeAdj(Cell c, int[] adjCoord)
 	{
-		if ((cells[c.x, adjCoord[0]].settled) && (cells[c.x, adjCoord[0]].particleType != Substance.Empty) && (!cells[c.x, adjCoord[0]].barrier))
+		if ((cells[c.x, adjCoord[0]].settled) && (cells[c.x, adjCoord[0]].particleType != cellType.empty) && (!cells[c.x, adjCoord[0]].barrier))
 		{
 			Particle p = inactiveParticles[c.x, adjCoord[0]];
 			p.active = true;
 			cells[c.x, adjCoord[0]].UnSettle();
-			cells[c.x, adjCoord[0]].SetParticle(Substance.Empty, new Vector2(0.0f, 0.0f));
+			cells[c.x, adjCoord[0]].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			inactiveParticles[c.x, adjCoord[0]] = null;
 			activeParticles.Add(p);
 		}
-		if ((cells[c.x, adjCoord[1]].settled) && (cells[c.x, adjCoord[1]].particleType != Substance.Empty) && (!cells[c.x, adjCoord[1]].barrier))
+		if ((cells[c.x, adjCoord[1]].settled) && (cells[c.x, adjCoord[1]].particleType != cellType.empty) && (!cells[c.x, adjCoord[1]].barrier))
 		{
 			Particle p = inactiveParticles[c.x, adjCoord[1]];
 			p.active = true;
 			cells[c.x, adjCoord[1]].UnSettle();
-			cells[c.x, adjCoord[1]].SetParticle(Substance.Empty, new Vector2(0.0f, 0.0f));
+			cells[c.x, adjCoord[1]].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			inactiveParticles[c.x, adjCoord[1]] = null;
 			activeParticles.Add(p);
 		}
-		if ((cells[adjCoord[2], c.y].settled) && (cells[adjCoord[2], c.y].particleType != Substance.Empty) && (!cells[adjCoord[2], c.y].barrier))
+		if ((cells[adjCoord[2], c.y].settled) && (cells[adjCoord[2], c.y].particleType != cellType.empty) && (!cells[adjCoord[2], c.y].barrier))
 		{
 			Particle p = inactiveParticles[adjCoord[2], c.y];
 			p.active = true;
 			cells[adjCoord[2], c.y].UnSettle();
-			cells[adjCoord[2], c.y].SetParticle(Substance.Empty, new Vector2(0.0f, 0.0f));
+			cells[adjCoord[2], c.y].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			inactiveParticles[adjCoord[2], c.y] = null;
 			activeParticles.Add(p);
 		}
-		if ((cells[adjCoord[3], c.y].settled) && (cells[adjCoord[3], c.y].particleType != Substance.Empty) && (!cells[adjCoord[3], c.y].barrier))
+		if ((cells[adjCoord[3], c.y].settled) && (cells[adjCoord[3], c.y].particleType != cellType.empty) && (!cells[adjCoord[3], c.y].barrier))
 		{
 			Particle p = inactiveParticles[adjCoord[3], c.y];
 			p.active = true;
 			cells[adjCoord[3], c.y].UnSettle();
-			cells[adjCoord[3], c.y].SetParticle(Substance.Empty, new Vector2(0.0f, 0.0f));
+			cells[adjCoord[3], c.y].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			inactiveParticles[adjCoord[3], c.y] = null;
 			activeParticles.Add(p);
 		}
@@ -159,12 +159,12 @@ public class GameGrid : MonoBehaviour
 			{
 				if (j < 2)
 				{
-					Particle p = new Particle(i, j, Substance.Stone, State.solid, new Vector2(0.0f, 0.0f), width, height);
+					Particle p = new Particle(i, j, cellType.stone, State.solid, new Vector2(0.0f, 0.0f), width, height);
 					p.active = false;
 					inactiveParticles[i, j] = p;
 					cells[i, j].Settle();
 					cells[i, j].SetBarrier();
-					cells[i, j].SetParticle(Substance.Stone, new Vector2(0, 0));
+					cells[i, j].SetParticle(cellType.stone, new Vector2(0, 0));
 				}
 			}
 		}
@@ -189,11 +189,11 @@ public class GameGrid : MonoBehaviour
 			{
 				if (j > 1 && j < 71)
 				{
-					Particle p = new Particle(i, j, Substance.Stone, State.solid, new Vector2(0.0f, 0.0f), width, height);
+					Particle p = new Particle(i, j, cellType.stone, State.solid, new Vector2(0.0f, 0.0f), width, height);
 					p.active = false;
 					inactiveParticles[i, j] = p;
 					cells[i, j].Settle();
-					cells[i, j].SetParticle(Substance.Stone, new Vector2(0, 0));
+					cells[i, j].SetParticle(cellType.stone, new Vector2(0, 0));
 				}
 
 				if (j > 70 && j < 81)
@@ -201,45 +201,45 @@ public class GameGrid : MonoBehaviour
 					int rand = Random.Range(0, 10);
 					if (rand + (j - 76) > 5)
 					{
-						Particle p = new Particle(i, j, Substance.Sand, State.solid, new Vector2(0.0f, 0.0f), width, height);
+						Particle p = new Particle(i, j, cellType.sand, State.solid, new Vector2(0.0f, 0.0f), width, height);
 						p.active = false;
 						inactiveParticles[i, j] = p;
 						cells[i, j].Settle();
-						cells[i, j].SetParticle(Substance.Sand, new Vector2(0, 0));
+						cells[i, j].SetParticle(cellType.sand, new Vector2(0, 0));
 					}
 					else
 					{
-						Particle p = new Particle(i, j, Substance.Stone, State.solid, new Vector2(0.0f, 0.0f), width, height);
+						Particle p = new Particle(i, j, cellType.stone, State.solid, new Vector2(0.0f, 0.0f), width, height);
 						p.active = false;
 						inactiveParticles[i, j] = p;
 						cells[i, j].Settle();
-						cells[i, j].SetParticle(Substance.Stone, new Vector2(0, 0));
+						cells[i, j].SetParticle(cellType.stone, new Vector2(0, 0));
 					}
 				}
 
 				if (j > 80 && j < 150)
 				{
-					Particle p = new Particle(i, j, Substance.Stone, State.solid, new Vector2(0.0f, 0.0f), width, height);
+					Particle p = new Particle(i, j, cellType.stone, State.solid, new Vector2(0.0f, 0.0f), width, height);
 					p.active = false;
 					inactiveParticles[i, j] = p;
 					cells[i, j].Settle();
-					cells[i, j].SetParticle(Substance.Sand, new Vector2(0, 0));
+					cells[i, j].SetParticle(cellType.sand, new Vector2(0, 0));
 				}
 			}
 		}
 	}
 
-	public void ChangeType(Substance type)
+	public void ChangeType(cellType type)
 	{
 		particleType = type;
 
-		if (type == Substance.Empty)
+		if (type == cellType.empty)
 			particleState = State.empty;
 		else
-			if (type == Substance.Fire || type == Substance.Smoke || type == Substance.Steam)
+			if (type == cellType.fire || type == cellType.smoke || type == cellType.steam)
 			particleState = State.gas;
 		else
-				if (type == Substance.Water || type == Substance.Lava)
+				if (type == cellType.water || type == cellType.lava)
 			particleState = State.liquid;
 		else
 			particleState = State.solid;
@@ -252,7 +252,7 @@ public class GameGrid : MonoBehaviour
 		int gridX = Mathf.RoundToInt(x * width);//***************************  TEST FLOORING  ***************************
 		int gridY = Mathf.RoundToInt(y * height);
 
-		if (cells[gridX, gridY].particleType == Substance.Empty)
+		if (cells[gridX, gridY].particleType == cellType.empty)
 		{
 			activeParticles.Add(new Particle(gridX, gridY, particleType, particleState, new Vector2(0.0f, -9.8f), width, height));//Adjust spawn velocity for gases?
 			return true;
@@ -273,7 +273,7 @@ public class GameGrid : MonoBehaviour
 			int randX = gridX + Random.Range(-8, 8);
 			int randY = gridY + Random.Range(-8, 8);
 
-			if (cells[randX, randY].particleType == Substance.Empty)
+			if (cells[randX, randY].particleType == cellType.empty)
 			{
 				activeParticles.Add(new Particle(randX, randY, particleType, particleState, new Vector2(0.0f, -9.8f), width, height));
 				cells[randX, randY].SetParticle(particleType, new Vector2(0.0f, -9.8f));
@@ -294,18 +294,18 @@ public class GameGrid : MonoBehaviour
 		for (int i = activeParticles.Count - 1; i > 0; i--)
 		{
 			Particle p = activeParticles[i];
-			cells[p.x, p.y].SetParticle(Substance.Empty, new Vector2(0.0f, 0.0f));
+			cells[p.x, p.y].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.x, p.y].Settle();
-			gridTexture.SetPixel(p.x, p.y, Colour[(int)Substance.Empty]);
+			gridTexture.SetPixel(p.x, p.y, Colour[(int)cellType.empty]);
 			int[] adjacentCoordinates = new int[4];
 			Vector2[] adjacentVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
-			Substance[] adjacentParticle = new Substance[4]; //Adjacent particles. Up Down Left Right
+			cellType[] adjacentParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
 
 
 			Collisions collisions = new Collisions();
 
-			Collide xCollision;
-			Collide yCollision;
+			collision xCollision;
+			collision yCollision;
 
 			adjacentCoordinates[0] = CheckRange((p.y + 1), height);
 			adjacentCoordinates[1] = CheckRange((p.y - 1), height);
@@ -318,8 +318,8 @@ public class GameGrid : MonoBehaviour
 
 			yCollision = p.UpdateY(adjacentVel, adjacentParticle);
 
-			gridTexture.SetPixel(p.previousX, p.previousY, Colour[(int)Substance.Empty]);
-			cells[p.previousX, p.previousY].SetParticle(Substance.Empty, new Vector2(0.0f, 0.0f));
+			gridTexture.SetPixel(p.previousX, p.previousY, Colour[(int)cellType.empty]);
+			cells[p.previousX, p.previousY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.previousX, p.previousY].Settle();
 
 			adjacentCoordinates[2] = CheckRange((p.x - 1), width);
@@ -332,7 +332,7 @@ public class GameGrid : MonoBehaviour
 			adjacentParticle[3] = cells[adjacentCoordinates[3], p.y].particleType;
 			xCollision = p.UpdateX(adjacentVel, adjacentParticle);
 
-			cells[p.previousX, p.previousY].SetParticle(Substance.Empty, new Vector2(0.0f, 0.0f));
+			cells[p.previousX, p.previousY].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.x, p.y].SetParticle(p.particleType, p.velocity);
 
 
@@ -354,7 +354,7 @@ public class GameGrid : MonoBehaviour
 			adjacentParticle[2] = cells[adjacentCoordinates[2], p.y].particleType;
 			adjacentParticle[3] = cells[adjacentCoordinates[3], p.y].particleType;
 
-			if (p.particleType == Substance.Root && p.velocity == new Vector2(0.0f, 0.0f))
+			if (p.particleType == cellType.root && p.velocity == new Vector2(0.0f, 0.0f))
 			{
 				Tree newTree = new Tree();
 				newTree.x = p.x;
@@ -363,15 +363,15 @@ public class GameGrid : MonoBehaviour
 				newTree.branchPoint = (newTree.remainingGrowth / 2) + Random.Range(-newTree.remainingGrowth / 2 + 1, newTree.remainingGrowth / 2);
 				newTree.growthRate = 0.6f;
 				newTree.nextGrow = Time.time + newTree.growthRate;
-				p.particleType = Substance.Wood;
+				p.particleType = cellType.wood;
 				trees.Add(newTree);
 			}
 
 			p.IdleCheck(adjacentVel, adjacentParticle);
 
-			if (xCollision.other != Substance.Empty || yCollision.other != Substance.Empty)
+			if (xCollision.other != cellType.empty || yCollision.other != cellType.empty)
 			{
-				Substance collidedType = Substance.Empty, other1 = Substance.Empty, other2 = Substance.Empty;
+				cellType collidedType = cellType.empty, other1 = cellType.empty, other2 = cellType.empty;
 				if (yCollision.location == 0)
 				{
 					collidedType = SearchCollided(p, 0, 1);
@@ -402,7 +402,7 @@ public class GameGrid : MonoBehaviour
 				collisions.check(p, other2);
 			}
 
-			gridTexture.SetPixel(p.previousX, p.previousY, Colour[(int)Substance.Empty]);
+			gridTexture.SetPixel(p.previousX, p.previousY, Colour[(int)cellType.empty]);
 			gridTexture.SetPixel(p.x, p.y, Colour[(int)p.particleType]);
 
 			if (p.active)
@@ -422,9 +422,9 @@ public class GameGrid : MonoBehaviour
 	{
 		foreach (Character c in characters)
 		{
-			SetCharacterHitBox((int)(Mathf.Floor(c.x)), (int)(Mathf.Floor(c.y)), Substance.Empty);
+			SetCharacterHitBox((int)(Mathf.Floor(c.x)), (int)(Mathf.Floor(c.y)), cellType.empty);
 			Vector2[] adjVel = new Vector2[12];
-			Substance[] adjParticle = new Substance[12];
+			cellType[] adjParticle = new cellType[12];
 			Vector2[] adjCoord = new Vector2[12];
 
 			c.ApplyGravity();
@@ -460,7 +460,7 @@ public class GameGrid : MonoBehaviour
 				adjVel[i] = cells[(int)(adjCoord[i].x), (int)(adjCoord[i].y)].velocity;
 			}
 			c.UpdateX(adjVel, adjParticle);
-			SetCharacterHitBox((int)(Mathf.Floor(c.x)), (int)(Mathf.Floor(c.y)), Substance.Character);
+			SetCharacterHitBox((int)(Mathf.Floor(c.x)), (int)(Mathf.Floor(c.y)), cellType.character);
 			float relX = c.x;
 			float relY = c.y;
 			if (c.x != 0)
@@ -471,7 +471,7 @@ public class GameGrid : MonoBehaviour
 		}
 	}
 
-	public void SetCharacterHitBox(int x, int y, Substance boxType)
+	public void SetCharacterHitBox(int x, int y, cellType boxType)
 	{
 		int[] xRange = new int[3];
 		int[] yRange = new int[3];
@@ -537,9 +537,9 @@ public class GameGrid : MonoBehaviour
 
 	}
 
-	public Substance SearchCollided(Particle current, int x, int y)
+	public cellType SearchCollided(Particle current, int x, int y)
 	{
-		Substance newP;
+		cellType newP;
 		if ((current.x + x) < 0)
 		{
 			newP = cells[width - 1, current.y + y].particleType;
@@ -588,20 +588,20 @@ public class GameGrid : MonoBehaviour
 		yRange[1] = tree.y;
 		yRange[2] = CheckRange(tree.y + 1, height);
 
-		Substance growthType = Substance.Wood;
+		cellType growthType = cellType.wood;
 
 		if (tree.remainingGrowth < 5)
-			growthType = Substance.Bush;
+			growthType = cellType.bush;
 
 		if (Time.time < tree.nextGrow)
 		{
-			if (cells[xRange[1], yRange[2]].particleType == Substance.Empty && !tree.branch)
+			if (cells[xRange[1], yRange[2]].particleType == cellType.empty && !tree.branch)
 			{
 				tree = AttemptGrowth(tree, xRange[1], yRange[2], growthType);
 			}
 			else
 			{
-				if (cells[xRange[0], yRange[2]].particleType == Substance.Empty && cells[xRange[2], yRange[2]].particleType == Substance.Empty)
+				if (cells[xRange[0], yRange[2]].particleType == cellType.empty && cells[xRange[2], yRange[2]].particleType == cellType.empty)
 				{
 					int rand = Random.Range(0, 2);
 					switch (rand)
@@ -616,18 +616,18 @@ public class GameGrid : MonoBehaviour
 				}
 				else
 				{
-					if (cells[xRange[0], yRange[2]].particleType == Substance.Empty)
+					if (cells[xRange[0], yRange[2]].particleType == cellType.empty)
 					{
 						tree = AttemptGrowth(tree, xRange[0], yRange[2], growthType);
 					}
 					else
-						if (cells[xRange[2], yRange[2]].particleType == Substance.Empty)
+						if (cells[xRange[2], yRange[2]].particleType == cellType.empty)
 						{
 							tree = AttemptGrowth(tree, xRange[2], yRange[2], growthType);
 						}
 					else
 					{
-						if (cells[xRange[0], yRange[1]].particleType == Substance.Empty && cells[xRange[2], yRange[1]].particleType == Substance.Empty)
+						if (cells[xRange[0], yRange[1]].particleType == cellType.empty && cells[xRange[2], yRange[1]].particleType == cellType.empty)
 						{
 							int rand = Random.Range(0, 2);
 							switch (rand)
@@ -642,12 +642,12 @@ public class GameGrid : MonoBehaviour
 						}
 						else
 						{
-							if (cells[xRange[0], yRange[1]].particleType == Substance.Empty)
+							if (cells[xRange[0], yRange[1]].particleType == cellType.empty)
 							{
 								tree = AttemptGrowth(tree, xRange[0], yRange[1], growthType);
 							}
 							else
-								if (cells[xRange[2], yRange[1]].particleType == Substance.Empty)
+								if (cells[xRange[2], yRange[1]].particleType == cellType.empty)
 							{
 								tree = AttemptGrowth(tree, xRange[2], yRange[1], growthType);
 							}
@@ -661,7 +661,7 @@ public class GameGrid : MonoBehaviour
 				{
 					for (int j = 0; j < 2; j++)
 					{
-						if (i != 1 && cells[xRange[i], yRange[j]].particleType == Substance.Empty)
+						if (i != 1 && cells[xRange[i], yRange[j]].particleType == cellType.empty)
 							CreateTree(xRange[i], yRange[j], tree.remainingGrowth);
 					}
 				}
@@ -676,7 +676,7 @@ public class GameGrid : MonoBehaviour
 		return tree;
 	}
 
-	public Tree AttemptGrowth(Tree tree, int x, int y, Substance growthType)
+	public Tree AttemptGrowth(Tree tree, int x, int y, cellType growthType)
 	{
 		inactiveParticles[x, y] = new Particle(x, y, growthType, State.solid, true);
 		cells[x, y].SetParticle(growthType, new Vector2(0.0f, 0.0f));

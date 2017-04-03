@@ -27,14 +27,14 @@ public class Character
 		x = width - 100;
 	}
 
-	public void UpdateX(Vector2[] adjVel, Substance[] adjParticle)
+	public void UpdateX(Vector2[] adjVel, cellType[] adjParticle)
     {
 		float attX = x + (velocity.x * Time.deltaTime);
         if (velocity.x < 0)
         {
 			for (int i = 6; i < 9; i++)
 			{
-				if (adjParticle[i] != Substance.Empty)
+				if (adjParticle[i] != cellType.empty)
 				{
 					attX = (Mathf.Floor(x));
 					tryJump = true;
@@ -48,7 +48,7 @@ public class Character
         {
 			for (int i = 9; i < 12; i++)
 			{
-				if (adjParticle[i] != Substance.Empty)
+				if (adjParticle[i] != cellType.empty)
 				{
 					attX = (Mathf.Floor(x));
 					tryJump = true;
@@ -62,14 +62,14 @@ public class Character
         
     }
 
-    public void UpdateY(Vector2[] adjVel, Substance[] adjParticle)
+    public void UpdateY(Vector2[] adjVel, cellType[] adjParticle)
     {
 		float attY = y + (velocity.y*Time.deltaTime);
 		if (velocity.y < 0)
         {
 			for (int i = 3; i < 6; i++)
 			{
-				if (adjParticle[i] != Substance.Empty)
+				if (adjParticle[i] != cellType.empty)
 				{
 					attY = (Mathf.Floor(y));
 					this.velocity.y += (adjVel[i].y - this.velocity.y);
@@ -83,7 +83,7 @@ public class Character
         {
 			for (int i = 0; i < 3; i++)
 			{
-				if (adjParticle[i] != Substance.Empty)
+				if (adjParticle[i] != cellType.empty)
 				{
 					attY = (Mathf.Floor(y));
 					this.velocity.y -= (adjVel[i].y - this.velocity.y);
@@ -103,7 +103,7 @@ public class Character
 		}
 	}
 
-	public void Jump(Substance[] adjParticle)
+	public void Jump(cellType[] adjParticle)
 	{
 		if (tryJump && !jumpCD)
 		{
@@ -115,7 +115,7 @@ public class Character
 		{
 			if (jumpTimer > Time.time)
 			{
-				if (adjParticle[3] != Substance.Empty || adjParticle[4] != Substance.Empty || adjParticle[5] != Substance.Empty)
+				if (adjParticle[3] != cellType.empty || adjParticle[4] != cellType.empty || adjParticle[5] != cellType.empty)
 				{
 					velocity.y = 60.0f;
 				}
