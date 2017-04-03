@@ -97,42 +97,38 @@ public class GameGrid : MonoBehaviour
 		return newCoord;
 	}
 
-	void wakeAdj(Cell c, int[] adjCoord)
+	void wakeAdjacent(int x, int y, int[] adjCoord)
 	{
-		if ((cells[c.x, adjCoord[0]].settled) && (cells[c.x, adjCoord[0]].particleType != cellType.empty) && (!cells[c.x, adjCoord[0]].barrier))
+		if ((cells[x, adjCoord[0]].settled) && (cells[x, adjCoord[0]].particleType != cellType.empty) && (!cells[x, adjCoord[0]].barrier))
 		{
-			Particle p = inactiveParticles[c.x, adjCoord[0]];
+			Particle p = inactiveParticles[x, adjCoord[0]];
 			p.active = true;
-			cells[c.x, adjCoord[0]].UnSettle();
-			cells[c.x, adjCoord[0]].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
-			inactiveParticles[c.x, adjCoord[0]] = null;
+			cells[x, adjCoord[0]].UnSettle();
+			inactiveParticles[x, adjCoord[0]] = null;
 			activeParticles.Add(p);
 		}
-		if ((cells[c.x, adjCoord[1]].settled) && (cells[c.x, adjCoord[1]].particleType != cellType.empty) && (!cells[c.x, adjCoord[1]].barrier))
+		if ((cells[x, adjCoord[1]].settled) && (cells[x, adjCoord[1]].particleType != cellType.empty) && (!cells[x, adjCoord[1]].barrier))
 		{
-			Particle p = inactiveParticles[c.x, adjCoord[1]];
+			Particle p = inactiveParticles[x, adjCoord[1]];
 			p.active = true;
-			cells[c.x, adjCoord[1]].UnSettle();
-			cells[c.x, adjCoord[1]].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
-			inactiveParticles[c.x, adjCoord[1]] = null;
+			cells[x, adjCoord[1]].UnSettle();
+			inactiveParticles[x, adjCoord[1]] = null;
 			activeParticles.Add(p);
 		}
-		if ((cells[adjCoord[2], c.y].settled) && (cells[adjCoord[2], c.y].particleType != cellType.empty) && (!cells[adjCoord[2], c.y].barrier))
+		if ((cells[adjCoord[2], y].settled) && (cells[adjCoord[2], y].particleType != cellType.empty) && (!cells[adjCoord[2], y].barrier))
 		{
-			Particle p = inactiveParticles[adjCoord[2], c.y];
+			Particle p = inactiveParticles[adjCoord[2], y];
 			p.active = true;
-			cells[adjCoord[2], c.y].UnSettle();
-			cells[adjCoord[2], c.y].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
-			inactiveParticles[adjCoord[2], c.y] = null;
+			cells[adjCoord[2], y].UnSettle();
+			inactiveParticles[adjCoord[2], y] = null;
 			activeParticles.Add(p);
 		}
-		if ((cells[adjCoord[3], c.y].settled) && (cells[adjCoord[3], c.y].particleType != cellType.empty) && (!cells[adjCoord[3], c.y].barrier))
+		if ((cells[adjCoord[3], y].settled) && (cells[adjCoord[3], y].particleType != cellType.empty) && (!cells[adjCoord[3], y].barrier))
 		{
-			Particle p = inactiveParticles[adjCoord[3], c.y];
+			Particle p = inactiveParticles[adjCoord[3], y];
 			p.active = true;
-			cells[adjCoord[3], c.y].UnSettle();
-			cells[adjCoord[3], c.y].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
-			inactiveParticles[adjCoord[3], c.y] = null;
+			cells[adjCoord[3], y].UnSettle();
+			inactiveParticles[adjCoord[3], y] = null;
 			activeParticles.Add(p);
 		}
 	}
@@ -219,7 +215,7 @@ public class GameGrid : MonoBehaviour
 
 				if (j > 80 && j < 150)
 				{
-					Particle p = new Particle(i, j, cellType.stone, State.solid, new Vector2(0.0f, 0.0f), width, height);
+					Particle p = new Particle(i, j, cellType.sand, State.solid, new Vector2(0.0f, 0.0f), width, height);
 					p.active = false;
 					inactiveParticles[i, j] = p;
 					cells[i, j].Settle();
@@ -397,10 +393,33 @@ public class GameGrid : MonoBehaviour
 					other2 = SearchCollided(p, 0, 1);
 				}
 
-				//wakeAdj(cells[p.x,p.y], adjCoord);
-				collisions.check(p, collidedType);
-				collisions.check(p, other1);
-				collisions.check(p, other2);
+				if (collisions.check(p, collidedType))
+				{
+					adjacentCoordinates[0] = CheckRange((p.y + 1), height);
+					adjacentCoordinates[1] = CheckRange((p.y - 1), height);
+					adjacentCoordinates[2] = CheckRange((p.x - 1), width);
+					adjacentCoordinates[3] = CheckRange((p.x + 1), width);
+
+					wakeAdjacent(p.x, p.y, adjacentCoordinates);
+				}
+				if (collisions.check(p, other1))
+				{
+					adjacentCoordinates[0] = CheckRange((p.y + 1), height);
+					adjacentCoordinates[1] = CheckRange((p.y - 1), height);
+					adjacentCoordinates[2] = CheckRange((p.x - 1), width);
+					adjacentCoordinates[3] = CheckRange((p.x + 1), width);
+
+					wakeAdjacent(p.x, p.y, adjacentCoordinates);
+				}
+				if (collisions.check(p, other2))
+				{
+					adjacentCoordinates[0] = CheckRange((p.y + 1), height);
+					adjacentCoordinates[1] = CheckRange((p.y - 1), height);
+					adjacentCoordinates[2] = CheckRange((p.x - 1), width);
+					adjacentCoordinates[3] = CheckRange((p.x + 1), width);
+
+					wakeAdjacent(p.x, p.y, adjacentCoordinates);
+				}
 			}
 
 			gridTexture.SetPixel(p.previousX, p.previousY, Colour[(int)cellType.empty]);
@@ -495,7 +514,6 @@ public class GameGrid : MonoBehaviour
 		}
 	}
 
-	// Update is called once per frame
 	void FixedUpdate()
 	{
 		//txt = cam.GetComponent<Text>();
