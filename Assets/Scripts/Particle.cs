@@ -8,7 +8,7 @@ public class Particle
 	public int y;
 	public bool active = true;
 	public Vector2 velocity;
-	public Substance particleType;
+	public cellType particleType;
 	public float terminalVelocity = -500f;//may want to calculate as a function of mass
 	public State particleState;
 	public bool immobile;
@@ -27,18 +27,38 @@ public class Particle
 
 	public Particle()
 	{
-		
+
 	}
-    public Particle(int x , int y , Substance particleType, State particleState, bool immobile)
-    {
-        this.x = x;
-        this.y = y;
-        this.particleType = particleType;
+
+	public Particle(int x, int y, cellType particleType)
+	{
+		this.x = x;
+		this.y = y;
+		this.particleType = particleType;
+		this.velocity = new Vector2(0.0f, 0.0f);
+
+		if (particleType == cellType.empty)
+			particleState = State.empty;
+		else
+			if (particleType == cellType.fire || particleType == cellType.smoke || particleType == cellType.steam)
+				particleState = State.gas;
+			else
+				if (particleType == cellType.water || particleType == cellType.lava)
+					particleState = State.liquid;
+				else
+					particleState = State.solid;
+	}
+
+	public Particle(int x, int y, cellType particleType, State particleState, bool immobile)
+	{
+		this.x = x;
+		this.y = y;
+		this.particleType = particleType;
 		this.particleState = particleState;
-        this.velocity = new Vector2(0.0f, 0.0f);
+		this.velocity = new Vector2(0.0f, 0.0f);
 		this.immobile = immobile;
-    }
-	public Particle(int x, int y, Substance particleType, State particleState, Vector2 velocity, int width, int height)
+	}
+	public Particle(int x, int y, cellType particleType, State particleState, Vector2 velocity, int width, int height)
 	{
 		this.x = x;
 		this.y = y;
@@ -52,7 +72,7 @@ public class Particle
 		this.height = height;
 	}
 
-	public void SetParticle(int x, int y, Substance particleType, State particleState, bool immobile, Vector2 velocity, int width, int height)
+	public void SetParticle(int x, int y, cellType particleType, State particleState, bool immobile, Vector2 velocity, int width, int height)
 	{
 		this.x = x;
 		this.y = y;
@@ -76,17 +96,17 @@ public class Particle
 		previousY = y;
 	}
 
-	public Collide AttemptX(Vector2[] adjVel, Substance[] adjParticle)
-    {
+	public collision AttemptX(Vector2[] adjVel, cellType[] adjParticle)
+	{
 		previousX = x;
-		Collide coll = new Collide();
-		coll.other = Substance.Empty;
-        if (velocity.x < 0)
-        {
-			if (adjParticle[2] != Substance.Empty)
+		collision coll = new collision();
+		coll.other = cellType.empty;
+		if (velocity.x < 0)
+		{
+			if (adjParticle[2] != cellType.empty)
 			{
 				defaultCollision(false, false, adjVel[2]);
-				coll = new Collide();
+				coll = new collision();
 				coll.other = adjParticle[2];
 				coll.location = 2;
 			}
@@ -94,26 +114,26 @@ public class Particle
 			{
 				x--;
 				if (x < 0)
-					x = width-1;
+					x = width - 1;
 			}
 
 			if (velocity.x != 0)
 				moveTimeX = Time.time + (1 / Mathf.Abs(velocity.x));
 			return coll;
 		}
-        else
-        {
-			if (adjParticle[3] != Substance.Empty)
+		else
+		{
+			if (adjParticle[3] != cellType.empty)
 			{
 				defaultCollision(false, true, adjVel[3]);
-				coll = new Collide();
+				coll = new collision();
 				coll.other = adjParticle[3];
 				coll.location = 3;
 			}
 			else
 			{
 				x++;
-				if (x > width-1)
+				if (x > width - 1)
 					x = 0;
 			}
 			if (velocity.x != 0)
@@ -121,20 +141,20 @@ public class Particle
 			return coll;
 		}
 
-        
-    }
 
-    public Collide AttemptY(Vector2[] adjVel, Substance[] adjParticle)
-    {
-        previousY = y;
-		Collide coll = new Collide();
-		coll.other = Substance.Empty;
+	}
+
+	public collision AttemptY(Vector2[] adjVel, cellType[] adjParticle)
+	{
+		previousY = y;
+		collision coll = new collision();
+		coll.other = cellType.empty;
 		if (velocity.y < 0)
-        {
-			if (adjParticle[1] != Substance.Empty)
+		{
+			if (adjParticle[1] != cellType.empty)
 			{
 				defaultCollision(true, false, adjVel[1]);
-				coll = new Collide();
+				coll = new collision();
 				coll.other = adjParticle[1];
 				coll.location = 1;
 			}
@@ -142,37 +162,37 @@ public class Particle
 			{
 				y--;
 				if (y < 0)
-					y = height-1;
+					y = height - 1;
 			}
 			if (velocity.y != 0)
 				moveTimeY = Time.time + (1 / Mathf.Abs(velocity.y));
 			return coll;
 		}
-        else
-        {
-			if (adjParticle[0] != Substance.Empty)
+		else
+		{
+			if (adjParticle[0] != cellType.empty)
 			{
 				defaultCollision(true, true, adjVel[0]);
-				coll = new Collide();
+				coll = new collision();
 				coll.other = adjParticle[0];
 				coll.location = 0;
 			}
 			else
 			{
 				y++;
-				if (y > height-1)
+				if (y > height - 1)
 					y = 0;
 			}
-			if(velocity.y != 0)
+			if (velocity.y != 0)
 				moveTimeY = Time.time + (1 / Mathf.Abs(velocity.y));
 			return coll;
 		}
-    }
+	}
 
-	public Collide UpdateX(Vector2[] adjVel, Substance[] adjParticle) 
+	public collision UpdateX(Vector2[] adjVel, cellType[] adjParticle)
 	{
-		Collide coll = new Collide();
-		coll.other = Substance.Empty;
+		collision coll = new collision();
+		coll.other = cellType.empty;
 		if (active)
 		{
 			if (moveTimeX <= Time.time && (velocity.x != 0))
@@ -183,10 +203,10 @@ public class Particle
 		return coll;
 	}
 
-	public Collide UpdateY(Vector2[] adjVel, Substance[] adjParticle)
+	public collision UpdateY(Vector2[] adjVel, cellType[] adjParticle)
 	{
-		Collide coll = new Collide();
-		coll.other = Substance.Empty;
+		collision coll = new collision();
+		coll.other = cellType.empty;
 		if (active)
 		{
 			if (moveTimeY <= Time.time)
@@ -197,15 +217,15 @@ public class Particle
 		return coll;
 	}
 
-	public void IdleCheck(Vector2[] adjVel, Substance[] adjParticle)
+	public void IdleCheck(Vector2[] adjVel, cellType[] adjParticle)
 	{
 		if (this.particleState == State.liquid)
 			LiquidShift(adjVel, adjParticle);
 		if (this.particleState == State.gas)
 			GasShift(adjVel, adjParticle);
-		if (particleType != Substance.Water)
+		if (particleType != cellType.water)
 		{
-			if (velocity.x == 0 && velocity.y == 0 && adjParticle[1] != Substance.Empty) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
+			if (velocity.x == 0 && velocity.y == 0 && adjParticle[1] != cellType.empty) //If not moving check to see if it is timing out, if not set a timer, if it is, check if the time is up and if it is make this inactive
 			{
 				if (!timingOut)
 				{
@@ -225,7 +245,7 @@ public class Particle
 					timingOut = false;
 			}
 		}
-		if ((this.particleState == State.solid || this.particleState == State.liquid ) && !immobile)
+		if ((this.particleState == State.solid || this.particleState == State.liquid) && !immobile)
 			ApplyGravity();
 	}
 
@@ -237,18 +257,18 @@ public class Particle
 		}
 	}
 
-	public void LiquidShift(Vector2[] adjVel, Substance[] adjParticle)
+	public void LiquidShift(Vector2[] adjVel, cellType[] adjParticle)
 	{
 		float speed = 10.0f;
-		if (particleType == Substance.Water)
+		if (particleType == cellType.water)
 			speed = 40.0f;
-		if (particleType == Substance.Lava)
+		if (particleType == cellType.lava)
 			speed = 5.0f;
-		if (adjParticle[1] != Substance.Empty)
+		if (adjParticle[1] != cellType.empty)
 		{
 			if (shiftDelay < Time.time)
 			{
-				if (adjParticle[2] == Substance.Empty && adjParticle[3] == Substance.Empty && (velocity.x != speed || velocity.x != -speed))
+				if (adjParticle[2] == cellType.empty && adjParticle[3] == cellType.empty && (velocity.x != speed || velocity.x != -speed))
 				{
 					int rand = Random.Range(0, 2);
 					switch (rand)
@@ -263,30 +283,30 @@ public class Particle
 				}
 				else
 				{
-					if (adjParticle[2] == Substance.Empty || velocity.x == -speed)
+					if (adjParticle[2] == cellType.empty || velocity.x == -speed)
 					{
 						velocity.x = -speed;
 					}
 					else
-						if (adjParticle[3] == Substance.Empty || velocity.x == speed)
-						{
-							velocity.x = speed;
-						}
-						else
-						{
-							velocity.x = 0.0f;
-						}
+						if (adjParticle[3] == cellType.empty || velocity.x == speed)
+					{
+						velocity.x = speed;
+					}
+					else
+					{
+						velocity.x = 0.0f;
+					}
 				}
-				shiftDelay = Time.time + (10*(1 / speed));
+				shiftDelay = Time.time + (10 * (1 / speed));
 			}
-			if (adjParticle[1] == Substance.Empty)
+			if (adjParticle[1] == cellType.empty)
 			{
 				y--;
 			}
 		}
 	}
 
-	public void GasShift(Vector2[] adjVel, Substance[] adjParticle)
+	public void GasShift(Vector2[] adjVel, cellType[] adjParticle)
 	{
 		float speed = 2.0f;
 		float gasTerminalVel = 100.0f;
