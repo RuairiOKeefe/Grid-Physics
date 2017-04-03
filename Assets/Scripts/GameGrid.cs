@@ -61,9 +61,6 @@ public class GameGrid : MonoBehaviour
 
 	public GameObject charPrefab;
 
-	//public GameObject cam;//Active particle debug stuff
-	Text txt;//Active particle debug stuff
-
 	Cell[,] cells;
 
 	List<Particle> activeParticles = new List<Particle>();
@@ -243,10 +240,8 @@ public class GameGrid : MonoBehaviour
 
 	public bool CreateParticle(float x, float y)//Create; Polymorphise. Whats the difference? -R Huh turns out` in the end we are creating them... -R
 	{
-		// x and y must be in range 0-1
-		//may add random effect to "spray" particles 
-		int gridX = Mathf.RoundToInt(x * width);//***************************  TEST FLOORING  ***************************
-		int gridY = Mathf.RoundToInt(y * height);
+		int gridX = CheckRange(Mathf.RoundToInt(x * width), width);
+		int gridY = CheckRange(Mathf.RoundToInt(y * height), height);
 
 		if (cells[gridX, gridY].particleType == cellType.empty)
 		{
@@ -266,14 +261,10 @@ public class GameGrid : MonoBehaviour
 
 		for (int i = 0; i < 20; i++)
 		{
-			int randX = gridX + Random.Range(-8, 8);
-			int randY = gridY + Random.Range(-8, 8);
+			int randX = CheckRange(gridX + Random.Range(-8, 8), width);
+			int randY = CheckRange(gridY + Random.Range(-8, 8), height);
 
-			if (cells[randX, randY].particleType == cellType.empty)
-			{
-				activeParticles.Add(new Particle(randX, randY, particleType, particleState, new Vector2(0.0f, -9.8f), width, height));
-				cells[randX, randY].SetParticle(particleType, new Vector2(0.0f, -9.8f));
-			}
+			activeParticles.Add(new Particle(randX, randY, particleType, particleState, new Vector2(0.0f, -9.8f), width, height));
 		}
 
 		return true;
@@ -516,8 +507,6 @@ public class GameGrid : MonoBehaviour
 
 	void FixedUpdate()
 	{
-		//txt = cam.GetComponent<Text>();
-		//txt.text = "Active Particles: " + activeParticles.Count;
 		if (delay <= Time.time && createParticles)
 		{
 
