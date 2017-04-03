@@ -27,17 +27,37 @@ public class Particle
 
 	public Particle()
 	{
-		
+
 	}
-    public Particle(int x , int y , cellType particleType, State particleState, bool immobile)
-    {
-        this.x = x;
-        this.y = y;
-        this.particleType = particleType;
+
+	public Particle(int x, int y, cellType particleType)
+	{
+		this.x = x;
+		this.y = y;
+		this.particleType = particleType;
+		this.velocity = new Vector2(0.0f, 0.0f);
+
+		if (particleType == cellType.empty)
+			particleState = State.empty;
+		else
+			if (particleType == cellType.fire || particleType == cellType.smoke || particleType == cellType.steam)
+				particleState = State.gas;
+			else
+				if (particleType == cellType.water || particleType == cellType.lava)
+					particleState = State.liquid;
+				else
+					particleState = State.solid;
+	}
+
+	public Particle(int x, int y, cellType particleType, State particleState, bool immobile)
+	{
+		this.x = x;
+		this.y = y;
+		this.particleType = particleType;
 		this.particleState = particleState;
-        this.velocity = new Vector2(0.0f, 0.0f);
+		this.velocity = new Vector2(0.0f, 0.0f);
 		this.immobile = immobile;
-    }
+	}
 	public Particle(int x, int y, cellType particleType, State particleState, Vector2 velocity, int width, int height)
 	{
 		this.x = x;
@@ -77,12 +97,12 @@ public class Particle
 	}
 
 	public collision AttemptX(Vector2[] adjVel, cellType[] adjParticle)
-    {
+	{
 		previousX = x;
 		collision coll = new collision();
 		coll.other = cellType.empty;
-        if (velocity.x < 0)
-        {
+		if (velocity.x < 0)
+		{
 			if (adjParticle[2] != cellType.empty)
 			{
 				defaultCollision(false, false, adjVel[2]);
@@ -94,15 +114,15 @@ public class Particle
 			{
 				x--;
 				if (x < 0)
-					x = width-1;
+					x = width - 1;
 			}
 
 			if (velocity.x != 0)
 				moveTimeX = Time.time + (1 / Mathf.Abs(velocity.x));
 			return coll;
 		}
-        else
-        {
+		else
+		{
 			if (adjParticle[3] != cellType.empty)
 			{
 				defaultCollision(false, true, adjVel[3]);
@@ -113,7 +133,7 @@ public class Particle
 			else
 			{
 				x++;
-				if (x > width-1)
+				if (x > width - 1)
 					x = 0;
 			}
 			if (velocity.x != 0)
@@ -121,16 +141,16 @@ public class Particle
 			return coll;
 		}
 
-        
-    }
 
-    public collision AttemptY(Vector2[] adjVel, cellType[] adjParticle)
-    {
-        previousY = y;
+	}
+
+	public collision AttemptY(Vector2[] adjVel, cellType[] adjParticle)
+	{
+		previousY = y;
 		collision coll = new collision();
 		coll.other = cellType.empty;
 		if (velocity.y < 0)
-        {
+		{
 			if (adjParticle[1] != cellType.empty)
 			{
 				defaultCollision(true, false, adjVel[1]);
@@ -142,14 +162,14 @@ public class Particle
 			{
 				y--;
 				if (y < 0)
-					y = height-1;
+					y = height - 1;
 			}
 			if (velocity.y != 0)
 				moveTimeY = Time.time + (1 / Mathf.Abs(velocity.y));
 			return coll;
 		}
-        else
-        {
+		else
+		{
 			if (adjParticle[0] != cellType.empty)
 			{
 				defaultCollision(true, true, adjVel[0]);
@@ -160,16 +180,16 @@ public class Particle
 			else
 			{
 				y++;
-				if (y > height-1)
+				if (y > height - 1)
 					y = 0;
 			}
-			if(velocity.y != 0)
+			if (velocity.y != 0)
 				moveTimeY = Time.time + (1 / Mathf.Abs(velocity.y));
 			return coll;
 		}
-    }
+	}
 
-	public collision UpdateX(Vector2[] adjVel, cellType[] adjParticle) 
+	public collision UpdateX(Vector2[] adjVel, cellType[] adjParticle)
 	{
 		collision coll = new collision();
 		coll.other = cellType.empty;
@@ -225,7 +245,7 @@ public class Particle
 					timingOut = false;
 			}
 		}
-		if ((this.particleState == State.solid || this.particleState == State.liquid ) && !immobile)
+		if ((this.particleState == State.solid || this.particleState == State.liquid) && !immobile)
 			ApplyGravity();
 	}
 
@@ -269,15 +289,15 @@ public class Particle
 					}
 					else
 						if (adjParticle[3] == cellType.empty || velocity.x == speed)
-						{
-							velocity.x = speed;
-						}
-						else
-						{
-							velocity.x = 0.0f;
-						}
+					{
+						velocity.x = speed;
+					}
+					else
+					{
+						velocity.x = 0.0f;
+					}
 				}
-				shiftDelay = Time.time + (10*(1 / speed));
+				shiftDelay = Time.time + (10 * (1 / speed));
 			}
 			if (adjParticle[1] == cellType.empty)
 			{
