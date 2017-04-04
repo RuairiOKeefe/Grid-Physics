@@ -26,7 +26,13 @@ public class Collisions
 				return SteamCollisions(first, second);
 			case cellType.smoke:
 				return SmokeCollisions(first, second);
-		}
+            case cellType.bush:
+                return BushCollisions(first, second);
+            case cellType.metal:
+                return MetalCollisions(first, second);
+            case cellType.rust:
+                return RustCollisions(first, second);
+        }
 		return false;
 	}
 
@@ -55,7 +61,11 @@ public class Collisions
 				other.particleType = cellType.water;
 				other.particleState = State.gas;
 				return true;
-		}
+            case cellType.bush:
+                other.particleType = cellType.fire;
+                other.particleState = State.gas;
+                return true;
+        }
 		return false;
 	}
 
@@ -78,7 +88,22 @@ public class Collisions
 				water.particleType = cellType.ice;
 				water.particleState = State.solid;
 				return true;
-		}
+            case cellType.metal:
+                int rand = Random.Range(0, 10);
+                if (rand == 1)
+                {
+                    other.particleType = cellType.rust;
+                    other.particleState = State.solid;
+                }
+                return true;
+            case cellType.rust:
+                int rander = Random.Range(0, 5);
+                if (rander == 1)
+                {
+                    other.particleType = cellType.empty;
+                }
+                return true;
+        }
 		return false;
 	}
 	public bool LavaCollisions(Particle lava, Particle other)
@@ -107,7 +132,11 @@ public class Collisions
 				other.particleType = cellType.water;
 				other.particleState = State.liquid;
 				return true;
-		}
+            case cellType.bush:
+                other.particleType = cellType.fire;
+                other.particleState = State.gas;
+                return true;
+        }
 		return false;
 	}
 	public bool PlantCollsions(Particle plant, Particle other)
@@ -251,4 +280,52 @@ public class Collisions
 		}
 		return false;
 	}
+    public bool BushCollisions(Particle bush, Particle other)
+    {
+        switch (other.particleType)
+        {
+            case cellType.fire:
+                bush.particleType = cellType.fire;
+                bush.particleState = State.gas;
+                return true;
+            case cellType.plant:
+                bush.particleType = cellType.plant;
+                other.particleState = State.solid;
+                return true;
+            case cellType.lava:
+                bush.particleType = cellType.fire;
+                other.particleState = State.gas;
+                return true;
+        }
+        return false;
+    }
+    public bool MetalCollisions(Particle metal, Particle other)
+    {
+        switch (other.particleType)
+        {
+            case cellType.water:
+                int rand = Random.Range(0, 10);
+                if (rand == 1)
+                {
+                    metal.particleType = cellType.rust;
+                    metal.particleState = State.solid;
+                }
+                return true;
+        }
+        return false;
+    }
+    public bool RustCollisions(Particle rust, Particle other)
+    {
+        switch (other.particleType)
+        {
+            case cellType.water:
+                int rander = Random.Range(0, 5);
+                if (rander == 1)
+                {
+                    rust.particleType = cellType.empty;
+                }
+                return true;
+        }
+        return false;
+    }
 }

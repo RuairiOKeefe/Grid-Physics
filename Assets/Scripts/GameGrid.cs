@@ -26,7 +26,9 @@ public enum cellType //Material is used already by steamVR...
 	steam,
 	smoke,
 	ice,
-	character
+	character,
+    metal,
+    rust
 }
 
 public struct collision
