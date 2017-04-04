@@ -554,26 +554,7 @@ public class GameGrid : MonoBehaviour
 	public Particle SearchCollided(Particle current, int x, int y)
 	{
 		Particle newP;
-		if ((current.x + x) < 0)
-		{
-			newP = new Particle(width - 1, current.y + y, cells[width - 1, current.y + y].particleType);
-		}
-		else if (current.x + x >= width)
-		{
-			newP = new Particle(0, current.y + y, cells[0, current.y + y].particleType);
-		}
-		else if ((current.y + y) >= height)
-		{
-			newP = new Particle(current.x + x, 0, cells[current.x + x, 0].particleType);
-		}
-		else if ((current.y + y) < 0)
-		{
-			newP = new Particle(current.x + x, (height - 1), cells[current.x + x, (height - 1)].particleType);
-		}
-		else
-		{
-			newP = new Particle(current.x + x, current.y + y, cells[current.x + x, current.y + y].particleType);
-		}
+		newP = new Particle(CheckRange(current.x + x, width), CheckRange(current.y + y, height), cells[CheckRange(current.x + x, width), CheckRange(current.y + y, height)].particleType);
 		return newP;
 	}
 
