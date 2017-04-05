@@ -26,7 +26,9 @@ public enum cellType //Material is used already by steamVR...
 	steam,
 	smoke,
 	ice,
-	character
+	character,
+    metal,
+    rust
 }
 
 public struct collision
@@ -245,7 +247,10 @@ public class GameGrid : MonoBehaviour
 
 		if (cells[gridX, gridY].particleType == cellType.empty)
 		{
-			activeParticles.Add(new Particle(gridX, gridY, particleType, particleState, new Vector2(0.0f, -9.8f), width, height));//Adjust spawn velocity for gases?
+			if(particleState != State.gas)
+				activeParticles.Add(new Particle(gridX, gridY, particleType, particleState, new Vector2(0.0f, -9.8f), width, height));
+			else
+				activeParticles.Add(new Particle(gridX, gridY, particleType, particleState, new Vector2(0.0f, 5.0f), width, height));
 			return true;
 		}
 		else
@@ -266,7 +271,10 @@ public class GameGrid : MonoBehaviour
 
 			if (cells[randX, randY].particleType == cellType.empty)
 			{
-				activeParticles.Add(new Particle(randX, randY, particleType, particleState, new Vector2(0.0f, -9.8f), width, height));
+				if (particleState != State.gas)
+					activeParticles.Add(new Particle(randX, randY, particleType, particleState, new Vector2(0.0f, -9.8f), width, height));
+				else
+					activeParticles.Add(new Particle(randX, randY, particleType, particleState, new Vector2(0.0f, 5.0f), width, height));
 			}
 		}
 
@@ -284,6 +292,10 @@ public class GameGrid : MonoBehaviour
 		for (int i = activeParticles.Count - 1; i > 0; i--)
 		{
 			Particle p = activeParticles[i];
+			if (p.x > width || p.x < 0)
+				print("arse");
+			if (p.y > height || p.y < 0)
+				print("arse");
 			cells[p.x, p.y].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.x, p.y].Settle();
 			gridTexture.SetPixel(p.x, p.y, Colour[(int)cellType.empty]);
