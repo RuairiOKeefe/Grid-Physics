@@ -26,7 +26,9 @@ public enum cellType //Material is used already by steamVR...
 	steam,
 	smoke,
 	ice,
-	character
+	character,
+    metal,
+    rust
 }
 
 public struct collision
@@ -245,7 +247,10 @@ public class GameGrid : MonoBehaviour
 
 		if (cells[gridX, gridY].particleType == cellType.empty)
 		{
-			activeParticles.Add(new Particle(gridX, gridY, particleType, particleState, new Vector2(0.0f, -9.8f), width, height));//Adjust spawn velocity for gases?
+			if(particleState != State.gas)
+				activeParticles.Add(new Particle(gridX, gridY, particleType, particleState, new Vector2(0.0f, -9.8f), width, height));
+			else
+				activeParticles.Add(new Particle(gridX, gridY, particleType, particleState, new Vector2(0.0f, 5.0f), width, height));
 			return true;
 		}
 		else
@@ -264,7 +269,13 @@ public class GameGrid : MonoBehaviour
 			int randX = CheckRange(gridX + Random.Range(-8, 8), width);
 			int randY = CheckRange(gridY + Random.Range(-8, 8), height);
 
-			activeParticles.Add(new Particle(randX, randY, particleType, particleState, new Vector2(0.0f, -9.8f), width, height));
+			if (cells[randX, randY].particleType == cellType.empty)
+			{
+				if (particleState != State.gas)
+					activeParticles.Add(new Particle(randX, randY, particleType, particleState, new Vector2(0.0f, -9.8f), width, height));
+				else
+					activeParticles.Add(new Particle(randX, randY, particleType, particleState, new Vector2(0.0f, 5.0f), width, height));
+			}
 		}
 
 		return true;
@@ -281,13 +292,16 @@ public class GameGrid : MonoBehaviour
 		for (int i = activeParticles.Count - 1; i > 0; i--)
 		{
 			Particle p = activeParticles[i];
+			if (p.x > width || p.x < 0)
+				print("arse");
+			if (p.y > height || p.y < 0)
+				print("arse");
 			cells[p.x, p.y].SetParticle(cellType.empty, new Vector2(0.0f, 0.0f));
 			cells[p.x, p.y].Settle();
 			gridTexture.SetPixel(p.x, p.y, Colour[(int)cellType.empty]);
 			int[] adjacentCoordinates = new int[4];
 			Vector2[] adjacentVel = new Vector2[4]; //Adjacent velocities. Up Down Left Right
 			cellType[] adjacentParticle = new cellType[4]; //Adjacent particles. Up Down Left Right
-
 
 			Collisions collisions = new Collisions();
 
@@ -353,6 +367,7 @@ public class GameGrid : MonoBehaviour
 				p.particleType = cellType.wood;
 				trees.Add(newTree);
 			}
+
 			p.IdleCheck(adjacentVel, adjacentParticle);
 
 			if (xCollision.other != cellType.empty || yCollision.other != cellType.empty)
@@ -499,8 +514,11 @@ public class GameGrid : MonoBehaviour
 		{
 			for (int j = 0; j < 3; j++)
 			{
-				cells[xRange[i], yRange[j]].SetParticle(boxType, new Vector2(0.0f, 0.0f));
-				gridTexture.SetPixel(xRange[i], yRange[j], Colour[(int)boxType]);
+				if (cells[xRange[i], yRange[j]].particleType == cellType.empty || boxType == cellType.empty)
+				{
+					cells[xRange[i], yRange[j]].SetParticle(boxType, new Vector2(0.0f, 0.0f));
+					gridTexture.SetPixel(xRange[i], yRange[j], Colour[(int)boxType]);
+				}
 			}
 		}
 	}
@@ -548,26 +566,7 @@ public class GameGrid : MonoBehaviour
 	public Particle SearchCollided(Particle current, int x, int y)
 	{
 		Particle newP;
-		if ((current.x + x) < 0)
-		{
-			newP = new Particle(width - 1, current.y + y, cells[width - 1, current.y + y].particleType);
-		}
-		else if (current.x + x >= width)
-		{
-			newP = new Particle(0, current.y + y, cells[0, current.y + y].particleType);
-		}
-		else if ((current.y + y) >= height)
-		{
-			newP = new Particle(current.x + x, 0, cells[current.x + x, 0].particleType);
-		}
-		else if ((current.y + y) < 0)
-		{
-			newP = new Particle(current.x + x, (height - 1), cells[current.x + x, (height - 1)].particleType);
-		}
-		else
-		{
-			newP = new Particle(current.x + x, current.y + y, cells[current.x + x, current.y + y].particleType);
-		}
+		newP = new Particle(CheckRange(current.x + x, width), CheckRange(current.y + y, height), cells[CheckRange(current.x + x, width), CheckRange(current.y + y, height)].particleType);
 		return newP;
 	}
 
