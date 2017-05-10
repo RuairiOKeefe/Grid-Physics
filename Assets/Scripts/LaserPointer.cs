@@ -8,8 +8,11 @@ public class LaserPointer : MonoBehaviour
     public GameObject pointObject;
     public GameObject invCylinder;
 
+    public bool spray;
+
     private SteamVR_TrackedObject tracked;
     private GameObject laser;
+    private GameObject point;
     private Transform laserTransform;
     private Vector3 hitpoint;
     private bool troo;
@@ -34,6 +37,9 @@ public class LaserPointer : MonoBehaviour
         laserTransform.position = Vector3.Lerp(tracked.transform.position, hitpoint, 0.5f);
         laserTransform.LookAt(hitpoint);
         laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, hit.distance);
+
+        point.transform.position = hitpoint;
+        //point.transform.LookAt(tracked.transform.position);
     }
     private void ShowLaser()
     {
@@ -45,6 +51,22 @@ public class LaserPointer : MonoBehaviour
         laserTransform = laser.transform;
         laser.SetActive(false);
 
+        point = Instantiate(pointObject);
+
+        spray = false;
+
+    }
+
+    public void changeState (string value)
+    {
+        if(value == "spray")
+        {
+            spray = true;
+        }
+        else if(value == "single")
+        {
+            spray = false;
+        }
     }
 
     // Update is called once per frame
@@ -79,10 +101,14 @@ public class LaserPointer : MonoBehaviour
         if (mode == 1)
         {
             //Control.TriggerHapticPulse(500);
-            if (Physics.Raycast(tracked.transform.position, transform.forward, out hit, 1000))
+            if (Physics.Raycast(tracked.transform.position, transform.forward, out hit, 1000) && !spray)
             {
                 invCylinder.GetComponent<GameGrid>().CreateParticle(hit.textureCoord.x, hit.textureCoord.y);
                 
+            }
+            else if (Physics.Raycast(tracked.transform.position, transform.forward, out hit, 1000) && spray)
+            {
+                invCylinder.GetComponent<GameGrid>().SprayParticles(hit.textureCoord.x, hit.textureCoord.y);
             }
         }
     }
